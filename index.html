@@ -32,14 +32,19 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--paper); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
 
+  /* Session check splash (avoids auth-screen flash while we verify a saved session) */
+  #session-check { position: fixed; inset: 0; background: var(--paper); display: flex; align-items: center; justify-content: center; z-index: 999; color: var(--muted); font-size: 14px; }
+
   /* Auth Screen */
-  #auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  #auth-screen { min-height: 100vh; display: none; align-items: center; justify-content: center; padding: 20px; }
+  #auth-screen.visible { display: flex; }
   .auth-card { background: var(--card); border-radius: var(--radius); padding: 32px; width: 100%; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
   .field input, .field textarea, .field select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; background: #FFF; }
   .btn { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; }
   .btn.secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+  .btn.danger { background: transparent; color: #B3261E; border: 1px solid #B3261E; }
 
   /* App Shell */
   #app-screen { display: none; min-height: 100vh; flex-direction: column; }
@@ -57,7 +62,8 @@
   /* Feed Card Layout */
   .feed-post { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
   .feed-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; flex-shrink: 0; }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
   .feed-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: 8px; margin-top: 10px; }
 
   /* WhatsApp Style Chat List */
@@ -71,9 +77,29 @@
   .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 100; padding: 16px; }
   .modal.open { display: flex; }
   .modal-card { background: var(--card); padding: 20px; border-radius: var(--radius); width: 100%; max-width: 450px; }
+
+  /* Team directory */
+  .team-card { display: flex; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
+  .team-card .avatar { width: 52px; height: 52px; font-size: 18px; }
+  .team-card .name { font-weight: 700; }
+  .team-card .role { font-size: 13px; color: var(--accent); font-weight: 600; margin-top: 2px; }
+  .team-card .bio { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .team-card .contact { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .team-search { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; margin-bottom: 14px; background: #fff; }
+
+  /* Settings / profile form */
+  .settings-section { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+  .settings-section h4 { margin-top: 0; }
+  .prefix-row { display: flex; gap: 8px; }
+  .prefix-row select { max-width: 110px; flex-shrink: 0; }
+  .photo-preview-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .photo-preview-row .avatar { width: 56px; height: 56px; font-size: 20px; }
 </style>
 </head>
 <body>
+
+<!-- SESSION CHECK SPLASH -->
+<div id="session-check">Checking your session…</div>
 
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
@@ -115,6 +141,7 @@
   <nav class="tabstrip">
     <button class="active" onclick="switchTab('feed')">Main Feed</button>
     <button onclick="switchTab('chats')">Chats</button>
+    <button onclick="switchTab('team')">Team</button>
     <button onclick="switchTab('documents')">Documents</button>
     <button onclick="switchTab('notifications')">Notifications</button>
     <button onclick="switchTab('settings')">Settings</button>
@@ -158,6 +185,13 @@
       </div>
     </div>
 
+    <!-- TEAM DIRECTORY TAB -->
+    <div id="tab-team" class="panel">
+      <h3 style="margin-top:0">Team Directory</h3>
+      <input type="text" class="team-search" id="team-search" placeholder="Search by name or position..." oninput="renderTeamList()">
+      <div id="team-list">Loading team members...</div>
+    </div>
+
     <!-- DOCUMENTS TAB -->
     <div id="tab-documents" class="panel">
       <h3>Uploaded Team Documents</h3>
@@ -173,17 +207,90 @@
 
     <!-- SETTINGS TAB -->
     <div id="tab-settings" class="panel">
-      <h3>App Settings</h3>
-      <div class="field">
-        <label>Personalize Theme</label>
+      <h3 style="margin-top:0">App Settings</h3>
+
+      <div class="settings-section">
+        <h4>Theme</h4>
         <select onchange="applyTheme(this.value)">
           <option value="teal">Default Teal</option>
           <option value="forest">Forest Green</option>
           <option value="sunset">Sunset Warm</option>
           <option value="midnight">Midnight Dark</option>
         </select>
+        <div style="margin-top:12px;">
+          <button class="btn secondary" onclick="requestNotificationPermission()">Enable Mobile Live Notifications</button>
+        </div>
       </div>
-      <button class="btn secondary" onclick="requestNotificationPermission()">Enable Mobile Live Notifications</button>
+
+      <div class="settings-section">
+        <h4>Profile Setup</h4>
+        <div id="settings-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+        <div id="settings-success" style="color:var(--job); font-size:13px; display:none; margin-bottom:10px;"></div>
+
+        <div class="photo-preview-row">
+          <div class="avatar" id="settings-avatar-preview"></div>
+          <div style="flex:1">
+            <label style="font-size:13px; color:var(--muted); display:block; margin-bottom:4px;">Profile Picture</label>
+            <input type="file" id="settings-photo" accept="image/*" onchange="previewSettingsPhoto(event)">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Name Prefix &amp; Preferred Name</label>
+          <div class="prefix-row">
+            <select id="settings-prefix">
+              <option value="">—</option>
+              <option value="Mr.">Mr.</option>
+              <option value="Mrs.">Mrs.</option>
+              <option value="Ms.">Ms.</option>
+              <option value="Dr.">Dr.</option>
+            </select>
+            <input type="text" id="settings-preferred-name" placeholder="Preferred name shown to the team">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="settings-full-name">
+        </div>
+
+        <div class="field">
+          <label>Gender</label>
+          <select id="settings-gender">
+            <option value="">Prefer not to say</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Bio / Intro</label>
+          <textarea id="settings-bio" rows="3" placeholder="A short intro about yourself"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Current Position (UAF Team)</label>
+          <input type="text" id="settings-position" placeholder="e.g. Program Coordinator">
+        </div>
+
+        <div class="field">
+          <label>Past Positions</label>
+          <textarea id="settings-past-positions" rows="2" placeholder="e.g. Volunteer (2022–2023), Field Officer (2023–2024)"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Phone</label>
+          <input type="text" id="settings-phone">
+        </div>
+
+        <button class="btn" onclick="saveProfileSettings()">Save Profile</button>
+      </div>
+
+      <div class="settings-section">
+        <h4>Account</h4>
+        <button class="btn danger" onclick="logoutUser()">Log Out</button>
+      </div>
     </div>
   </main>
 </div>
@@ -209,17 +316,65 @@
   let currentUser = null;
   let activeChannelId = 'team';
   let isSignupMode = false;
+  let allTeamProfiles = [];
+  let pendingSettingsPhotoBase64 = null; // set when the user picks a new profile photo
+  const SESSION_KEY = 'uaf_session'; // { email, token } saved in localStorage for "stay signed in"
+
+  // ---------- SESSION / PERSISTENT LOGIN ----------
+
+  function saveSession(email, token) {
+    try { localStorage.setItem(SESSION_KEY, JSON.stringify({ email, token })); } catch (e) {}
+  }
+  function clearSession() {
+    try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+  }
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch (e) { return null; }
+  }
+
+  async function tryAutoLogin() {
+    const session = getSession();
+    if (!session || !session.email || !session.token) return false;
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'validateSession', email: session.email, token: session.token })
+      }).then(r => r.json());
+      if (res.success) {
+        currentUser = res.profile;
+        return true;
+      }
+    } catch (err) {
+      // Network hiccup — fall through and let the person log in manually rather than
+      // getting stuck; the saved session stays put so we can retry next load.
+      return 'network-error';
+    }
+    clearSession();
+    return false;
+  }
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    const result = await tryAutoLogin();
+    document.getElementById('session-check').style.display = 'none';
+    if (result === true) {
+      enterApp();
+    } else {
+      document.getElementById('auth-screen').classList.add('visible');
+    }
+  });
+
+  // ---------- AUTH ----------
 
   function toggleAuthMode(e) {
-  e.preventDefault();
-  isSignupMode = !isSignupMode;
-  document.getElementById('name-field').style.display = isSignupMode ? 'block' : 'none';
-  document.getElementById('code-field').style.display = isSignupMode ? 'block' : 'none';
-  document.getElementById('auth-title').innerText = isSignupMode ? 'Create Account' : 'UAF Team Network';
-  document.getElementById('auth-submit').innerText = isSignupMode ? 'Sign Up' : 'Sign In';
-  document.getElementById('auth-toggle').innerText = isSignupMode ? 'Already have an account? Sign in' : 'Need an account? Sign up';
-  document.getElementById('auth-error').style.display = 'none';
-}
+    e.preventDefault();
+    isSignupMode = !isSignupMode;
+    document.getElementById('name-field').style.display = isSignupMode ? 'block' : 'none';
+    document.getElementById('code-field').style.display = isSignupMode ? 'block' : 'none';
+    document.getElementById('auth-title').innerText = isSignupMode ? 'Create Account' : 'UAF Team Network';
+    document.getElementById('auth-submit').innerText = isSignupMode ? 'Sign Up' : 'Sign In';
+    document.getElementById('auth-toggle').innerText = isSignupMode ? 'Already have an account? Sign in' : 'Need an account? Sign up';
+    document.getElementById('auth-error').style.display = 'none';
+  }
 
   async function submitAuth() {
     const email = document.getElementById('auth-email').value;
@@ -236,11 +391,8 @@
       const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
       if (res.success) {
         currentUser = res.profile || { email, name: document.getElementById('auth-name').value };
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('app-screen').style.display = 'flex';
-        document.getElementById('user-display').innerText = currentUser.name;
-        loadFeed();
-        loadChats();
+        if (res.sessionToken) saveSession(email, res.sessionToken);
+        enterApp();
       } else {
         document.getElementById('auth-error').innerText = res.error || 'Authentication failed';
         document.getElementById('auth-error').style.display = 'block';
@@ -251,16 +403,50 @@
     }
   }
 
+  function enterApp() {
+    document.getElementById('auth-screen').classList.remove('visible');
+    document.getElementById('app-screen').style.display = 'flex';
+    document.getElementById('user-display').innerText = currentUser.displayName || currentUser.name;
+    loadFeed();
+    loadChats();
+  }
+
+  async function logoutUser() {
+    const email = currentUser ? currentUser.email : (getSession() || {}).email;
+    if (email) {
+      try {
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'logout', email }) });
+      } catch (e) {
+        // Even if the network call fails, still clear the local session below so the
+        // device stops trying to auto sign in.
+      }
+    }
+    clearSession();
+    currentUser = null;
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('auth-email').value = '';
+    document.getElementById('auth-pass').value = '';
+    if (isSignupMode) toggleAuthMode({ preventDefault(){} });
+    document.getElementById('auth-screen').classList.add('visible');
+  }
+
+  // ---------- TABS ----------
+
   function switchTab(tabName) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('nav.tabstrip button').forEach(b => b.classList.remove('active'));
     document.getElementById(`tab-${tabName}`).classList.add('active');
+    Array.from(document.querySelectorAll('nav.tabstrip button')).find(b => b.getAttribute('onclick') === `switchTab('${tabName}')`)?.classList.add('active');
 
     if (tabName === 'feed') loadFeed();
     if (tabName === 'chats') loadChats();
+    if (tabName === 'team') loadTeam();
     if (tabName === 'documents') loadDocuments();
     if (tabName === 'notifications') loadNotifications();
+    if (tabName === 'settings') loadSettingsForm();
   }
+
+  // ---------- FEED ----------
 
   async function loadFeed() {
     const data = await fetch(`${SCRIPT_URL}?action=feedPosts`).then(r => r.json());
@@ -280,6 +466,31 @@
       </div>
     `).join('');
   }
+
+  async function submitTeamUpdate() {
+    const text = document.getElementById('post-text').value;
+    if (!text) return;
+    const fileInput = document.getElementById('post-photo');
+    let imageUrl = '';
+    if (fileInput.files && fileInput.files[0]) {
+      const base64 = await fileToBase64(fileInput.files[0]);
+      const uploadRes = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'uploadFile', base64Data: base64, fileName: fileInput.files[0].name, mimeType: fileInput.files[0].type })
+      }).then(r => r.json());
+      if (uploadRes.success) imageUrl = uploadRes.directUrl;
+    }
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'createTeamUpdate', authorEmail: currentUser.email, authorName: currentUser.displayName || currentUser.name, text, imageUrl })
+    });
+    document.getElementById('post-text').value = '';
+    fileInput.value = '';
+    closeModal('update-modal');
+    loadFeed();
+  }
+
+  // ---------- CHATS ----------
 
   async function loadChats() {
     const channels = await fetch(`${SCRIPT_URL}?action=channels&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
@@ -315,7 +526,7 @@
     const input = document.getElementById('chat-input');
     await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'postMessage', channelId: activeChannelId, email: currentUser.email, name: currentUser.name, text: input.value })
+      body: JSON.stringify({ action: 'postMessage', channelId: activeChannelId, email: currentUser.email, name: currentUser.displayName || currentUser.name, text: input.value })
     });
     input.value = '';
     loadMessages();
@@ -328,6 +539,131 @@
   function startCallFromChat() {
     startCall(`uaf-room-${activeChannelId}`);
   }
+
+  // ---------- TEAM DIRECTORY ----------
+
+  async function loadTeam() {
+    document.getElementById('team-list').innerText = 'Loading team members...';
+    allTeamProfiles = await fetch(`${SCRIPT_URL}?action=profiles`).then(r => r.json());
+    renderTeamList();
+  }
+
+  function renderTeamList() {
+    const q = (document.getElementById('team-search').value || '').toLowerCase().trim();
+    const filtered = allTeamProfiles.filter(p => {
+      if (!q) return true;
+      const haystack = `${p.displayName || p.name} ${p.currentPosition || ''} ${p.bio || ''}`.toLowerCase();
+      return haystack.includes(q);
+    });
+    const container = document.getElementById('team-list');
+    if (!filtered.length) {
+      container.innerHTML = `<p style="color:var(--muted)">No team members match your search.</p>`;
+      return;
+    }
+    container.innerHTML = filtered.map(p => `
+      <div class="team-card">
+        <div class="avatar">${p.photoUrl ? `<img src="${p.photoUrl}">` : (p.displayName || p.name || 'U')[0]}</div>
+        <div style="flex:1">
+          <div class="name">${p.displayName || p.name}</div>
+          ${p.currentPosition ? `<div class="role">${p.currentPosition}</div>` : ''}
+          ${p.bio ? `<div class="bio">${p.bio}</div>` : ''}
+          ${p.pastPositions ? `<div class="contact">Past: ${p.pastPositions}</div>` : ''}
+          ${p.phone ? `<div class="contact">📞 ${p.phone}</div>` : ''}
+          <div class="contact">✉️ ${p.email}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ---------- SETTINGS / PROFILE SETUP ----------
+
+  function loadSettingsForm() {
+    if (!currentUser) return;
+    document.getElementById('settings-error').style.display = 'none';
+    document.getElementById('settings-success').style.display = 'none';
+    document.getElementById('settings-prefix').value = currentUser.prefix || '';
+    document.getElementById('settings-preferred-name').value = currentUser.preferredName || '';
+    document.getElementById('settings-full-name').value = currentUser.name || '';
+    document.getElementById('settings-gender').value = currentUser.gender || '';
+    document.getElementById('settings-bio').value = currentUser.bio || '';
+    document.getElementById('settings-position').value = currentUser.currentPosition || '';
+    document.getElementById('settings-past-positions').value = currentUser.pastPositions || '';
+    document.getElementById('settings-phone').value = currentUser.phone || '';
+    pendingSettingsPhotoBase64 = null;
+    const preview = document.getElementById('settings-avatar-preview');
+    preview.innerHTML = currentUser.photoUrl ? `<img src="${currentUser.photoUrl}">` : (currentUser.displayName || currentUser.name || 'U')[0];
+  }
+
+  async function previewSettingsPhoto(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    pendingSettingsPhotoBase64 = await fileToBase64(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      document.getElementById('settings-avatar-preview').innerHTML = `<img src="${reader.result}">`;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function saveProfileSettings() {
+    const errorEl = document.getElementById('settings-error');
+    const successEl = document.getElementById('settings-success');
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+
+    let photoUrl = currentUser.photoUrl || '';
+    const fileInput = document.getElementById('settings-photo');
+    try {
+      if (fileInput.files && fileInput.files[0]) {
+        const uploadRes = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'uploadFile', base64Data: pendingSettingsPhotoBase64, fileName: fileInput.files[0].name, mimeType: fileInput.files[0].type })
+        }).then(r => r.json());
+        if (uploadRes.success) photoUrl = uploadRes.directUrl;
+        else { errorEl.innerText = uploadRes.error || 'Photo upload failed'; errorEl.style.display = 'block'; return; }
+      }
+
+      const payload = {
+        action: 'updateProfile',
+        email: currentUser.email,
+        name: document.getElementById('settings-full-name').value,
+        bio: document.getElementById('settings-bio').value,
+        photoUrl,
+        phone: document.getElementById('settings-phone').value,
+        currentPosition: document.getElementById('settings-position').value,
+        pastPositions: document.getElementById('settings-past-positions').value,
+        prefix: document.getElementById('settings-prefix').value,
+        gender: document.getElementById('settings-gender').value,
+        preferredName: document.getElementById('settings-preferred-name').value
+      };
+
+      const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+      if (res.success) {
+        currentUser = { ...currentUser, ...payload, displayName: res.displayName };
+        document.getElementById('user-display').innerText = currentUser.displayName || currentUser.name;
+        fileInput.value = '';
+        successEl.innerText = 'Profile saved.';
+        successEl.style.display = 'block';
+      } else {
+        errorEl.innerText = res.error || 'Could not save profile';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.innerText = 'Network error: ' + err.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  // ---------- MISC ----------
 
   function applyTheme(theme) {
     document.body.setAttribute('data-theme', theme);
