@@ -359,6 +359,7 @@
         <button class="btn danger" onclick="logoutUser()">Log Out</button>
       </div>
     </div>
+    
           <div class="settings-section">
         <h4>Other UAF Services</h4>
         <div style="display:flex; flex-direction:column; gap:8px;">
@@ -619,7 +620,37 @@
     if (isSignupMode) toggleAuthMode({ preventDefault(){} });
     document.getElementById('auth-screen').classList.add('visible');
   }
+async function submitDeleteAccount() {
+  const pwInput = document.getElementById('delete-account-password');
+  const errorEl = document.getElementById('delete-account-error');
+  errorEl.style.display = 'none';
+  const password = pwInput.value;
+  if (!password) { errorEl.innerText = 'Please enter your password.'; errorEl.style.display = 'block'; return; }
+  if (!confirm('Are you absolutely sure? This permanently deletes your account.')) return;
 
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'deleteAccount', email: currentUser.email, password })
+    }).then(r => r.json());
+    if (res.success) {
+      clearSession();
+      currentUser = null;
+      closeModal('delete-account-modal');
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('auth-screen').classList.add('visible');
+      alert('Your account has been deleted.');
+    } else {
+      errorEl.innerText = res.error || 'Could not delete your account.';
+      errorEl.style.display = 'block';
+    }
+  } catch (err) {
+    errorEl.innerText = 'Network error: ' + err.message;
+    errorEl.style.display = 'block';
+  } finally {
+    pwInput.value = '';
+  }
+}
   // ---------- TABS ----------
 
   function switchTab(tabName) {
