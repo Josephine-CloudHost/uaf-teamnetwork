@@ -1,31 +1,27 @@
-self.addEventListener('push', function(event) {
-  const data = event.data ? event.data.json() : {};
-  const title = data.title || "UAF Team Network Alert";
-  const options = {
-    body: data.body || "New event or message received.",
-    icon: "icon-192.png",
-    badge: "icon-192.png",
-    data: {
-      targetTab: data.targetTab || 'feed',
-      targetId: data.targetId || ''
-    }
-  };
+importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
-  event.waitUntil(self.registration.showNotification(title, options));
+// Initialize Firebase inside the Service Worker
+firebase.initializeApp({
+  apiKey: "AIzaSyD3IhrkjB-cRzYZVBscwkYehPd0VS00YFw",
+  authDomain: "uaf-team-network.firebaseapp.com",
+  projectId: "uaf-team-network",
+  storageBucket: "uaf-team-network.firebasestorage.app",
+  messagingSenderId: "936656734962",
+  appId: "1:936656734962:web:84267c3b78809822bade6b",
+  measurementId: "G-9CNP5RP4Y1"
 });
 
-self.addEventListener('notificationclick', function(event) {
-  event.notification.close();
-  event.waitUntil(
-    clients.matchAll({ type: 'window' }).then(windowClients => {
-      for (let client of windowClients) {
-        if (client.url && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow('/');
-      }
-    })
-  );
+const messaging = firebase.messaging();
+
+// Handle background notifications
+messaging.onBackgroundMessage((payload) => {
+  const notificationTitle = payload.notification?.title || "UAF Team Network Alert";
+  const notificationOptions = {
+    body: payload.notification?.body || "New message received.",
+    icon: "/icon-192.png",
+    data: payload.data || {}
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
