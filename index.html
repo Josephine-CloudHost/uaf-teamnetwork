@@ -31,7 +31,7 @@
 
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--paper); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-  
+
   /* Auth Screen */
   #auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
   .auth-card { background: var(--card); border-radius: var(--radius); padding: 32px; width: 100%; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
@@ -40,33 +40,33 @@
   .field input, .field textarea, .field select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; background: #FFF; }
   .btn { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; }
   .btn.secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
-  
+
   /* App Shell */
   #app-screen { display: none; min-height: 100vh; flex-direction: column; }
   header.topbar { background: var(--primary-dark); color: #FFF; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
   header.topbar .brand { font-size: 18px; font-weight: 700; }
-  
-  nav.tabstrip { background: var(--primary); display: flex; overflow-x: auto; padding: 0 8px; sticky; top: 0; z-index: 10; }
+
+  nav.tabstrip { background: var(--primary); display: flex; overflow-x: auto; padding: 0 8px; position: sticky; top: 0; z-index: 10; }
   nav.tabstrip button { background: none; border: none; color: rgba(255,255,255,0.7); padding: 12px 16px; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
   nav.tabstrip button.active { color: #FFF; border-bottom-color: var(--accent); }
-  
+
   main { max-width: 700px; width: 100%; margin: 0 auto; padding: 16px 12px 60px; }
   .panel { display: none; }
   .panel.active { display: block; }
-  
+
   /* Feed Card Layout */
   .feed-post { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
   .feed-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
   .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
   .feed-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: 8px; margin-top: 10px; }
-  
+
   /* WhatsApp Style Chat List */
   .chat-list-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--card); border-bottom: 1px solid var(--line); cursor: pointer; border-radius: 8px; margin-bottom: 4px; }
   .chat-list-item:hover { background: var(--accent-soft); }
-  
+
   /* Floating Call Bar */
   .call-banner { background: var(--job); color: #FFF; padding: 10px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-  
+
   /* Modals */
   .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 100; padding: 16px; }
   .modal.open { display: flex; }
@@ -80,7 +80,7 @@
   <div class="auth-card">
     <h2 id="auth-title" style="margin-top:0">UAF Team Network</h2>
     <div id="auth-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
-    
+
     <div class="field" id="name-field" style="display:none">
       <label>Full Name</label>
       <input type="text" id="auth-name" placeholder="John Doe">
@@ -97,7 +97,7 @@
       <label>Team Access Code</label>
       <input type="text" id="auth-code">
     </div>
-    
+
     <button class="btn" id="auth-submit" onclick="submitAuth()">Sign In</button>
     <p style="text-align:center; font-size:13px; margin-top:12px">
       <a href="#" id="auth-toggle" onclick="toggleAuthMode(event)">Need an account? Sign up</a>
@@ -111,7 +111,7 @@
     <div class="brand">UAF Team Network</div>
     <div id="user-display" style="font-size:13px"></div>
   </header>
-  
+
   <nav class="tabstrip">
     <button class="active" onclick="switchTab('feed')">Main Feed</button>
     <button onclick="switchTab('chats')">Chats</button>
@@ -140,7 +140,7 @@
         <button class="btn secondary" style="width:auto; padding:4px 10px; font-size:12px;" onclick="openModal('group-modal')">+ Create Group</button>
       </div>
       <div id="chats-list">Loading chats...</div>
-      
+
       <!-- Active Chat View Sub-panel -->
       <div id="chat-window" style="display:none; margin-top:16px; background:#fff; padding:12px; border-radius:12px; border:1px solid var(--line)">
         <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:8px;">
@@ -205,7 +205,7 @@
 </div>
 
 <script>
-  let SCRIPT_URL = ''; // Apps script deployment URL
+  let SCRIPT_URL = ''; // Apps script deployment URL — make sure this is set!
   let currentUser = null;
   let activeChannelId = 'team';
   let isSignupMode = false;
@@ -225,21 +225,26 @@
     const action = isSignupMode ? 'signup' : 'login';
     const payload = { action, email, password };
 
-    if(isSignupMode) {
+    if (isSignupMode) {
       payload.name = document.getElementById('auth-name').value;
       payload.teamCode = document.getElementById('auth-code').value;
     }
 
-    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r=>r.json());
-    if(res.success) {
-      currentUser = res.profile || { email, name: document.getElementById('auth-name').value };
-      document.getElementById('auth-screen').style.display = 'none';
-      document.getElementById('app-screen').style.display = 'flex';
-      document.getElementById('user-display').innerText = currentUser.name;
-      loadFeed();
-      loadChats();
-    } else {
-      document.getElementById('auth-error').innerText = res.error || 'Authentication failed';
+    try {
+      const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+      if (res.success) {
+        currentUser = res.profile || { email, name: document.getElementById('auth-name').value };
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-screen').style.display = 'flex';
+        document.getElementById('user-display').innerText = currentUser.name;
+        loadFeed();
+        loadChats();
+      } else {
+        document.getElementById('auth-error').innerText = res.error || 'Authentication failed';
+        document.getElementById('auth-error').style.display = 'block';
+      }
+    } catch (err) {
+      document.getElementById('auth-error').innerText = 'Network error: ' + err.message;
       document.getElementById('auth-error').style.display = 'block';
     }
   }
@@ -248,15 +253,15 @@
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('nav.tabstrip button').forEach(b => b.classList.remove('active'));
     document.getElementById(`tab-${tabName}`).classList.add('active');
-    
-    if(tabName === 'feed') loadFeed();
-    if(tabName === 'chats') loadChats();
-    if(tabName === 'documents') loadDocuments();
-    if(tabName === 'notifications') loadNotifications();
+
+    if (tabName === 'feed') loadFeed();
+    if (tabName === 'chats') loadChats();
+    if (tabName === 'documents') loadDocuments();
+    if (tabName === 'notifications') loadNotifications();
   }
 
   async function loadFeed() {
-    const data = await fetch(`${SCRIPT_URL}?action=feedPosts`).then(r=>r.json());
+    const data = await fetch(`${SCRIPT_URL}?action=feedPosts`).then(r => r.json());
     const container = document.getElementById('feed-container');
     container.innerHTML = data.map(item => `
       <div class="feed-post">
@@ -275,7 +280,7 @@
   }
 
   async function loadChats() {
-    const channels = await fetch(`${SCRIPT_URL}?action=channels&email=${encodeURIComponent(currentUser.email)}`).then(r=>r.json());
+    const channels = await fetch(`${SCRIPT_URL}?action=channels&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
     const container = document.getElementById('chats-list');
     container.innerHTML = channels.map(c => `
       <div class="chat-list-item" onclick="openChat('${c.channelId}', '${c.name || 'Direct Message'}')">
@@ -296,7 +301,7 @@
   }
 
   async function loadMessages() {
-    const msgs = await fetch(`${SCRIPT_URL}?action=messages&channelId=${activeChannelId}&email=${encodeURIComponent(currentUser.email)}`).then(r=>r.json());
+    const msgs = await fetch(`${SCRIPT_URL}?action=messages&channelId=${activeChannelId}&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
     document.getElementById('chat-messages').innerHTML = msgs.map(m => `
       <div style="margin-bottom:6px;">
         <strong>${m.name}:</strong> <span>${m.text}</span>
@@ -329,19 +334,18 @@
   function openModal(id) { document.getElementById(id).classList.add('open'); }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker registered successfully:', reg))
-            .catch(err => console.error('Service Worker registration failed:', err));
-        });
-      }
+  function requestNotificationPermission() {
+    if (!('Notification' in window)) return;
+    Notification.requestPermission();
+  }
+</script>
+
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
 
 <script>
-  // 1. Initialize Firebase
+  // Initialize Firebase (foreground)
   const firebaseConfig = {
     apiKey: "AIzaSyD3IhrkjB-cRzYZVBscwkYehPd0VS00YFw",
     authDomain: "uaf-team-network.firebaseapp.com",
@@ -351,45 +355,47 @@
     appId: "1:936656734962:web:84267c3b78809822bade6b",
     measurementId: "G-9CNP5RP4Y1"
   };
-  
+
   firebase.initializeApp(firebaseConfig);
   const messaging = firebase.messaging();
 
-  // 2. Register Service Worker and Get FCM Token
+  // Register the service worker ONCE, then request an FCM token
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
-        return messaging.getToken({
-          serviceWorkerRegistration: registration,
-          vapidKey: "BPtNEi2LLScmy1ZXUKAKw9lWeim7rFRqgv7CMstgFYuBpfSYT8pNoD32vJONWaM9xPyPb84mg154-ATIIYSyBGE"
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('Service Worker registered successfully:', registration);
+          return messaging.getToken({
+            serviceWorkerRegistration: registration,
+            vapidKey: "BPtNEi2LLScmy1ZXUKAKw9lWeim7rFRqgv7CMstgFYuBpfSYT8pNoD32vJONWaM9xPyPb84mg154-ATIIYSyBGE"
+          });
+        })
+        .then((currentToken) => {
+          if (currentToken) {
+            console.log("Device FCM Token:", currentToken);
+            saveTokenToBackend(currentToken);
+          } else {
+            console.log("No registration token available. Request permission first.");
+          }
+        })
+        .catch((err) => {
+          console.error("Service Worker / FCM token error:", err);
         });
-      })
-      .then((currentToken) => {
-        if (currentToken) {
-          console.log("Device FCM Token:", currentToken);
-          // Send this token to Google Apps Script backend to save it
-          saveTokenToBackend(currentToken);
-        } else {
-          console.log("No registration token available. Request permission to generate one.");
-        }
-      })
-      .catch((err) => {
-        console.error("An error occurred while retrieving token. ", err);
-      });
-  }
-
-  // 3. Optional: Save token to Apps Script
-  function saveTokenToBackend(token) {
-    // Replace with your Google Apps Script Web App URL if saving tokens
-    fetch('https://script.google.com/macros/s/AKfycbz8tNmQ5qfonn-vQ0HO-2vf282d6bsFicOaZr2SOZWGp9-j-08wm6Pgvnhd87NoXxTP/exec', {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: token, action: 'registerToken' })
     });
   }
+
+  function saveTokenToBackend(token) {
+    if (!SCRIPT_URL) return;
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'saveFcmToken',
+        email: currentUser ? currentUser.email : '',
+        token: token
+      })
+    }).catch(err => console.error('Failed to save FCM token:', err));
+  }
 </script>
-</script>
-  
+
 </body>
 </html>
