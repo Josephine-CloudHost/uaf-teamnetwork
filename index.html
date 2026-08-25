@@ -211,13 +211,15 @@
   let isSignupMode = false;
 
   function toggleAuthMode(e) {
-    e.preventDefault();
-    isSignupMode = !isSignupMode;
-    document.getElementById('name-field').style.display = isSignupMode ? 'block' : 'none';
-    document.getElementById('code-field').style.display = isSignupMode ? 'block' : 'none';
-    document.getElementById('auth-title').innerText = isSignupMode ? 'Create Account' : 'UAF Team Network';
-    document.getElementById('auth-submit').innerText = isSignupMode ? 'Sign Up' : 'Sign In';
-  }
+  e.preventDefault();
+  isSignupMode = !isSignupMode;
+  document.getElementById('name-field').style.display = isSignupMode ? 'block' : 'none';
+  document.getElementById('code-field').style.display = isSignupMode ? 'block' : 'none';
+  document.getElementById('auth-title').innerText = isSignupMode ? 'Create Account' : 'UAF Team Network';
+  document.getElementById('auth-submit').innerText = isSignupMode ? 'Sign Up' : 'Sign In';
+  document.getElementById('auth-toggle').innerText = isSignupMode ? 'Already have an account? Sign in' : 'Need an account? Sign up';
+  document.getElementById('auth-error').style.display = 'none';
+}
 
   async function submitAuth() {
     const email = document.getElementById('auth-email').value;
