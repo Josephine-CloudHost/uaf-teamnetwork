@@ -108,6 +108,24 @@
   /* Notifications tab */
   .notif-item { display: flex; gap: 10px; align-items: flex-start; }
   .notif-icon { font-size: 18px; flex-shrink: 0; }
+
+  /* Chat message bubbles.
+     Per spec: the signed-in user's own messages sit on the LEFT, everyone
+     else's sit on the RIGHT. Only the sender's UAF display name (prefix +
+     preferred name, e.g. "Mr. Torbor") is ever shown — never their full
+     account name — and only on the other person's side, since your own
+     bubble obviously doesn't need a name label. */
+  #chat-messages { display: flex; flex-direction: column; }
+  .msg-row { display: flex; margin-bottom: 10px; }
+  .msg-row.mine { justify-content: flex-start; }
+  .msg-row.other { justify-content: flex-end; }
+  .msg-bubble { max-width: 75%; padding: 8px 12px; border-radius: 14px; font-size: 14px; line-height: 1.4; word-break: break-word; }
+  .msg-row.mine .msg-bubble { background: var(--accent-soft); color: var(--ink); border-bottom-left-radius: 4px; }
+  .msg-row.other .msg-bubble { background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
+  .msg-sender { font-size: 11px; font-weight: 700; margin-bottom: 2px; opacity: 0.85; }
+  .msg-time { font-size: 10px; opacity: 0.65; margin-top: 3px; text-align: right; }
+  .msg-bubble audio { max-width: 220px; height: 32px; display: block; margin-top: 2px; }
+  #voice-btn.recording { background: #B3261E !important; color: #fff !important; border-color: #B3261E !important; }
 </style>
 </head>
 <body>
@@ -196,7 +214,8 @@
         </div>
         <div id="chat-messages" style="height:300px; overflow-y:auto; font-size:14px; margin-bottom:8px;"></div>
         <div style="display:flex; gap:6px;">
-          <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--line)">
+          <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--line)" onkeydown="if(event.key==='Enter') sendMessage();">
+          <button class="btn secondary" id="voice-btn" style="width:auto; padding:8px 10px; font-size:16px;" onclick="toggleVoiceRecording()" title="Record a voice message">🎤</button>
           <button class="btn" style="width:auto;" onclick="sendMessage()">Send</button>
         </div>
       </div>
@@ -339,10 +358,21 @@
   let activeChannelId = 'team';
   let isSignupMode = false;
   let allTeamProfiles = [];
+  // Maps email -> UAF display name (prefix + preferred name, falling back to full
+  // name only if neither is set). Chat bubbles read from this instead of trusting
+  // whatever "name" happened to be saved on the message row, so a sender's label
+  // always reflects their CURRENT profile, not stale data from when they first sent
+  // a message.
+  let profileNameMap = {};
   let pendingSettingsPhotoBase64 = null; // set when the user picks a new profile photo
   let pendingSettingsPhotoMime = null;
   const SESSION_KEY = 'uaf_session'; // { email, token } saved in localStorage for "stay signed in"
   const LAST_SEEN_NOTIF_KEY = 'uaf_last_seen_notif'; // ISO timestamp of the newest notification the user has viewed
+
+  // Voice message recording state
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let isRecording = false;
 
   // ---------- SESSION / PERSISTENT LOGIN ----------
 
@@ -432,6 +462,7 @@
     document.getElementById('app-screen').style.display = 'flex';
     document.getElementById('user-display').innerText = currentUser.displayName || currentUser.name;
     updateHeaderAvatar();
+    loadAllProfiles(); // populate profileNameMap before any chat gets opened
     loadFeed();
     loadChats();
     refreshNotifBadge();
@@ -537,6 +568,19 @@
 
   // ---------- CHATS ----------
 
+  // Fetches the full team profile list once so we always know each person's
+  // current UAF display name (prefix + preferred name) regardless of what was
+  // stored on an old message row.
+  async function loadAllProfiles() {
+    try {
+      allTeamProfiles = await fetch(`${SCRIPT_URL}?action=profiles`).then(r => r.json());
+      profileNameMap = {};
+      allTeamProfiles.forEach(p => { profileNameMap[p.email] = p.displayName || p.name; });
+    } catch (e) {
+      // Non-fatal — chat rendering falls back to the name stored on the message.
+    }
+  }
+
   async function loadChats() {
     const channels = await fetch(`${SCRIPT_URL}?action=channels&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
     const container = document.getElementById('chats-list');
@@ -558,23 +602,125 @@
     loadMessages();
   }
 
+  function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  // Renders one chat bubble. Own messages ("mine") sit on the left with no name
+  // label; everyone else's ("other") sit on the right, labeled with ONLY their
+  // UAF display name — never their raw account/full name.
+  function renderMessage(m) {
+    const isMine = currentUser && m.email === currentUser.email;
+    const senderLabel = profileNameMap[m.email] || m.name || 'Unknown';
+    const rowClass = isMine ? 'mine' : 'other';
+    const time = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const body = (m.type === 'voice' && m.link)
+      ? `<audio controls src="${m.link}"></audio>`
+      : `<span>${escapeHtml(m.text)}</span>`;
+    return `
+      <div class="msg-row ${rowClass}">
+        <div class="msg-bubble">
+          ${!isMine ? `<div class="msg-sender">${escapeHtml(senderLabel)}</div>` : ''}
+          ${body}
+          <div class="msg-time">${time}</div>
+        </div>
+      </div>
+    `;
+  }
+
   async function loadMessages() {
     const msgs = await fetch(`${SCRIPT_URL}?action=messages&channelId=${activeChannelId}&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
-    document.getElementById('chat-messages').innerHTML = msgs.map(m => `
-      <div style="margin-bottom:6px;">
-        <strong>${m.name}:</strong> <span>${m.text}</span>
-      </div>
-    `).join('');
+    const container = document.getElementById('chat-messages');
+    container.innerHTML = msgs.map(renderMessage).join('');
+    container.scrollTop = container.scrollHeight;
   }
 
   async function sendMessage() {
     const input = document.getElementById('chat-input');
+    if (!input.value.trim()) return;
     await fetch(SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'postMessage', channelId: activeChannelId, email: currentUser.email, name: currentUser.displayName || currentUser.name, text: input.value })
     });
     input.value = '';
     loadMessages();
+  }
+
+  // ---------- VOICE MESSAGES ----------
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  // Tap once to start recording (asks for mic permission the first time), tap
+  // again to stop — the recording is then uploaded and posted automatically.
+  async function toggleVoiceRecording() {
+    const btn = document.getElementById('voice-btn');
+    if (!isRecording) {
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        alert('Voice recording is not supported in this browser.');
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
+        mediaRecorder.onstop = async () => {
+          stream.getTracks().forEach(t => t.stop());
+          const blob = new Blob(audioChunks, { type: 'audio/webm' });
+          await sendVoiceMessage(blob);
+        };
+        mediaRecorder.start();
+        isRecording = true;
+        btn.innerText = '⏹';
+        btn.classList.add('recording');
+      } catch (err) {
+        alert('Could not access the microphone: ' + err.message);
+      }
+    } else {
+      mediaRecorder.stop();
+      isRecording = false;
+      btn.innerText = '🎤';
+      btn.classList.remove('recording');
+    }
+  }
+
+  async function sendVoiceMessage(blob) {
+    const btn = document.getElementById('voice-btn');
+    btn.disabled = true;
+    try {
+      const base64 = await blobToBase64(blob);
+      const uploadRes = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'uploadFile', base64Data: base64, fileName: `voice-${Date.now()}.webm`, mimeType: 'audio/webm' })
+      }).then(r => r.json());
+      if (!uploadRes.success) throw new Error(uploadRes.error || 'Upload failed');
+
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'postMessage',
+          channelId: activeChannelId,
+          email: currentUser.email,
+          name: currentUser.displayName || currentUser.name,
+          text: '',
+          type: 'voice',
+          link: uploadRes.directUrl
+        })
+      });
+      loadMessages();
+    } catch (err) {
+      alert('Could not send the voice message: ' + err.message);
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   // Opens the Jitsi call in a new tab AND tells the backend to push a
@@ -605,6 +751,8 @@
   async function loadTeam() {
     document.getElementById('team-list').innerText = 'Loading team members...';
     allTeamProfiles = await fetch(`${SCRIPT_URL}?action=profiles`).then(r => r.json());
+    profileNameMap = {};
+    allTeamProfiles.forEach(p => { profileNameMap[p.email] = p.displayName || p.name; });
     renderTeamList();
   }
 
@@ -865,6 +1013,8 @@
         currentUser = { ...currentUser, ...payload, displayName: res.displayName };
         document.getElementById('user-display').innerText = currentUser.displayName || currentUser.name;
         updateHeaderAvatar();
+        // Keep the chat name lookup in sync with the profile change we just made.
+        profileNameMap[currentUser.email] = currentUser.displayName;
         fileInput.value = '';
         pendingSettingsPhotoBase64 = null;
         pendingSettingsPhotoMime = null;
