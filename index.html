@@ -359,6 +359,20 @@
         <button class="btn danger" onclick="logoutUser()">Log Out</button>
       </div>
     </div>
+          <div class="settings-section">
+        <h4>Other UAF Services</h4>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <a href="https://josephine-cloudhost.github.io/uaf-task-manager-frontend/" target="_blank" class="btn secondary" style="text-decoration:none; text-align:center;">UAF Tasks Tracker</a>
+          <a href="https://tinyurl.com/uafsite" target="_blank" class="btn secondary" style="text-decoration:none; text-align:center;">UAF Blogsite</a>
+          <a href="https://web.facebook.com/profile.php?id=100094538285249" target="_blank" class="btn secondary" style="text-decoration:none; text-align:center;">UAF Facebook</a>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h4 style="color:#B3261E">Danger Zone</h4>
+        <p style="font-size:12px; color:var(--muted); margin-top:0;">Deleting your account removes your profile permanently and can't be undone.</p>
+        <button class="btn danger" onclick="openModal('delete-account-modal')">Delete Account</button>
+      </div>
   </main>
 </div>
 
@@ -433,7 +447,20 @@
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('group-settings-modal')">Close</button>
   </div>
 </div>
-
+<!-- DELETE ACCOUNT MODAL -->
+<div class="modal" id="delete-account-modal">
+  <div class="modal-card">
+    <h3 style="color:#B3261E">Delete Account</h3>
+    <p style="font-size:13px; color:var(--muted);">This permanently deletes your profile and removes you from all groups and direct messages. This cannot be undone.</p>
+    <div id="delete-account-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+    <div class="field">
+      <label>Confirm your password</label>
+      <input type="password" id="delete-account-password">
+    </div>
+    <button class="btn danger" onclick="submitDeleteAccount()">Permanently Delete My Account</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('delete-account-modal')">Cancel</button>
+  </div>
+</div>
 <script>
   let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8tNmQ5qfonn-vQ0HO-2vf282d6bsFicOaZr2SOZWGp9-j-08wm6Pgvnhd87NoXxTP/exec'; // Apps script deployment URL — make sure this is set!
   let currentUser = null;
