@@ -54,8 +54,9 @@
   #header-avatar { width: 32px; height: 32px; font-size: 13px; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.35); }
 
   nav.tabstrip { background: var(--primary); display: flex; overflow-x: auto; padding: 0 8px; position: sticky; top: 0; z-index: 10; }
-  nav.tabstrip button { background: none; border: none; color: rgba(255,255,255,0.7); padding: 12px 16px; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+  nav.tabstrip button { background: none; border: none; color: rgba(255,255,255,0.7); padding: 12px 16px; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; position: relative; }
   nav.tabstrip button.active { color: #FFF; border-bottom-color: var(--accent); }
+  nav.tabstrip button .badge { position: absolute; top: 6px; right: 4px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; border-radius: 999px; padding: 1px 5px; line-height: 1.4; }
 
   main { max-width: 700px; width: 100%; margin: 0 auto; padding: 16px 12px 60px; }
   .panel { display: none; }
@@ -103,6 +104,10 @@
   #profile-setup-details summary::after { content: '▾'; font-size: 13px; color: var(--muted); transition: transform 0.15s ease; }
   #profile-setup-details[open] summary::after { transform: rotate(180deg); }
   #profile-setup-details .profile-setup-body { margin-top: 14px; }
+
+  /* Notifications tab */
+  .notif-item { display: flex; gap: 10px; align-items: flex-start; }
+  .notif-icon { font-size: 18px; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -155,7 +160,7 @@
     <button onclick="switchTab('chats')">Chats</button>
     <button onclick="switchTab('team')">Team</button>
     <button onclick="switchTab('documents')">Documents</button>
-    <button onclick="switchTab('notifications')">Notifications</button>
+    <button onclick="switchTab('notifications')">Notifications<span class="badge" id="notif-badge" style="display:none"></span></button>
     <button onclick="switchTab('settings')">Settings</button>
   </nav>
 
@@ -172,7 +177,7 @@
     <div id="tab-chats" class="panel">
       <div class="call-banner">
         <span>Team Audio Conference</span>
-        <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="startCall('uaf-global-team-room')">Join Meeting</button>
+        <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="startCall('uaf-global-team-room','team','Team')">Join Meeting</button>
       </div>
       <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
         <h3 style="margin:0">Conversations</h3>
@@ -230,7 +235,8 @@
           <option value="midnight">Midnight Dark</option>
         </select>
         <div style="margin-top:12px;">
-          <button class="btn secondary" onclick="requestNotificationPermission()">Enable Mobile Live Notifications</button>
+          <button class="btn secondary" id="enable-notif-btn" onclick="requestNotificationPermission()">Enable Mobile Live Notifications</button>
+          <div id="notif-status" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
         </div>
       </div>
 
@@ -336,6 +342,7 @@
   let pendingSettingsPhotoBase64 = null; // set when the user picks a new profile photo
   let pendingSettingsPhotoMime = null;
   const SESSION_KEY = 'uaf_session'; // { email, token } saved in localStorage for "stay signed in"
+  const LAST_SEEN_NOTIF_KEY = 'uaf_last_seen_notif'; // ISO timestamp of the newest notification the user has viewed
 
   // ---------- SESSION / PERSISTENT LOGIN ----------
 
@@ -427,6 +434,15 @@
     updateHeaderAvatar();
     loadFeed();
     loadChats();
+    refreshNotifBadge();
+    // Poll for new notifications every 30s so the badge updates without a manual refresh.
+    setInterval(refreshNotifBadge, 30000);
+    // If permission was already granted on a previous visit, silently re-register
+    // for push (browsers don't re-ask, and the token can rotate).
+    if ('Notification' in window && Notification.permission === 'granted') {
+      registerPushNotifications();
+    }
+    updateNotifButtonState();
   }
 
   // Keeps the small circular avatar next to the logged-in name (top right) in sync
@@ -561,12 +577,27 @@
     loadMessages();
   }
 
-  function startCall(roomName) {
+  // Opens the Jitsi call in a new tab AND tells the backend to push a
+  // "so-and-so started a call" notification to the rest of the team, since
+  // Jitsi itself has no way to notify people who aren't already in the room.
+  function startCall(roomName, channelId, channelName) {
     window.open(`https://meet.jit.si/${roomName}`, '_blank');
+    if (!currentUser) return;
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'notifyCall',
+        email: currentUser.email,
+        name: currentUser.displayName || currentUser.name,
+        channelId: channelId || 'team',
+        channelName: channelName || ''
+      })
+    }).catch(() => {});
   }
 
   function startCallFromChat() {
-    startCall(`uaf-room-${activeChannelId}`);
+    const title = document.getElementById('chat-title').innerText;
+    startCall(`uaf-room-${activeChannelId}`, activeChannelId, title);
   }
 
   // ---------- TEAM DIRECTORY ----------
@@ -602,6 +633,126 @@
         </div>
       </div>
     `).join('');
+  }
+
+  // ---------- DOCUMENTS ----------
+
+  async function loadDocuments() {
+    const container = document.getElementById('doc-list');
+    container.innerHTML = 'Loading documents...';
+    try {
+      const docs = await fetch(`${SCRIPT_URL}?action=documents`).then(r => r.json());
+      if (!docs.length) {
+        container.innerHTML = `<p style="color:var(--muted)">No documents shared yet.</p>`;
+        return;
+      }
+      container.innerHTML = docs.slice().reverse().map(d => `
+        <div class="feed-post">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <strong style="word-break:break-word;">${d.fileName}</strong>
+            <a href="${d.fileUrl}" target="_blank" class="btn secondary" style="width:auto; padding:4px 10px; font-size:12px; flex-shrink:0;">Open</a>
+          </div>
+          ${d.description ? `<div style="font-size:13px; color:var(--muted); margin-top:6px;">${d.description}</div>` : ''}
+          ${d.isImage ? `<img src="${d.fileUrl}" class="feed-img">` : ''}
+          <div style="font-size:11px; color:var(--muted); margin-top:6px;">Shared by ${d.email} • ${new Date(d.timestamp).toLocaleString()}</div>
+        </div>
+      `).join('');
+    } catch (err) {
+      container.innerHTML = `<p style="color:red">Could not load documents: ${err.message}</p>`;
+    }
+  }
+
+  async function uploadDocument(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const statusId = 'doc-upload-status';
+    document.getElementById('doc-list').insertAdjacentHTML('afterbegin', `<p id="${statusId}" style="color:var(--muted)">Uploading ${file.name}...</p>`);
+    try {
+      const base64 = await fileToBase64(file);
+      const uploadRes = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'uploadFile', base64Data: base64, fileName: file.name, mimeType: file.type })
+      }).then(r => r.json());
+      if (!uploadRes.success) throw new Error(uploadRes.error || 'Upload failed');
+
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'addDocument',
+          email: currentUser.email,
+          fileName: file.name,
+          fileUrl: uploadRes.directUrl,
+          storageType: 'drive',
+          mimeType: file.type
+        })
+      });
+
+      event.target.value = '';
+      loadDocuments();
+    } catch (err) {
+      document.getElementById(statusId)?.remove();
+      alert('Document upload failed: ' + err.message);
+    }
+  }
+
+  // ---------- NOTIFICATIONS ----------
+
+  const NOTIF_ICONS = { profile: '👤', chat: '💬', group: '👥', document: '📄', feed: '📢', opportunity: '🎯', call: '📞' };
+
+  async function loadNotifications() {
+    const container = document.getElementById('notifications-list');
+    container.innerHTML = 'Loading notifications...';
+    try {
+      const data = await fetch(`${SCRIPT_URL}?action=notifications&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+      if (!data.length) {
+        container.innerHTML = `<p style="color:var(--muted)">No notifications yet.</p>`;
+      } else {
+        container.innerHTML = data.map(n => `
+          <div class="feed-post notif-item" style="cursor:pointer;" onclick="handleNotificationClick('${n.targetTab}', '${n.targetId}')">
+            <div class="notif-icon">${NOTIF_ICONS[n.type] || '🔔'}</div>
+            <div>
+              <div>${n.message}</div>
+              <div style="font-size:11px; color:var(--muted); margin-top:4px;">${new Date(n.timestamp).toLocaleString()}</div>
+            </div>
+          </div>
+        `).join('');
+        // Mark everything up to the newest notification as seen, so the badge clears.
+        try { localStorage.setItem(LAST_SEEN_NOTIF_KEY, new Date(data[0].timestamp).toISOString()); } catch (e) {}
+      }
+    } catch (err) {
+      container.innerHTML = `<p style="color:red">Could not load notifications: ${err.message}</p>`;
+    }
+    refreshNotifBadge();
+  }
+
+  function handleNotificationClick(targetTab, targetId) {
+    if (!targetTab) return;
+    switchTab(targetTab);
+    if (targetTab === 'chats' && targetId) {
+      openChat(targetId, targetId === 'team' ? 'Global Team Chat' : 'Chat');
+    }
+  }
+
+  // Lightweight unread badge — compares the newest notification's timestamp against
+  // the last time the person actually opened the Notifications tab.
+  async function refreshNotifBadge() {
+    if (!currentUser) return;
+    const badge = document.getElementById('notif-badge');
+    try {
+      const data = await fetch(`${SCRIPT_URL}?action=notifications&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+      if (!data.length) { badge.style.display = 'none'; return; }
+      let lastSeen = 0;
+      try { lastSeen = new Date(localStorage.getItem(LAST_SEEN_NOTIF_KEY) || 0).getTime(); } catch (e) {}
+      const unread = data.filter(n => new Date(n.timestamp).getTime() > lastSeen).length;
+      if (unread > 0) {
+        badge.innerText = unread > 9 ? '9+' : unread;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    } catch (err) {
+      // Silent — badge just won't update this cycle.
+    }
   }
 
   // ---------- SETTINGS / PROFILE SETUP ----------
@@ -743,9 +894,45 @@
   function openModal(id) { document.getElementById(id).classList.add('open'); }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-  function requestNotificationPermission() {
-    if (!('Notification' in window)) return;
-    Notification.requestPermission();
+  function updateNotifButtonState() {
+    const statusEl = document.getElementById('notif-status');
+    const btn = document.getElementById('enable-notif-btn');
+    if (!('Notification' in window)) {
+      statusEl.innerText = 'This browser does not support notifications.';
+      btn.disabled = true;
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      statusEl.innerText = 'Live notifications are enabled on this device.';
+    } else if (Notification.permission === 'denied') {
+      statusEl.innerText = 'Notifications are blocked for this site in your browser settings — you\'ll need to re-allow them there.';
+    } else {
+      statusEl.innerText = '';
+    }
+  }
+
+  // Requests permission, then registers the service worker and FCM token. This is
+  // the function the "Enable Mobile Live Notifications" button calls — previously
+  // it only asked for permission and never actually registered for push, so nothing
+  // happened even after the person tapped "Allow".
+  async function requestNotificationPermission() {
+    if (!('Notification' in window)) {
+      alert('This browser does not support notifications.');
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    updateNotifButtonState();
+    if (permission !== 'granted') {
+      alert('Notifications were not enabled. You can allow them later from your browser\'s site settings.');
+      return;
+    }
+    const result = await registerPushNotifications();
+    if (result.success) {
+      alert('Live notifications are enabled on this device.');
+    } else {
+      alert('Could not enable live notifications: ' + (result.error || 'unknown error'));
+    }
+    updateNotifButtonState();
   }
 </script>
 
@@ -768,38 +955,42 @@
   firebase.initializeApp(firebaseConfig);
   const messaging = firebase.messaging();
 
-  // Register the service worker ONCE, then request an FCM token
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
-          console.log('Service Worker registered successfully:', registration);
-          return messaging.getToken({
-            serviceWorkerRegistration: registration,
-            vapidKey: "BPtNEi2LLScmy1ZXUKAKw9lWeim7rFRqgv7CMstgFYuBpfSYT8pNoD32vJONWaM9xPyPb84mg154-ATIIYSyBGE"
-          });
-        })
-        .then((currentToken) => {
-          if (currentToken) {
-            console.log("Device FCM Token:", currentToken);
-            saveTokenToBackend(currentToken);
-          } else {
-            console.log("No registration token available. Request permission first.");
-          }
-        })
-        .catch((err) => {
-          console.error("Service Worker / FCM token error:", err);
-        });
-    });
+  // Registers the service worker and requests an FCM token, then saves the token to
+  // the backend. Only call this AFTER permission has actually been granted — calling
+  // messaging.getToken() beforehand silently fails, which was the reason "Enable
+  // Mobile Live Notifications" appeared to do nothing.
+  //
+  // NOTE: 'sw.js' is a relative path (not '/sw.js') so this also works when the app
+  // is served from a GitHub Pages project subpath (e.g. username.github.io/repo/) —
+  // an absolute '/sw.js' would 404 there because it looks in the wrong place.
+  async function registerPushNotifications() {
+    if (!('serviceWorker' in navigator)) {
+      return { success: false, error: 'Service workers are not supported in this browser.' };
+    }
+    try {
+      const registration = await navigator.serviceWorker.register('sw.js');
+      const currentToken = await messaging.getToken({
+        serviceWorkerRegistration: registration,
+        vapidKey: "BPtNEi2LLScmy1ZXUKAKw9lWeim7rFRqgv7CMstgFYuBpfSYT8pNoD32vJONWaM9xPyPb84mg154-ATIIYSyBGE"
+      });
+      if (currentToken) {
+        saveTokenToBackend(currentToken);
+        return { success: true };
+      }
+      return { success: false, error: 'No registration token was returned.' };
+    } catch (err) {
+      console.error('Push registration error:', err);
+      return { success: false, error: err.message };
+    }
   }
 
   function saveTokenToBackend(token) {
-    if (!SCRIPT_URL) return;
+    if (!SCRIPT_URL || !currentUser) return;
     fetch(SCRIPT_URL, {
       method: 'POST',
       body: JSON.stringify({
         action: 'saveFcmToken',
-        email: currentUser ? currentUser.email : '',
+        email: currentUser.email,
         token: token
       })
     }).catch(err => console.error('Failed to save FCM token:', err));
