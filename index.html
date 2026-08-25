@@ -215,6 +215,7 @@
         <div id="chat-messages" style="height:300px; overflow-y:auto; font-size:14px; margin-bottom:8px;"></div>
         <div style="display:flex; gap:6px;">
           <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--line)" onkeydown="if(event.key==='Enter') sendMessage();">
+          <span id="voice-timer" style="display:none; align-self:center; font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums;">0:00</span>
           <button class="btn secondary" id="voice-btn" style="width:auto; padding:8px 10px; font-size:16px;" onclick="toggleVoiceRecording()" title="Record a voice message">🎤</button>
           <button class="btn" style="width:auto;" onclick="sendMessage()">Send</button>
         </div>
@@ -759,6 +760,9 @@
 
   // ---------- VOICE MESSAGES ----------
 
+  let recordStartTime = 0;
+  let recordTimerInterval = null;
+
   function blobToBase64(blob) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -768,10 +772,79 @@
     });
   }
 
+  function updateVoiceTimer() {
+    const elapsedSec = Math.floor((Date.now() - recordStartTime) / 1000);
+    const mm = Math.floor(elapsedSec / 60);
+    const ss = String(elapsedSec % 60).padStart(2, '0');
+    document.getElementById('voice-timer').innerText = `${mm}:${ss}`;
+  }
+
+  // Picks whatever audio format the browser can actually record with (Chrome and
+  // Safari support different lists), so recording doesn't silently fail on either.
+  function pickRecorderMimeType() {
+    if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+    const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/ogg'];
+    return candidates.find(t => MediaRecorder.isTypeSupported(t)) || '';
+  }
+
+  // MediaRecorder's webm/opus output very commonly has broken duration metadata —
+  // audio is actually captured, but players show "0:00" and can't seek or play it
+  // back. Decoding the raw recording and re-encoding it as a WAV file sidesteps
+  // that bug entirely: WAV always stores a correct duration, so it plays reliably
+  // in every browser (and in Drive's own preview).
+  async function convertToWavBlob(blob) {
+    const arrayBuffer = await blob.arrayBuffer();
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioCtx();
+    let audioBuffer;
+    try {
+      audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    } finally {
+      audioCtx.close();
+    }
+    const numChannels = audioBuffer.numberOfChannels;
+    const sampleRate = audioBuffer.sampleRate;
+    const numFrames = audioBuffer.length;
+    const bytesPerSample = 2; // 16-bit PCM
+    const blockAlign = numChannels * bytesPerSample;
+    const dataSize = numFrames * blockAlign;
+    const buffer = new ArrayBuffer(44 + dataSize);
+    const view = new DataView(buffer);
+    const writeStr = (offset, str) => { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); };
+
+    writeStr(0, 'RIFF');
+    view.setUint32(4, 36 + dataSize, true);
+    writeStr(8, 'WAVE');
+    writeStr(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true); // PCM
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * blockAlign, true);
+    view.setUint16(32, blockAlign, true);
+    view.setUint16(34, 16, true);
+    writeStr(36, 'data');
+    view.setUint32(40, dataSize, true);
+
+    const channelData = [];
+    for (let c = 0; c < numChannels; c++) channelData.push(audioBuffer.getChannelData(c));
+    let offset = 44;
+    for (let i = 0; i < numFrames; i++) {
+      for (let c = 0; c < numChannels; c++) {
+        let sample = Math.max(-1, Math.min(1, channelData[c][i]));
+        sample = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+        view.setInt16(offset, sample, true);
+        offset += 2;
+      }
+    }
+    return new Blob([buffer], { type: 'audio/wav' });
+  }
+
   // Tap once to start recording (asks for mic permission the first time), tap
-  // again to stop — the recording is then uploaded and posted automatically.
+  // again to stop — the recording is then converted, uploaded, and posted.
   async function toggleVoiceRecording() {
     const btn = document.getElementById('voice-btn');
+    const timerEl = document.getElementById('voice-timer');
     if (!isRecording) {
       if (!navigator.mediaDevices || !window.MediaRecorder) {
         alert('Voice recording is not supported in this browser.');
@@ -780,17 +853,38 @@
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         audioChunks = [];
-        mediaRecorder = new MediaRecorder(stream);
+        const mimeType = pickRecorderMimeType();
+        mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
         mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
         mediaRecorder.onstop = async () => {
           stream.getTracks().forEach(t => t.stop());
-          const blob = new Blob(audioChunks, { type: 'audio/webm' });
-          await sendVoiceMessage(blob);
+          clearInterval(recordTimerInterval);
+          timerEl.style.display = 'none';
+
+          const rawBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || mimeType || 'audio/webm' });
+          if (rawBlob.size === 0) {
+            alert('No audio was captured — please try again and make sure the microphone is allowed.');
+            return;
+          }
+          try {
+            const wavBlob = await convertToWavBlob(rawBlob);
+            await sendVoiceMessage(wavBlob, 'wav', 'audio/wav');
+          } catch (err) {
+            // If decoding somehow fails, still send the original recording rather
+            // than losing it — most players can handle the source format directly.
+            console.warn('Could not re-encode recording as WAV, sending original format:', err);
+            const ext = (rawBlob.type.includes('mp4')) ? 'm4a' : (rawBlob.type.includes('ogg') ? 'ogg' : 'webm');
+            await sendVoiceMessage(rawBlob, ext, rawBlob.type || 'audio/webm');
+          }
         };
         mediaRecorder.start();
         isRecording = true;
         btn.innerText = '⏹';
         btn.classList.add('recording');
+        recordStartTime = Date.now();
+        timerEl.style.display = 'inline-block';
+        updateVoiceTimer();
+        recordTimerInterval = setInterval(updateVoiceTimer, 250);
       } catch (err) {
         alert('Could not access the microphone: ' + err.message);
       }
@@ -802,14 +896,14 @@
     }
   }
 
-  async function sendVoiceMessage(blob) {
+  async function sendVoiceMessage(blob, ext, mimeType) {
     const btn = document.getElementById('voice-btn');
     btn.disabled = true;
     try {
       const base64 = await blobToBase64(blob);
       const uploadRes = await fetch(SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ action: 'uploadFile', base64Data: base64, fileName: `voice-${Date.now()}.webm`, mimeType: 'audio/webm' })
+        body: JSON.stringify({ action: 'uploadFile', base64Data: base64, fileName: `voice-${Date.now()}.${ext}`, mimeType })
       }).then(r => r.json());
       if (!uploadRes.success) throw new Error(uploadRes.error || 'Upload failed');
 
