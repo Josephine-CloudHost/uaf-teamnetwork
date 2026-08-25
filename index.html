@@ -336,7 +336,60 @@
             .catch(err => console.error('Service Worker registration failed:', err));
         });
       }
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
 
+<script>
+  // 1. Initialize Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyD3IhrkjB-cRzYZVBscwkYehPd0VS00YFw",
+    authDomain: "uaf-team-network.firebaseapp.com",
+    projectId: "uaf-team-network",
+    storageBucket: "uaf-team-network.firebasestorage.app",
+    messagingSenderId: "936656734962",
+    appId: "1:936656734962:web:84267c3b78809822bade6b",
+    measurementId: "G-9CNP5RP4Y1"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  const messaging = firebase.messaging();
+
+  // 2. Register Service Worker and Get FCM Token
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        return messaging.getToken({
+          serviceWorkerRegistration: registration,
+          vapidKey: "BPtNEi2LLScmy1ZXUKAKw9lWeim7rFRqgv7CMstgFYuBpfSYT8pNoD32vJONWaM9xPyPb84mg154-ATIIYSyBGE"
+        });
+      })
+      .then((currentToken) => {
+        if (currentToken) {
+          console.log("Device FCM Token:", currentToken);
+          // Send this token to Google Apps Script backend to save it
+          saveTokenToBackend(currentToken);
+        } else {
+          console.log("No registration token available. Request permission to generate one.");
+        }
+      })
+      .catch((err) => {
+        console.error("An error occurred while retrieving token. ", err);
+      });
+  }
+
+  // 3. Optional: Save token to Apps Script
+  function saveTokenToBackend(token) {
+    // Replace with your Google Apps Script Web App URL if saving tokens
+    fetch('YOUR_APPS_SCRIPT_WEB_APP_URL', {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token, action: 'registerToken' })
+    });
+  }
 </script>
+</script>
+  
 </body>
 </html>
