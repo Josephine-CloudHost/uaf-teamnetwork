@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Hub</title>
+<style>
+  :root {
+    --ink: #1F2A2E;
+    --paper: #F6F4EE;
+    --card: #FFFFFF;
+    --primary: #1D4E5F;
+    --primary-dark: #123642;
+    --accent: #E0932C;
+    --accent-soft: #FCE9CC;
+    --line: #E1DED3;
+    --muted: #6B7580;
+    --job: #2F6D4E;
+    --education: #1D4E5F;
+    --funding: #A8471F;
+    --general: #6B7580;
+    --radius: 10px;
+    font-family: 'Iowan Old Style', 'Georgia', serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .brand { font-family: 'Iowan Old Style', Georgia, 'Times New Roman', serif; }
+
+  /* ---------- Auth screen ---------- */
+  #auth-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .auth-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .auth-card h1 {
+    font-size: 26px;
+    margin: 0 0 4px;
+    color: var(--primary-dark);
+  }
+  .auth-card p.sub { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; }
+  .field input, .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--paper);
+  }
+  .field input:focus, .field textarea:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .btn {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+  }
+  .btn:hover { background: var(--primary-dark); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .switch-mode { text-align: center; margin-top: 16px; font-size: 13px; }
+  .switch-mode a { color: var(--primary); cursor: pointer; text-decoration: underline; }
+  .error-msg { color: var(--funding); font-size: 13px; margin-top: 10px; display: none; }
+
+  /* ---------- App shell ---------- */
+  #app-screen { display: none; min-height: 100vh; }
+  header.topbar {
+    background: var(--primary-dark);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header.topbar .brand { font-size: 19px; font-weight: 600; letter-spacing: 0.2px; }
+  header.topbar .who { font-size: 13px; opacity: 0.85; display: flex; align-items: center; gap: 14px; }
+  header.topbar .who a { color: var(--accent-soft); cursor: pointer; text-decoration: none; }
+
+  nav.tabstrip {
+    background: var(--primary);
+    display: flex;
+    overflow-x: auto;
+    padding: 0 12px;
+  }
+  nav.tabstrip button {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.75);
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    font-family: inherit;
+    white-space: nowrap;
+    position: relative;
+  }
+  nav.tabstrip button.active { color: white; border-bottom-color: var(--accent); }
+  nav.tabstrip button .badge {
+    background: var(--accent);
+    color: var(--primary-dark);
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 1px 6px;
+    margin-left: 6px;
+  }
+
+  main { max-width: 780px; margin: 0 auto; padding: 20px 16px 60px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+
+  /* ---------- Chat ---------- */
+  #chat-log { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .msg { max-width: 78%; }
+  .msg .meta { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .msg .bubble { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 9px 13px; font-size: 14px; }
+  .msg.mine { align-self: flex-end; }
+  .msg.mine .bubble { background: var(--primary); color: white; border-color: var(--primary); }
+  .msg.bot { align-self: center; max-width: 90%; }
+  .msg.bot .bubble { background: var(--accent-soft); border-color: var(--accent); font-size: 13.5px; }
+  .msg.bot a { color: var(--primary-dark); font-weight: 600; }
+  .chat-input-row { display: flex; gap: 8px; }
+  .chat-input-row input {
+    flex: 1;
+    padding: 11px 14px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .chat-input-row button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 0 20px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ---------- Profiles ---------- */
+  .profile-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .profile-row:last-child { border-bottom: none; }
+  .avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--primary); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px; flex-shrink: 0;
+  }
+  .profile-row .name { font-weight: 600; font-size: 14.5px; }
+  .profile-row .bio { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+
+  /* ---------- Documents ---------- */
+  .doc-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); gap: 10px; }
+  .doc-row:last-child { border-bottom: none; }
+  .doc-row .fname { font-weight: 600; font-size: 14px; }
+  .doc-row .fmeta { font-size: 12px; color: var(--muted); }
+  .doc-row a.open { color: var(--primary); font-weight: 600; font-size: 13px; text-decoration: none; white-space: nowrap; }
+
+  /* ---------- Notifications ---------- */
+  .notif-row { display: flex; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .notif-row:last-child { border-bottom: none; }
+  .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 5px; flex-shrink: 0; }
+  .notif-time { color: var(--muted); font-size: 12px; }
+
+  /* ---------- Opportunities ---------- */
+  .opp-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; background: var(--card); }
+  .opp-tag { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; padding: 2px 8px; border-radius: 10px; margin-bottom: 8px; color: white; }
+  .opp-tag.Job { background: var(--job); }
+  .opp-tag.Education { background: var(--education); }
+  .opp-tag.Funding { background: var(--funding); }
+  .opp-tag.General { background: var(--general); }
+  .opp-card .title { font-weight: 600; font-size: 14.5px; margin-bottom: 6px; }
+  .opp-card a { color: var(--primary); font-size: 13px; font-weight: 600; text-decoration: none; }
+
+  .empty { text-align: center; color: var(--muted); padding: 30px 10px; font-size: 14px; }
+  .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .section-head h2 { font-size: 17px; margin: 0; }
+</style>
+</head>
+<body>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <h1 id="auth-title">Welcome back</h1>
+    <p class="sub" id="auth-sub">Sign in to your team hub</p>
+
+    <div id="login-form">
+      <div class="field"><label>Email</label><input type="email" id="login-email"></div>
+      <div class="field"><label>Password</label><input type="password" id="login-password"></div>
+      <button class="btn" onclick="handleLogin()">Sign in</button>
+    </div>
+
+    <div id="signup-form" style="display:none;">
+      <div class="field"><label>Team code</label><input type="text" id="signup-code" placeholder="Ask your coordinator"></div>
+      <div class="field"><label>Full name</label><input type="text" id="signup-name"></div>
+      <div class="field"><label>Email</label><input type="email" id="signup-email"></div>
+      <div class="field"><label>Short bio</label><textarea id="signup-bio" rows="2" placeholder="Your role, focus area..."></textarea></div>
+      <div class="field"><label>Password</label><input type="password" id="signup-password"></div>
+      <button class="btn" onclick="handleSignup()">Create profile</button>
+    </div>
+
+    <p class="error-msg" id="auth-error"></p>
+    <div class="switch-mode">
+      <span id="switch-to-signup">New here? <a onclick="toggleAuthMode()">Create a profile</a></span>
+      <span id="switch-to-login" style="display:none;">Already have an account? <a onclick="toggleAuthMode()">Sign in</a></span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP SCREEN ============ -->
+<div id="app-screen">
+  <header class="topbar">
+    <div class="brand">Team Hub</div>
+    <div class="who">
+      <span id="who-name"></span>
+      <a onclick="logout()">Sign out</a>
+    </div>
+  </header>
+
+  <nav class="tabstrip">
+    <button class="tab-btn active" data-tab="chat" onclick="switchTab('chat')">Chat</button>
+    <button class="tab-btn" data-tab="opportunities" onclick="switchTab('opportunities')">Opportunities</button>
+    <button class="tab-btn" data-tab="documents" onclick="switchTab('documents')">Documents</button>
+    <button class="tab-btn" data-tab="profiles" onclick="switchTab('profiles')">Team</button>
+    <button class="tab-btn" data-tab="notifications" onclick="switchTab('notifications')">Notifications<span class="badge" id="notif-badge" style="display:none;"></span></button>
+    <button class="tab-btn" data-tab="profile" onclick="switchTab('profile')">My Profile</button>
+  </nav>
+
+  <main>
+    <!-- CHAT -->
+    <section class="panel active" id="panel-chat">
+      <div id="chat-log"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Message the team..." onkeydown="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </section>
+
+    <!-- OPPORTUNITIES -->
+    <section class="panel" id="panel-opportunities">
+      <div class="section-head"><h2>Opportunities feed</h2></div>
+      <p style="font-size:13px;color:var(--muted);margin-top:-6px;">Auto-collected daily from ReliefWeb and your configured feeds.</p>
+      <div id="opp-list"></div>
+    </section>
+
+    <!-- DOCUMENTS -->
+    <section class="panel" id="panel-documents">
+      <div class="section-head"><h2>Shared documents</h2></div>
+      <div class="card">
+        <div class="field"><label>File link (Google Drive, etc.)</label><input type="text" id="doc-url" placeholder="https://drive.google.com/..."></div>
+        <div class="field"><label>File name</label><input type="text" id="doc-name"></div>
+        <div class="field"><label>Description (optional)</label><input type="text" id="doc-desc"></div>
+        <button class="btn" onclick="shareDocument()">Share with team</button>
+      </div>
+      <div id="doc-list"></div>
+    </section>
+
+    <!-- TEAM PROFILES -->
+    <section class="panel" id="panel-profiles">
+      <div class="section-head"><h2>Team</h2></div>
+      <div class="card" id="profile-list"></div>
+    </section>
+
+    <!-- NOTIFICATIONS -->
+    <section class="panel" id="panel-notifications">
+      <div class="section-head"><h2>Notifications</h2></div>
+      <div class="card" id="notif-list"></div>
+    </section>
+
+    <!-- MY PROFILE -->
+    <section class="panel" id="panel-profile">
+      <div class="section-head"><h2>My profile</h2></div>
+      <div class="card">
+        <div class="field"><label>Full name</label><input type="text" id="my-name"></div>
+        <div class="field"><label>Bio</label><textarea id="my-bio" rows="3"></textarea></div>
+        <button class="btn" onclick="saveMyProfile()">Save changes</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+// ====== CONFIG ======
+const API_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+// ====== STATE ======
+let session = JSON.parse(localStorage.getItem('ngo_session') || 'null');
+let lastMessageTime = null;
+let seenNotifIds = new Set(JSON.parse(localStorage.getItem('ngo_seen_notifs') || '[]'));
+let pollTimer = null;
+
+// ====== AUTH ======
+function toggleAuthMode() {
+  const isLogin = document.getElementById('login-form').style.display !== 'none';
+  document.getElementById('login-form').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('signup-form').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('switch-to-signup').style.display = isLogin ? 'none' : 'inline';
+  document.getElementById('switch-to-login').style.display = isLogin ? 'inline' : 'none';
+  document.getElementById('auth-title').textContent = isLogin ? 'Join the team' : 'Welcome back';
+  document.getElementById('auth-sub').textContent = isLogin ? 'Create your profile to get started' : 'Sign in to your team hub';
+  document.getElementById('auth-error').style.display = 'none';
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) return showAuthError('Enter your email and password.');
+  const res = await api('login', { email, password });
+  if (res.error) return showAuthError(res.error);
+  session = res.profile;
+  localStorage.setItem('ngo_session', JSON.stringify(session));
+  enterApp();
+}
+
+async function handleSignup() {
+  const body = {
+    teamCode: document.getElementById('signup-code').value.trim(),
+    name: document.getElementById('signup-name').value.trim(),
+    email: document.getElementById('signup-email').value.trim(),
+    bio: document.getElementById('signup-bio').value.trim(),
+    password: document.getElementById('signup-password').value
+  };
+  if (!body.teamCode || !body.name || !body.email || !body.password) return showAuthError('Please fill in all fields.');
+  const res = await api('signup', body);
+  if (res.error) return showAuthError(res.error);
+  session = { email: body.email, name: body.name, bio: body.bio };
+  localStorage.setItem('ngo_session', JSON.stringify(session));
+  enterApp();
+}
+
+function logout() {
+  localStorage.removeItem('ngo_session');
+  session = null;
+  clearInterval(pollTimer);
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+// ====== API HELPER ======
+async function api(action, body) {
+  try {
+    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, ...body }) });
+    return await res.json();
+  } catch (err) {
+    return { error: 'Network error — check your connection.' };
+  }
+}
+async function apiGet(action, params) {
+  try {
+    const qs = new URLSearchParams({ action, ...(params || {}) }).toString();
+    const res = await fetch(`${API_URL}?${qs}`);
+    return await res.json();
+  } catch (err) {
+    return { error: 'Network error — check your connection.' };
+  }
+}
+
+// ====== APP SHELL ======
+function enterApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  document.getElementById('who-name').textContent = session.name;
+  document.getElementById('my-name').value = session.name || '';
+  document.getElementById('my-bio').value = session.bio || '';
+  loadChat();
+  loadOpportunities();
+  loadDocuments();
+  loadProfiles();
+  loadNotifications();
+  pollTimer = setInterval(() => { loadChat(true); loadNotifications(); }, 8000);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === `panel-${tab}`));
+}
+
+// ====== CHAT ======
+async function loadChat(incremental) {
+  const params = incremental && lastMessageTime ? { since: lastMessageTime } : {};
+  const msgs = await apiGet('messages', params);
+  if (msgs.error || !Array.isArray(msgs)) return;
+  const log = document.getElementById('chat-log');
+  if (!incremental) log.innerHTML = '';
+  msgs.forEach(m => {
+    log.appendChild(renderMessage(m));
+    lastMessageTime = m.timestamp;
+  });
+  if (msgs.length) log.scrollTop = log.scrollHeight;
+}
+
+function renderMessage(m) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + (m.type === 'bot' ? 'bot' : (m.email === session.email ? 'mine' : ''));
+  const time = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const linkHtml = m.link ? `<br><a href="${escapeAttr(m.link)}" target="_blank" rel="noopener">Open link →</a>` : '';
+  div.innerHTML = `
+    <div class="meta">${m.type === 'bot' ? '' : escapeHtml(m.name) + ' · '}${time}</div>
+    <div class="bubble">${escapeHtml(m.text)}${linkHtml}</div>`;
+  return div;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  await api('postMessage', { email: session.email, name: session.name, text });
+  loadChat(true);
+}
+
+// ====== OPPORTUNITIES ======
+async function loadOpportunities() {
+  const opps = await apiGet('opportunities');
+  const list = document.getElementById('opp-list');
+  if (opps.error || !Array.isArray(opps) || !opps.length) {
+    list.innerHTML = '<div class="empty">No opportunities posted yet. Check back after the next daily scan.</div>';
+    return;
+  }
+  list.innerHTML = opps.slice().reverse().map(o => `
+    <div class="opp-card">
+      <span class="opp-tag ${o.category}">${o.category}</span>
+      <div class="title">${escapeHtml(o.title)}</div>
+      <a href="${escapeAttr(o.link)}" target="_blank" rel="noopener">View opportunity →</a>
+    </div>`).join('');
+}
+
+// ====== DOCUMENTS ======
+async function loadDocuments() {
+  const docs = await apiGet('documents');
+  const list = document.getElementById('doc-list');
+  if (docs.error || !Array.isArray(docs) || !docs.length) {
+    list.innerHTML = '<div class="empty">No documents shared yet.</div>';
+    return;
+  }
+  list.innerHTML = docs.slice().reverse().map(d => `
+    <div class="doc-row">
+      <div>
+        <div class="fname">${escapeHtml(d.fileName)}</div>
+        <div class="fmeta">${escapeHtml(d.description || '')} · shared by ${escapeHtml(d.email)}</div>
+      </div>
+      <a class="open" href="${escapeAttr(d.fileUrl)}" target="_blank" rel="noopener">Open</a>
+    </div>`).join('');
+}
+
+async function shareDocument() {
+  const fileUrl = document.getElementById('doc-url').value.trim();
+  const fileName = document.getElementById('doc-name').value.trim();
+  const description = document.getElementById('doc-desc').value.trim();
+  if (!fileUrl || !fileName) return alert('Add both a link and a file name.');
+  await api('addDocument', { email: session.email, fileUrl, fileName, description });
+  document.getElementById('doc-url').value = '';
+  document.getElementById('doc-name').value = '';
+  document.getElementById('doc-desc').value = '';
+  loadDocuments();
+}
+
+// ====== PROFILES ======
+async function loadProfiles() {
+  const profiles = await apiGet('profiles');
+  const list = document.getElementById('profile-list');
+  if (profiles.error || !Array.isArray(profiles) || !profiles.length) {
+    list.innerHTML = '<div class="empty">No team members yet.</div>';
+    return;
+  }
+  list.innerHTML = profiles.map(p => `
+    <div class="profile-row">
+      <div class="avatar">${initials(p.name)}</div>
+      <div>
+        <div class="name">${escapeHtml(p.name)}</div>
+        <div class="bio">${escapeHtml(p.bio || '')}</div>
+      </div>
+    </div>`).join('');
+}
+
+async function saveMyProfile() {
+  const name = document.getElementById('my-name').value.trim();
+  const bio = document.getElementById('my-bio').value.trim();
+  await api('updateProfile', { email: session.email, name, bio });
+  session.name = name; session.bio = bio;
+  localStorage.setItem('ngo_session', JSON.stringify(session));
+  document.getElementById('who-name').textContent = name;
+  alert('Profile updated.');
+}
+
+// ====== NOTIFICATIONS ======
+async function loadNotifications() {
+  const notifs = await apiGet('notifications', { email: session.email });
+  if (notifs.error || !Array.isArray(notifs)) return;
+  const list = document.getElementById('notif-list');
+  if (!notifs.length) {
+    list.innerHTML = '<div class="empty">Nothing yet.</div>';
+  } else {
+    list.innerHTML = notifs.slice().reverse().map(n => `
+      <div class="notif-row">
+        <div class="notif-dot"></div>
+        <div>
+          <div>${escapeHtml(n.message)}</div>
+          <div class="notif-time">${new Date(n.timestamp).toLocaleString()}</div>
+        </div>
+      </div>`).join('');
+  }
+  const unseen = notifs.filter(n => !seenNotifIds.has(n.id));
+  const badge = document.getElementById('notif-badge');
+  if (unseen.length) { badge.style.display = 'inline'; badge.textContent = unseen.length; }
+  else { badge.style.display = 'none'; }
+}
+
+document.querySelector('[data-tab="notifications"]').addEventListener('click', async () => {
+  const notifs = await apiGet('notifications', { email: session.email });
+  if (Array.isArray(notifs)) notifs.forEach(n => seenNotifIds.add(n.id));
+  localStorage.setItem('ngo_seen_notifs', JSON.stringify([...seenNotifIds]));
+  document.getElementById('notif-badge').style.display = 'none';
+});
+
+// ====== UTIL ======
+function initials(name) { return (name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(); }
+function escapeHtml(s) { return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s) { return escapeHtml(s); }
+
+// ====== BOOT ======
+if (session) enterApp();
+</script>
+</body>
+</html>
