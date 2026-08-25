@@ -1,6 +1,15 @@
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
+import { getMessaging, getToken } from "firebase/messaging";
+
+const messaging = getMessaging();
+getToken(messaging, { vapidKey: 'YOUR_PUBLIC_VAPID_KEY' }).then((currentToken) => {
+  if (currentToken) {
+    // Send currentToken & user email to Apps Script to store in Profiles sheet
+    saveTokenToBackend(userEmail, currentToken);
+  }
+});
 // Initialize Firebase inside the Service Worker
 firebase.initializeApp({
   apiKey: "AIzaSyD3IhrkjB-cRzYZVBscwkYehPd0VS00YFw",
