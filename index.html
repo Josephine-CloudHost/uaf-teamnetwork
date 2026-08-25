@@ -352,10 +352,43 @@
   </div>
 </div>
 
+<!-- CREATE GROUP MODAL -->
+<div class="modal" id="group-modal">
+  <div class="modal-card">
+    <h3>Create Group</h3>
+    <div class="field">
+      <label>Group Name</label>
+      <input type="text" id="group-name-input" placeholder="e.g. Program Team">
+    </div>
+    <div class="field">
+      <label>Add Members</label>
+      <div id="group-member-list" style="max-height:220px; overflow-y:auto; border:1px solid var(--line); border-radius:8px; padding:10px;">
+        Loading team members...
+      </div>
+    </div>
+    <button class="btn" onclick="submitCreateGroup()">Create Group</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('group-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD GROUP MEMBER MODAL -->
+<div class="modal" id="add-member-modal">
+  <div class="modal-card">
+    <h3>Add Member</h3>
+    <div class="field">
+      <label>Select Team Member</label>
+      <select id="add-member-select"></select>
+    </div>
+    <button class="btn" onclick="submitAddGroupMember()">Add to Chat</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('add-member-modal')">Cancel</button>
+  </div>
+</div>
+
 <script>
   let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8tNmQ5qfonn-vQ0HO-2vf282d6bsFicOaZr2SOZWGp9-j-08wm6Pgvnhd87NoXxTP/exec'; // Apps script deployment URL — make sure this is set!
   let currentUser = null;
   let activeChannelId = 'team';
+  let activeChannelType = 'team'; // 'team' | 'group' | 'dm' — controls whether "+ Member" is allowed
   let isSignupMode = false;
   let allTeamProfiles = [];
   // Maps email -> UAF display name (prefix + preferred name, falling back to full
@@ -585,7 +618,7 @@
     const channels = await fetch(`${SCRIPT_URL}?action=channels&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
     const container = document.getElementById('chats-list');
     container.innerHTML = channels.map(c => `
-      <div class="chat-list-item" onclick="openChat('${c.channelId}', '${c.name || 'Direct Message'}')">
+      <div class="chat-list-item" onclick="openChat('${c.channelId}', '${escapeHtml(c.name || 'Direct Message')}', '${c.type}')">
         <div class="avatar">${c.name ? c.name[0] : 'C'}</div>
         <div>
           <strong>${c.name || 'Direct Message'}</strong>
@@ -595,11 +628,88 @@
     `).join('');
   }
 
-  function openChat(id, title) {
+  function openChat(id, title, type) {
     activeChannelId = id;
+    activeChannelType = type || 'dm';
     document.getElementById('chat-title').innerText = title;
     document.getElementById('chat-window').style.display = 'block';
     loadMessages();
+  }
+
+  // ---------- CREATE GROUP / ADD MEMBER ----------
+  // These two features existed on the backend already but had no working frontend
+  // wiring: "+ Create Group" opened a modal that didn't exist, and "+ Member"
+  // called a function that was never defined. Both are implemented below.
+
+  function populateGroupMemberList() {
+    const container = document.getElementById('group-member-list');
+    const others = allTeamProfiles.filter(p => p.email !== currentUser.email);
+    if (!others.length) {
+      container.innerHTML = `<p style="color:var(--muted); font-size:13px; margin:0;">No other team members to add yet.</p>`;
+      return;
+    }
+    container.innerHTML = others.map(p => `
+      <label style="display:flex; align-items:center; gap:8px; padding:6px 0; font-size:14px;">
+        <input type="checkbox" value="${p.email}" class="group-member-checkbox">
+        <span>${escapeHtml(p.displayName || p.name)}</span>
+      </label>
+    `).join('');
+  }
+
+  async function submitCreateGroup() {
+    const nameInput = document.getElementById('group-name-input');
+    const name = nameInput.value.trim();
+    if (!name) { alert('Please enter a group name.'); return; }
+    const memberEmails = Array.from(document.querySelectorAll('.group-member-checkbox:checked')).map(cb => cb.value);
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'createGroup', name, creatorEmail: currentUser.email, memberEmails })
+      }).then(r => r.json());
+      if (res.success) {
+        nameInput.value = '';
+        closeModal('group-modal');
+        loadChats();
+      } else {
+        alert(res.error || 'Could not create the group.');
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    }
+  }
+
+  // Called by the "+ Member" button inside an open chat. Only makes sense for
+  // group chats — the global Team channel already includes everyone, and a DM
+  // is fixed to its two participants.
+  function openAddMemberModal() {
+    if (activeChannelType !== 'group') {
+      alert('You can only add members to a group chat (not the Team channel or a direct message).');
+      return;
+    }
+    const select = document.getElementById('add-member-select');
+    const others = allTeamProfiles.filter(p => p.email !== currentUser.email);
+    select.innerHTML = others.length
+      ? others.map(p => `<option value="${p.email}">${escapeHtml(p.displayName || p.name)}</option>`).join('')
+      : `<option value="">No other team members</option>`;
+    openModal('add-member-modal');
+  }
+
+  async function submitAddGroupMember() {
+    const memberEmail = document.getElementById('add-member-select').value;
+    if (!memberEmail) { alert('Please select a team member.'); return; }
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'addGroupMember', channelId: activeChannelId, memberEmail })
+      }).then(r => r.json());
+      if (res.success) {
+        closeModal('add-member-modal');
+      } else {
+        alert(res.error || 'Could not add that member.');
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    }
   }
 
   function escapeHtml(str) {
@@ -1041,7 +1151,10 @@
     document.body.setAttribute('data-theme', theme);
   }
 
-  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+    if (id === 'group-modal') populateGroupMemberList();
+  }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
   function updateNotifButtonState() {
