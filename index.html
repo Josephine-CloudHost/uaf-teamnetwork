@@ -105,6 +105,18 @@
   #profile-setup-details[open] summary::after { transform: rotate(180deg); }
   #profile-setup-details .profile-setup-body { margin-top: 14px; }
 
+  /* Collapsible chat management (delete chat) — same look as Profile Setup above */
+  #chat-management-details summary { cursor: pointer; font-weight: 700; font-size: 15px; list-style: none; display: flex; align-items: center; justify-content: space-between; }
+  #chat-management-details summary::-webkit-details-marker { display: none; }
+  #chat-management-details summary::after { content: '▾'; font-size: 13px; color: var(--muted); transition: transform 0.15s ease; }
+  #chat-management-details[open] summary::after { transform: rotate(180deg); }
+  #chat-management-details .profile-setup-body { margin-top: 14px; }
+  .chat-manage-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); gap: 10px; }
+  .chat-manage-row:last-child { border-bottom: none; }
+  .chat-manage-row .name { font-weight: 600; font-size: 14px; }
+  .chat-manage-row .type { font-size: 11px; color: var(--muted); }
+  .chat-manage-row .btn.danger { width: auto; padding: 5px 12px; font-size: 12px; flex-shrink: 0; }
+
   /* Notifications tab */
   .notif-item { display: flex; gap: 10px; align-items: flex-start; }
   .notif-icon { font-size: 18px; flex-shrink: 0; }
@@ -208,7 +220,8 @@
         <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:8px;">
           <strong id="chat-title">Chat</strong>
           <div>
-            <button class="btn secondary" style="width:auto; padding:4px 8px; font-size:11px;" onclick="openAddMemberModal()">+ Member</button>
+            <button class="btn secondary" id="add-member-btn" style="width:auto; padding:4px 8px; font-size:11px;" onclick="openAddMemberModal()">+ Member</button>
+            <button class="btn secondary" id="group-settings-btn" style="width:auto; padding:4px 8px; font-size:11px;" onclick="openGroupSettingsModal()">⚙ Group</button>
             <button class="btn" style="width:auto; padding:4px 8px; font-size:11px;" onclick="startCallFromChat()">📞 Call</button>
           </div>
         </div>
@@ -330,6 +343,17 @@
       </div>
 
       <div class="settings-section">
+        <details id="chat-management-details" ontoggle="if(this.open) loadChatManagementList()">
+          <summary>Manage Chats</summary>
+          <div class="profile-setup-body">
+            <div id="chat-management-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+            <p style="font-size:12px; color:var(--muted); margin-top:0;">Deleting a chat here removes it — and its full message history — for everyone in it. The Team channel can't be deleted.</p>
+            <div id="chat-management-list">Loading chats...</div>
+          </div>
+        </details>
+      </div>
+
+      <div class="settings-section">
         <h4>Account</h4>
         <button class="btn danger" onclick="logoutUser()">Log Out</button>
       </div>
@@ -385,6 +409,30 @@
   </div>
 </div>
 
+<!-- GROUP SETTINGS MODAL (lightweight: view members, rename, delete) -->
+<div class="modal" id="group-settings-modal">
+  <div class="modal-card">
+    <h3>Group Settings</h3>
+    <div id="group-settings-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+
+    <div class="field">
+      <label>Group Name</label>
+      <input type="text" id="group-settings-name-input">
+    </div>
+    <button class="btn secondary" style="margin-bottom:16px;" onclick="submitRenameGroup()">Save Name</button>
+
+    <div class="field">
+      <label>Members</label>
+      <div id="group-settings-members" style="max-height:180px; overflow-y:auto; border:1px solid var(--line); border-radius:8px; padding:10px; font-size:13px;">
+        Loading members...
+      </div>
+    </div>
+
+    <button class="btn danger" onclick="submitDeleteGroup()">Delete Group</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('group-settings-modal')">Close</button>
+  </div>
+</div>
+
 <script>
   let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8tNmQ5qfonn-vQ0HO-2vf282d6bsFicOaZr2SOZWGp9-j-08wm6Pgvnhd87NoXxTP/exec'; // Apps script deployment URL — make sure this is set!
   let currentUser = null;
@@ -392,6 +440,10 @@
   let activeChannelType = 'team'; // 'team' | 'group' | 'dm' — controls whether "+ Member" is allowed
   let isSignupMode = false;
   let allTeamProfiles = [];
+  // Full list of channels this user can see, refreshed every loadChats() — used to
+  // populate the Group Settings modal's member list and the Manage Chats list in
+  // Settings without a second fetch.
+  let allChannels = [];
   // Maps email -> UAF display name (prefix + preferred name, falling back to full
   // name only if neither is set). Chat bubbles read from this instead of trusting
   // whatever "name" happened to be saved on the message row, so a sender's label
@@ -617,6 +669,7 @@
 
   async function loadChats() {
     const channels = await fetch(`${SCRIPT_URL}?action=channels&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+    allChannels = channels;
     const container = document.getElementById('chats-list');
     container.innerHTML = channels.map(c => `
       <div class="chat-list-item" onclick="openChat('${c.channelId}', '${escapeHtml(c.name || 'Direct Message')}', '${c.type}')">
@@ -634,6 +687,11 @@
     activeChannelType = type || 'dm';
     document.getElementById('chat-title').innerText = title;
     document.getElementById('chat-window').style.display = 'block';
+    // "+ Member" and "⚙ Group" only make sense for a group chat — the Team
+    // channel already includes everyone, and a DM is fixed to its two people.
+    const isGroup = activeChannelType === 'group';
+    document.getElementById('add-member-btn').style.display = isGroup ? 'inline-block' : 'none';
+    document.getElementById('group-settings-btn').style.display = isGroup ? 'inline-block' : 'none';
     loadMessages();
   }
 
@@ -705,11 +763,145 @@
       }).then(r => r.json());
       if (res.success) {
         closeModal('add-member-modal');
+        loadChats();
+        if (allChannels.find(c => c.channelId === activeChannelId)) openGroupSettingsModal();
       } else {
         alert(res.error || 'Could not add that member.');
       }
     } catch (err) {
       alert('Network error: ' + err.message);
+    }
+  }
+
+  // ---------- GROUP SETTINGS (view members, rename, delete) ----------
+
+  // Opens the lightweight Group Settings modal for the currently active chat.
+  // Only applies to group chats — the button is hidden for the Team channel
+  // and for DMs (see openChat()).
+  function openGroupSettingsModal() {
+    if (activeChannelType !== 'group') return;
+    document.getElementById('group-settings-error').style.display = 'none';
+    document.getElementById('group-settings-name-input').value = document.getElementById('chat-title').innerText;
+
+    const membersEl = document.getElementById('group-settings-members');
+    const channel = allChannels.find(c => c.channelId === activeChannelId);
+    const members = channel ? channel.members : [];
+    membersEl.innerHTML = members.length
+      ? members.map(email => `<div style="padding:4px 0;">${escapeHtml(profileNameMap[email] || email)}</div>`).join('')
+      : `<span style="color:var(--muted)">No members found.</span>`;
+
+    openModal('group-settings-modal');
+  }
+
+  async function submitRenameGroup() {
+    const nameInput = document.getElementById('group-settings-name-input');
+    const errorEl = document.getElementById('group-settings-error');
+    const name = nameInput.value.trim();
+    errorEl.style.display = 'none';
+    if (!name) { errorEl.innerText = 'Please enter a group name.'; errorEl.style.display = 'block'; return; }
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'renameGroup', channelId: activeChannelId, name, email: currentUser.email })
+      }).then(r => r.json());
+      if (res.success) {
+        document.getElementById('chat-title').innerText = res.name || name;
+        closeModal('group-settings-modal');
+        loadChats();
+      } else {
+        errorEl.innerText = res.error || 'Could not rename the group.';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.innerText = 'Network error: ' + err.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  async function submitDeleteGroup() {
+    if (!confirm('Delete this group for everyone? This also deletes its message history and cannot be undone.')) return;
+    const errorEl = document.getElementById('group-settings-error');
+    errorEl.style.display = 'none';
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'deleteChat', channelId: activeChannelId, email: currentUser.email })
+      }).then(r => r.json());
+      if (res.success) {
+        closeModal('group-settings-modal');
+        document.getElementById('chat-window').style.display = 'none';
+        loadChats();
+      } else {
+        errorEl.innerText = res.error || 'Could not delete the group.';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.innerText = 'Network error: ' + err.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  // ---------- MANAGE CHATS (Settings tab — delete a chat) ----------
+
+  // Populates the "Manage Chats" collapsible in Settings with only the chats the
+  // signed-in user actually belongs to (excluding the Team channel, which can't
+  // be deleted). Runs whenever that section is expanded.
+  async function loadChatManagementList() {
+    const container = document.getElementById('chat-management-list');
+    const errorEl = document.getElementById('chat-management-error');
+    errorEl.style.display = 'none';
+    container.innerHTML = 'Loading chats...';
+    try {
+      const channels = await fetch(`${SCRIPT_URL}?action=channels&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+      allChannels = channels;
+      const deletable = channels.filter(c => c.type !== 'team' && c.isMember);
+      if (!deletable.length) {
+        container.innerHTML = `<p style="color:var(--muted); font-size:13px; margin:0;">You have no group chats or direct messages to manage yet.</p>`;
+        return;
+      }
+      container.innerHTML = deletable.map(c => {
+        let label = c.name;
+        if (!label && c.type === 'dm') {
+          const other = c.members.find(m => m !== currentUser.email);
+          label = profileNameMap[other] || other || 'Direct Message';
+        }
+        return `
+          <div class="chat-manage-row">
+            <div>
+              <div class="name">${escapeHtml(label || 'Chat')}</div>
+              <div class="type">${c.type.toUpperCase()}</div>
+            </div>
+            <button class="btn danger" onclick="deleteChatFromSettings('${c.channelId}', this)">Delete</button>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      errorEl.innerText = 'Could not load your chats: ' + err.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  async function deleteChatFromSettings(channelId, btnEl) {
+    if (!confirm('Delete this chat for everyone? This also deletes its message history and cannot be undone.')) return;
+    btnEl.disabled = true;
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'deleteChat', channelId, email: currentUser.email })
+      }).then(r => r.json());
+      if (res.success) {
+        if (activeChannelId === channelId) {
+          document.getElementById('chat-window').style.display = 'none';
+        }
+        loadChatManagementList();
+        loadChats();
+      } else {
+        alert(res.error || 'Could not delete that chat.');
+        btnEl.disabled = false;
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+      btnEl.disabled = false;
     }
   }
 
