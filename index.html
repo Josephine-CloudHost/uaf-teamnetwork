@@ -122,6 +122,27 @@
   .notif-item { display: flex; gap: 10px; align-items: flex-start; }
   .notif-icon { font-size: 18px; flex-shrink: 0; }
 
+    /* TASKS / ACTIVITIES */
+  .task-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+  .task-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+  .task-card h4 { margin: 0; font-size: 15px; }
+  .task-meta { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
+  .task-desc { font-size: 13px; color: var(--ink); margin-top: 8px; }
+  .task-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .task-actions .btn { width: auto; padding: 6px 12px; font-size: 12px; }
+  .task-badge { padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .task-badge.upcoming { background: #E3EAF5; color: var(--primary); }
+  .task-badge.completed { background: #E8F5E9; color: #2E7D32; }
+  .task-badge.cancelled { background: #F1F1F1; color: #6B6B6B; }
+  .task-badge.overdue { background: #FDE8E8; color: #B3261E; }
+  .task-filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .task-filter-bar button { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 12px; cursor: pointer; color: var(--muted); }
+  .task-filter-bar button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .feed-activity-card { border-left: 4px solid var(--primary); }
+  .feed-activity-card.overdue { border-left-color: #B3261E; }
+  .feed-activity-card.completed { border-left-color: #2E7D32; }
+  .feed-activity-card.cancelled { border-left-color: #6B6B6B; }
+  
   /* Chat message bubbles.
      Per spec: the signed-in user's own messages sit on the LEFT, everyone
      else's sit on the RIGHT. Only the sender's UAF display name (prefix +
@@ -233,6 +254,7 @@
     <button onclick="switchTab('finances')">UAF Finances</button>
     <button onclick="switchTab('documents')">Documents</button>
     <button onclick="switchTab('notifications')">Notifications<span class="badge" id="notif-badge" style="display:none"></span></button>
+    <button onclick="switchTab('tasks')">Tasks<span class="badge" id="tasks-badge" style="display:none"></span></button>
     <button onclick="switchTab('settings')">Settings</button>
   </nav>
 
@@ -343,7 +365,21 @@
       <h3>Notifications</h3>
       <div id="notifications-list"></div>
     </div>
-
+    <!-- TASKS TAB -->
+    <div id="tab-tasks" class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+        <h3 style="margin:0;">Tasks &amp; Activities</h3>
+        <button class="btn" id="new-task-btn" style="width:auto; padding:8px 14px; font-size:13px; display:none;" onclick="openTaskModal()">+ New Task</button>
+      </div>
+      <div class="task-filter-bar" id="task-filter-bar">
+        <button class="active" onclick="setTaskFilter('All', this)">All</button>
+        <button onclick="setTaskFilter('Upcoming', this)">Upcoming</button>
+        <button onclick="setTaskFilter('Overdue', this)">Overdue</button>
+        <button onclick="setTaskFilter('Completed', this)">Completed</button>
+        <button onclick="setTaskFilter('Cancelled', this)">Cancelled</button>
+      </div>
+      <div id="tasks-list">Loading tasks…</div>
+    </div>
     <!-- SETTINGS TAB -->
     <div id="tab-settings" class="panel">
       <h3 style="margin-top:0">App Settings</h3>
@@ -666,7 +702,48 @@
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-initiative')">Cancel</button>
   </div>
 </div>
+<!-- TASK / ACTIVITY MODAL -->
+<div class="modal" id="task-modal">
+  <div class="modal-card">
+    <h3 id="task-modal-title">New Task / Activity</h3>
+    <div id="task-modal-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+    <input type="hidden" id="task-id-input">
 
+    <div class="field"><label>Activity / Task Name</label><input type="text" id="task-name-input"></div>
+    <div class="field"><label>Description</label><textarea id="task-desc-input" rows="3"></textarea></div>
+    <div class="field"><label>Deadline Date</label><input type="date" id="task-date-input"></div>
+    <div class="field"><label>Time</label><input type="time" id="task-time-input"></div>
+    <div class="field"><label>Location</label><input type="text" id="task-location-input"></div>
+
+    <div class="field">
+      <label>Assign To</label>
+      <select id="task-assign-type" onchange="toggleTaskAssignFields()">
+        <option value="Individual">An Individual</option>
+        <option value="Team">A Team</option>
+      </select>
+    </div>
+    <div class="field" id="task-individual-field">
+      <label>Team Member</label>
+      <select id="task-individual-select" onchange="autofillAssigneeEmail()"></select>
+    </div>
+    <div class="field" id="task-team-field" style="display:none;">
+      <label>Team / Group Name</label>
+      <input type="text" id="task-team-name-input" placeholder="e.g. Program Team">
+    </div>
+    <div class="field"><label>Assigned Email</label><input type="email" id="task-assignee-email-input"></div>
+
+    <div class="field">
+      <label>Status</label>
+      <select id="task-status-input">
+        <option value="Upcoming">Upcoming</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    <button class="btn" onclick="submitTask()">Save Task</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('task-modal')">Cancel</button>
+  </div>
+</div>
 <script>
   let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8tNmQ5qfonn-vQ0HO-2vf282d6bsFicOaZr2SOZWGp9-j-08wm6Pgvnhd87NoXxTP/exec'; // Apps script deployment URL — make sure this is set!
   let currentUser = null;
@@ -695,6 +772,232 @@
   let audioChunks = [];
   let isRecording = false;
 
+    // ---------- TASKS / ACTIVITIES ----------
+
+  let allTasks = [];
+  let currentTaskFilter = 'All';
+
+  // Mirrors the server-side gate that Stage 3 will enforce: ED/CFO (same check
+  // as Finances) OR anyone whose Profile Project Detail role contains
+  // "Coordinator". This is UX-only — the real check happens on the backend.
+  function isAuthorizedTaskAdmin() {
+    if (!currentUser) return false;
+    const pos = (currentUser.currentPosition || '').toString().trim().toLowerCase();
+    if (pos === 'executive director' || pos === 'chief financial officer (cfo)' || pos === 'cfo') return true;
+    const role = (currentUser.projectRole || '').toString().toLowerCase();
+    return currentUser.leadingProject === 'Yes' && role.includes('coordinator');
+  }
+
+  function setTaskFilter(status, btnEl) {
+    currentTaskFilter = status;
+    document.querySelectorAll('#task-filter-bar button').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    renderTasksList();
+  }
+
+  // Combines the stored status with the deadline to get the *displayed*
+  // status — Overdue is never set manually, it's derived the moment the
+  // deadline passes (per spec: "when trigger fires").
+  function computeTaskStatus(t) {
+    if (t.status === 'Completed' || t.status === 'Cancelled') return t.status;
+    const deadline = new Date(`${t.deadlineDate}T${t.deadlineTime || '23:59'}`);
+    if (Date.now() > deadline.getTime()) return 'Overdue';
+    return 'Upcoming';
+  }
+
+  // Whole-number countdown only — never a decimal like "7.239 days".
+  function formatTimeRemaining(t) {
+    const deadline = new Date(`${t.deadlineDate}T${t.deadlineTime || '23:59'}`);
+    const diffMs = deadline.getTime() - Date.now();
+    const past = diffMs < 0;
+    const absMs = Math.abs(diffMs);
+    const mins = Math.floor(absMs / 60000);
+    const hours = Math.floor(mins / 60);
+    const days = Math.floor(hours / 24);
+
+    let text;
+    if (days >= 1) text = `${days} day${days === 1 ? '' : 's'}`;
+    else if (hours >= 1) text = `${hours} hour${hours === 1 ? '' : 's'}`;
+    else text = `${Math.max(mins, 0)} minute${mins === 1 ? '' : 's'}`;
+
+    return past ? `Overdue by ${text}` : `${text} remaining`;
+  }
+
+  async function loadTasks() {
+    document.getElementById('new-task-btn').style.display = isAuthorizedTaskAdmin() ? 'inline-block' : 'none';
+    try {
+      allTasks = await fetch(`${SCRIPT_URL}?action=tasks&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+      if (!Array.isArray(allTasks)) allTasks = [];
+    } catch (err) {
+      allTasks = [];
+    }
+    renderTasksList();
+    updateTasksBadge();
+  }
+
+  function renderTasksList() {
+    const container = document.getElementById('tasks-list');
+    const filtered = allTasks.filter(t => currentTaskFilter === 'All' || computeTaskStatus(t) === currentTaskFilter);
+    if (!filtered.length) {
+      container.innerHTML = `<p style="color:var(--muted)">No ${currentTaskFilter === 'All' ? '' : currentTaskFilter.toLowerCase() + ' '}tasks yet.</p>`;
+      return;
+    }
+    container.innerHTML = filtered
+      .slice()
+      .sort((a, b) => new Date(`${a.deadlineDate}T${a.deadlineTime || '23:59'}`) - new Date(`${b.deadlineDate}T${b.deadlineTime || '23:59'}`))
+      .map(renderTaskCard).join('');
+  }
+
+  function renderTaskCard(t) {
+    const status = computeTaskStatus(t);
+    const isAdmin = isAuthorizedTaskAdmin();
+    const isAssignee = currentUser && t.assigneeEmail === currentUser.email;
+    const canMarkDone = isAssignee && (status === 'Upcoming' || status === 'Overdue');
+
+    return `
+      <div class="task-card">
+        <div class="task-card-top">
+          <h4>${escapeHtml(t.name)}</h4>
+          <span class="task-badge ${status.toLowerCase()}">${status}</span>
+        </div>
+        <div class="task-meta">
+          📅 ${t.deadlineDate}${t.deadlineTime ? ' at ' + t.deadlineTime : ''} &nbsp;•&nbsp; ⏱ ${formatTimeRemaining(t)}<br>
+          ${t.location ? `📍 ${escapeHtml(t.location)}<br>` : ''}
+          👤 ${escapeHtml(t.assignedTo || 'Unassigned')} (${escapeHtml(t.assigneeEmail || 'no email')})
+        </div>
+        ${t.description ? `<div class="task-desc">${escapeHtml(t.description)}</div>` : ''}
+        <div class="task-actions">
+          ${canMarkDone ? `<button class="btn" onclick="markTaskDone('${t.id}')">Mark as Done</button>` : ''}
+          ${isAdmin ? `<button class="btn secondary" onclick="openTaskModal('${t.id}')">Edit</button>` : ''}
+          ${isAdmin && status !== 'Cancelled' && status !== 'Completed' ? `<button class="btn danger" onclick="cancelTask('${t.id}')">Cancel</button>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  function updateTasksBadge() {
+    const badge = document.getElementById('tasks-badge');
+    if (!currentUser) { badge.style.display = 'none'; return; }
+    const mine = allTasks.filter(t => t.assigneeEmail === currentUser.email &&
+      (computeTaskStatus(t) === 'Upcoming' || computeTaskStatus(t) === 'Overdue')).length;
+    if (mine > 0) { badge.innerText = mine > 9 ? '9+' : mine; badge.style.display = 'inline-block'; }
+    else badge.style.display = 'none';
+  }
+
+  function toggleTaskAssignFields() {
+    const isTeam = document.getElementById('task-assign-type').value === 'Team';
+    document.getElementById('task-individual-field').style.display = isTeam ? 'none' : 'block';
+    document.getElementById('task-team-field').style.display = isTeam ? 'block' : 'none';
+    if (!isTeam) autofillAssigneeEmail();
+  }
+
+  function autofillAssigneeEmail() {
+    const email = document.getElementById('task-individual-select').value;
+    document.getElementById('task-assignee-email-input').value = email || '';
+  }
+
+  function populateTaskIndividualSelect() {
+    const select = document.getElementById('task-individual-select');
+    select.innerHTML = allTeamProfiles.map(p =>
+      `<option value="${p.email}">${escapeHtml(p.displayName || p.name)}</option>`).join('');
+  }
+
+  function openTaskModal(taskId) {
+    document.getElementById('task-modal-error').style.display = 'none';
+    populateTaskIndividualSelect();
+    const existing = taskId ? allTasks.find(t => t.id === taskId) : null;
+
+    document.getElementById('task-modal-title').innerText = existing ? 'Edit Task / Activity' : 'New Task / Activity';
+    document.getElementById('task-id-input').value = existing ? existing.id : '';
+    document.getElementById('task-name-input').value = existing ? existing.name : '';
+    document.getElementById('task-desc-input').value = existing ? existing.description : '';
+    document.getElementById('task-date-input').value = existing ? existing.deadlineDate : '';
+    document.getElementById('task-time-input').value = existing ? existing.deadlineTime : '';
+    document.getElementById('task-location-input').value = existing ? existing.location : '';
+    document.getElementById('task-assign-type').value = existing && existing.assignType === 'Team' ? 'Team' : 'Individual';
+    document.getElementById('task-team-name-input').value = existing && existing.assignType === 'Team' ? existing.assignedTo : '';
+    if (existing && existing.assignType !== 'Team') document.getElementById('task-individual-select').value = existing.assigneeEmail;
+    document.getElementById('task-assignee-email-input').value = existing ? existing.assigneeEmail : '';
+    document.getElementById('task-status-input').value = existing && existing.status === 'Cancelled' ? 'Cancelled' : 'Upcoming';
+    toggleTaskAssignFields();
+
+    openModal('task-modal');
+  }
+
+  async function submitTask() {
+    const errorEl = document.getElementById('task-modal-error');
+    errorEl.style.display = 'none';
+
+    const isTeam = document.getElementById('task-assign-type').value === 'Team';
+    const name = document.getElementById('task-name-input').value.trim();
+    const deadlineDate = document.getElementById('task-date-input').value;
+    const assigneeEmail = document.getElementById('task-assignee-email-input').value.trim();
+
+    if (!name || !deadlineDate || !assigneeEmail) {
+      errorEl.innerText = 'Task name, deadline date, and assigned email are required.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const payload = {
+      action: document.getElementById('task-id-input').value ? 'updateTask' : 'createTask',
+      taskId: document.getElementById('task-id-input').value || undefined,
+      email: currentUser.email, // the creator/editor, for the server-side permission check
+      name,
+      description: document.getElementById('task-desc-input').value.trim(),
+      deadlineDate,
+      deadlineTime: document.getElementById('task-time-input').value,
+      location: document.getElementById('task-location-input').value.trim(),
+      assignType: isTeam ? 'Team' : 'Individual',
+      assignedTo: isTeam ? document.getElementById('task-team-name-input').value.trim()
+                         : (allTeamProfiles.find(p => p.email === assigneeEmail)?.displayName || assigneeEmail),
+      assigneeEmail,
+      status: document.getElementById('task-status-input').value
+    };
+
+    try {
+      const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+      if (res.success) {
+        closeModal('task-modal');
+        loadTasks();
+      } else {
+        errorEl.innerText = res.error || 'Could not save the task.';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.innerText = 'Network error: ' + err.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  async function markTaskDone(taskId) {
+    if (!confirm('Mark this task as done?')) return;
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'markTaskDone', taskId, email: currentUser.email })
+      }).then(r => r.json());
+      if (res.success) { loadTasks(); loadFeed(); }
+      else alert(res.error || 'Could not update the task.');
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    }
+  }
+
+  async function cancelTask(taskId) {
+    if (!confirm('Cancel this task/activity?')) return;
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'updateTask', taskId, email: currentUser.email, status: 'Cancelled' })
+      }).then(r => r.json());
+      if (res.success) { loadTasks(); loadFeed(); }
+      else alert(res.error || 'Could not cancel the task.');
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    }
+  }
+  
   // ---------- SESSION / PERSISTENT LOGIN ----------
 
   function saveSession(email, token) {
@@ -872,27 +1175,54 @@ async function submitDeleteAccount() {
     if (tabName === 'documents') loadDocuments();
     if (tabName === 'notifications') loadNotifications();
     if (tabName === 'settings') loadSettingsForm();
+    if (tabName === 'tasks') loadTasks();
   }
 
   // ---------- FEED ----------
 
-  async function loadFeed() {
+   async function loadFeed() {
     const data = await fetch(`${SCRIPT_URL}?action=feedPosts`).then(r => r.json());
+    let tasksForFeed = [];
+    try {
+      const tasks = await fetch(`${SCRIPT_URL}?action=tasks&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+      tasksForFeed = (Array.isArray(tasks) ? tasks : []).map(t => ({ ...t, type: 'activity', timestamp: t.createdAt || t.deadlineDate }));
+    } catch (err) { /* tasks endpoint not live yet — feed still works without it */ }
+
+    const combined = [...data, ...tasksForFeed].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     const container = document.getElementById('feed-container');
-    container.innerHTML = data.map(item => `
-      <div class="feed-post">
-        <div class="feed-header">
-          <div class="avatar">${item.authorName ? item.authorName[0] : 'U'}</div>
-          <div>
-            <strong>${item.authorName}</strong>
-            <div style="font-size:11px; color:var(--muted)">${new Date(item.timestamp).toLocaleString()}</div>
+    container.innerHTML = combined.map(item => {
+      if (item.type === 'activity') {
+        const status = computeTaskStatus(item);
+        return `
+          <div class="feed-post feed-activity-card ${status.toLowerCase()}">
+            <div class="feed-header">
+              <div class="avatar">📌</div>
+              <div style="flex:1">
+                <strong>${escapeHtml(item.name)}</strong>
+                <div style="font-size:11px; color:var(--muted)">Assigned to ${escapeHtml(item.assignedTo || 'Unassigned')}</div>
+              </div>
+              <span class="task-badge ${status.toLowerCase()}">${status}</span>
+            </div>
+            <div style="font-size:13px;">📅 ${item.deadlineDate}${item.deadlineTime ? ' at ' + item.deadlineTime : ''} • ⏱ ${formatTimeRemaining(item)}</div>
+            <a href="#" onclick="switchTab('tasks'); return false;" style="display:inline-block; margin-top:8px; font-weight:600">View in Tasks →</a>
           </div>
+        `;
+      }
+      return `
+        <div class="feed-post">
+          <div class="feed-header">
+            <div class="avatar">${item.authorName ? item.authorName[0] : 'U'}</div>
+            <div>
+              <strong>${item.authorName}</strong>
+              <div style="font-size:11px; color:var(--muted)">${new Date(item.timestamp).toLocaleString()}</div>
+            </div>
+          </div>
+          <div>${item.text}</div>
+          ${item.imageUrl ? `<img src="${item.imageUrl}" class="feed-img">` : ''}
+          ${item.link ? `<a href="${item.link}" target="_blank" style="display:inline-block; margin-top:8px; font-weight:600">View Details →</a>` : ''}
         </div>
-        <div>${item.text}</div>
-        ${item.imageUrl ? `<img src="${item.imageUrl}" class="feed-img">` : ''}
-        ${item.link ? `<a href="${item.link}" target="_blank" style="display:inline-block; margin-top:8px; font-weight:600">View Details →</a>` : ''}
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
   async function submitTeamUpdate() {
