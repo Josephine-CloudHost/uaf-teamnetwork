@@ -530,6 +530,13 @@
       </div>
 
       <div class="settings-section">
+        <h4>Share App</h4>
+        <p style="font-size:12px; color:var(--muted); margin-top:0;">Invite a teammate to join UAF Team Network.</p>
+        <button class="btn secondary" onclick="shareApp()">📤 Share App Link</button>
+        <div id="share-status" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
+      </div>
+      
+      <div class="settings-section">
         <h4 style="color:#B3261E">Danger Zone</h4>
         <p style="font-size:12px; color:var(--muted); margin-top:0;">Deleting your account removes your profile permanently and can't be undone.</p>
         <button class="btn danger" onclick="openModal('delete-account-modal')">Delete Account</button>
@@ -2475,6 +2482,44 @@ async function loadProjectOptionsForSettings(selectedProjectId) {
     document.body.setAttribute('data-theme', theme);
   }
 
+    // Uses the native share sheet where available (mobile browsers, installed
+  // PWAs) so a teammate can share straight to WhatsApp/SMS/email/etc.
+  // Falls back to copying the link to the clipboard on desktop browsers that
+  // don't support navigator.share.
+  const APP_SHARE_URL = window.location.href.split('?')[0].split('#')[0];
+
+  async function shareApp() {
+    const statusEl = document.getElementById('share-status');
+    statusEl.innerText = '';
+    const shareData = {
+      title: 'UAF Team Network',
+      text: 'Join the UAF Team Network app to connect with the team, share updates, and manage tasks.',
+      url: APP_SHARE_URL
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // User cancelled the share sheet — not an error worth surfacing.
+        if (err.name !== 'AbortError') {
+          statusEl.innerText = 'Could not open the share sheet: ' + err.message;
+        }
+      }
+      return;
+    }
+
+    // Desktop fallback: copy to clipboard.
+    try {
+      await navigator.clipboard.writeText(APP_SHARE_URL);
+      statusEl.innerText = 'Link copied to clipboard!';
+      setTimeout(() => { statusEl.innerText = ''; }, 3000);
+    } catch (err) {
+      // Final fallback if clipboard access is blocked: show the link so it can be selected manually.
+      statusEl.innerHTML = `Copy this link: <span style="user-select:all; font-weight:600;">${escapeHtml(APP_SHARE_URL)}</span>`;
+    }
+  }
+  
   function openModal(id) {
     document.getElementById(id).classList.add('open');
     if (id === 'group-modal') populateGroupMemberList();
