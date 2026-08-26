@@ -1,7 +1,7 @@
 {
-  "name": "Team Hub",
-  "short_name": "Team Hub",
-  "description": "NGO team community hub — chat, profiles, documents, and opportunities",
+  "name": "UAF Team Network",
+  "short_name": "UAF Network",
+  "description": "UAF NGO team community hub — chat, profiles, documents, records and opportunities",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
