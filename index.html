@@ -139,6 +139,11 @@
   .msg-time { font-size: 10px; opacity: 0.65; margin-top: 3px; text-align: right; }
   .msg-bubble audio { max-width: 220px; height: 32px; display: block; margin-top: 2px; }
   #voice-btn.recording { background: #B3261E !important; color: #fff !important; border-color: #B3261E !important; }
+  .voice-player { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.18); border-radius:20px; padding:6px 10px; min-width:180px; }
+.msg-row.mine .voice-player { background:rgba(0,0,0,0.06); }
+.voice-player .vp-play { background:none; border:none; cursor:pointer; font-size:15px; width:24px; height:24px; flex-shrink:0; color:inherit; }
+.voice-player .vp-seek { flex:1; height:3px; accent-color: currentColor; }
+.voice-player .vp-time { font-size:11px; opacity:0.85; min-width:30px; text-align:right; }
 </style>
 </head>
 <body>
@@ -1294,11 +1299,7 @@ async function toggleVoicePlayback(btnEl) {
     const title = document.getElementById('chat-title').innerText;
     startCall(`uaf-room-${activeChannelId}`, activeChannelId, title);
   }
-.voice-player { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.18); border-radius:20px; padding:6px 10px; min-width:180px; }
-.msg-row.mine .voice-player { background:rgba(0,0,0,0.06); }
-.voice-player .vp-play { background:none; border:none; cursor:pointer; font-size:15px; width:24px; height:24px; flex-shrink:0; color:inherit; }
-.voice-player .vp-seek { flex:1; height:3px; accent-color: currentColor; }
-.voice-player .vp-time { font-size:11px; opacity:0.85; min-width:30px; text-align:right; }
+
   // ---------- TEAM DIRECTORY ----------
 
   async function loadTeam() {
