@@ -155,6 +155,30 @@
 .msg-edit-row { display:flex; gap:6px; align-items:center; }
 .msg-edit-input { flex:1; padding:4px 8px; border-radius:6px; border:1px solid var(--line); font-size:13px; }
 .msg-edit-save, .msg-edit-cancel { background:none; border:none; cursor:pointer; font-size:14px; color:inherit; }
+
+  /* UAF FINANCES */
+  .fin-dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .fin-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+  .fin-card .fin-label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+  .fin-card .fin-value { font-size: 19px; font-weight: 700; color: var(--ink); }
+  .fin-card.total { background: var(--primary); border-color: var(--primary-dark); }
+  .fin-card.total .fin-label { color: rgba(255,255,255,0.75); }
+  .fin-card.total .fin-value { color: #FFF; }
+  .fin-section { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 18px; }
+  .fin-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .fin-section-header h4 { margin: 0; font-size: 15px; }
+  .fin-actions-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .fin-actions-bar .btn { width: auto; padding: 8px 14px; font-size: 13px; }
+  .fin-table-wrap { width: 100%; overflow-x: auto; }
+  table.fin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.fin-table th, table.fin-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+  table.fin-table th { color: var(--muted); font-weight: 700; font-size: 11px; text-transform: uppercase; }
+  table.fin-table tr:last-child td { border-bottom: none; }
+  .fin-badge { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; display: inline-block; }
+  .fin-badge.active { background: #E8F5E9; color: #2E7D32; }
+  .fin-badge.completed { background: #E3EAF5; color: var(--primary); }
+  .fin-badge.pending { background: #FFF3E0; color: #ED6C02; }
+  .fin-permission-notice { font-size: 12px; color: var(--muted); background: var(--paper); padding: 8px 12px; border-radius: 6px; border-left: 3px solid var(--primary); margin-bottom: 14px; }
 </style>
 </head>
 <body>
@@ -206,6 +230,7 @@
     <button class="active" onclick="switchTab('feed')">Main Feed</button>
     <button onclick="switchTab('chats')">Chats</button>
     <button onclick="switchTab('team')">Team</button>
+    <button onclick="switchTab('finances')">UAF Finances</button>
     <button onclick="switchTab('documents')">Documents</button>
     <button onclick="switchTab('notifications')">Notifications<span class="badge" id="notif-badge" style="display:none"></span></button>
     <button onclick="switchTab('settings')">Settings</button>
@@ -257,6 +282,53 @@
       <h3 style="margin-top:0">Team Directory</h3>
       <input type="text" class="team-search" id="team-search" placeholder="Search by name or position..." oninput="renderTeamList()">
       <div id="team-list">Loading team members...</div>
+    </div>
+
+    <!-- UAF FINANCES TAB -->
+    <div id="tab-finances" class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
+        <h3 style="margin:0;">UAF Finances</h3>
+        <span class="fin-badge" id="fin-role-badge">Read-Only</span>
+      </div>
+      <div class="fin-permission-notice" id="fin-permission-notice">
+        You have read-only access to UAF Finances. Updating balances or recording income/expenses is limited to the Executive Director and CFO.
+      </div>
+
+      <div class="fin-dashboard-grid">
+        <div class="fin-card"><div class="fin-label">Org Account</div><div class="fin-value" id="dash-org-balance">$0.00</div></div>
+        <div class="fin-card"><div class="fin-label">Grant Balance</div><div class="fin-value" id="dash-grant-balance">$0.00</div></div>
+        <div class="fin-card"><div class="fin-label">Other Balances</div><div class="fin-value" id="dash-other-balance">$0.00</div></div>
+        <div class="fin-card"><div class="fin-label">Initiative Income</div><div class="fin-value" id="dash-initiative-income">$0.00</div></div>
+        <div class="fin-card"><div class="fin-label">Total Expenses</div><div class="fin-value" id="dash-total-expenses">$0.00</div></div>
+        <div class="fin-card total"><div class="fin-label">Total Financial Balance</div><div class="fin-value" id="dash-total-balance">$0.00</div></div>
+      </div>
+
+      <div class="fin-actions-bar" id="fin-actions-bar" style="display:none;">
+        <button class="btn" onclick="openModal('modal-update-org')">Update Org Balance</button>
+        <button class="btn secondary" onclick="openAddIncomeFor('Grant')">+ Add Income</button>
+        <button class="btn danger" onclick="openModal('modal-add-expense')">− Record Expense</button>
+        <button class="btn secondary" onclick="openModal('modal-add-initiative')">+ New Initiative</button>
+      </div>
+
+      <div class="fin-section">
+        <div class="fin-section-header"><h4>Initiatives</h4></div>
+        <div class="fin-table-wrap">
+          <table class="fin-table">
+            <thead><tr><th>Name</th><th>Added</th><th>Status</th><th>Income</th><th>Expenses</th><th>Balance</th></tr></thead>
+            <tbody id="initiatives-table-body"><tr><td colspan="6" style="color:var(--muted); text-align:center;">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="fin-section">
+        <div class="fin-section-header"><h4>Transaction Ledger</h4></div>
+        <div class="fin-table-wrap">
+          <table class="fin-table">
+            <thead><tr><th>Date</th><th>User</th><th>Type</th><th>Source</th><th>Amount</th><th>Description</th></tr></thead>
+            <tbody id="ledger-table-body"><tr><td colspan="6" style="color:var(--muted); text-align:center;">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <!-- DOCUMENTS TAB -->
@@ -478,6 +550,86 @@
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('delete-account-modal')">Cancel</button>
   </div>
 </div>
+
+<!-- FINANCE MODALS -->
+<div class="modal" id="modal-update-org">
+  <div class="modal-card">
+    <h3>Update Organizational Account Balance</h3>
+    <div id="modal-update-org-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+    <div class="field"><label>New Balance ($)</label><input type="number" step="0.01" id="input-org-balance"></div>
+    <div class="field"><label>Reason / Note</label><input type="text" id="input-org-reason" placeholder="e.g. Annual audit reconciliation"></div>
+    <button class="btn" onclick="submitUpdateOrgBalance()">Update Balance</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-update-org')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-add-income">
+  <div class="modal-card">
+    <h3>Record Financial Income</h3>
+    <div id="modal-add-income-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+    <div class="field">
+      <label>Target</label>
+      <select id="income-source-select" onchange="toggleInitiativeIncomeSelect()">
+        <option value="Grant">Grant Amount</option>
+        <option value="Other Balance">Other Balance</option>
+        <option value="Initiative">Specific Initiative</option>
+      </select>
+    </div>
+    <div class="field" id="field-income-initiative" style="display:none;">
+      <label>Initiative</label>
+      <select id="income-initiative-select"></select>
+    </div>
+    <div class="field"><label>Amount ($)</label><input type="number" step="0.01" id="income-amount"></div>
+    <div class="field"><label>Description / Source</label><input type="text" id="income-desc" placeholder="e.g. USAID Grant Q3 disbursement"></div>
+    <button class="btn" onclick="submitFinancialIncome()">Record Income</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-income')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-add-expense">
+  <div class="modal-card">
+    <h3>Record Financial Expense</h3>
+    <div id="modal-add-expense-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+    <div class="field"><label>Description</label><input type="text" id="expense-desc"></div>
+    <div class="field"><label>Amount ($)</label><input type="number" step="0.01" id="expense-amount"></div>
+    <div class="field">
+      <label>Source</label>
+      <select id="expense-source-select" onchange="toggleInitiativeExpenseSelect()">
+        <option value="Organizational Account">Organizational Account</option>
+        <option value="Grant">Grant</option>
+        <option value="Other Balance">Other Balance</option>
+        <option value="Specific Initiative">Specific Initiative</option>
+      </select>
+    </div>
+    <div class="field" id="field-expense-initiative" style="display:none;">
+      <label>Initiative</label>
+      <select id="expense-initiative-select"></select>
+    </div>
+    <div class="field"><label>Reference / Receipt (optional)</label><input type="text" id="expense-ref"></div>
+    <button class="btn danger" onclick="submitFinancialExpense()">Submit Expense</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-expense')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-add-initiative">
+  <div class="modal-card">
+    <h3>New Financial Initiative</h3>
+    <div id="modal-add-initiative-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+    <div class="field"><label>Initiative Name</label><input type="text" id="init-name"></div>
+    <div class="field"><label>Initial Income ($)</label><input type="number" step="0.01" id="init-income"></div>
+    <div class="field">
+      <label>Status</label>
+      <select id="init-status">
+        <option value="Active">Active</option>
+        <option value="Pending">Pending</option>
+        <option value="Completed">Completed</option>
+      </select>
+    </div>
+    <button class="btn" onclick="submitCreateInitiative()">Create Initiative</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-initiative')">Cancel</button>
+  </div>
+</div>
+
 <script>
   let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8tNmQ5qfonn-vQ0HO-2vf282d6bsFicOaZr2SOZWGp9-j-08wm6Pgvnhd87NoXxTP/exec'; // Apps script deployment URL — make sure this is set!
   let currentUser = null;
@@ -679,6 +831,7 @@ async function submitDeleteAccount() {
     if (tabName === 'feed') loadFeed();
     if (tabName === 'chats') loadChats();
     if (tabName === 'team') loadTeam();
+    if (tabName === 'finances') loadFinances();
     if (tabName === 'documents') loadDocuments();
     if (tabName === 'notifications') loadNotifications();
     if (tabName === 'settings') loadSettingsForm();
@@ -1679,6 +1832,226 @@ async function toggleVoicePlayback(btnEl) {
         }, 900);
       } else {
         errorEl.innerText = res.error || 'Could not save profile';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.innerText = 'Network error: ' + err.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  // ---------- UAF FINANCES ----------
+  // Mirrors the backend's canManageFinances() check for hiding admin-only UI —
+  // this is a UX convenience only. The real gate is on the server: every write
+  // below (updateOrgBalance / addFinancialIncome / addExpense / addInitiative)
+  // is re-checked against the caller's Profiles row on the backend, so a user
+  // who fakes/edits currentPosition client-side still gets rejected server-side.
+  function isAuthorizedFinancialAdmin() {
+    if (!currentUser || !currentUser.currentPosition) return false;
+    const pos = currentUser.currentPosition.toString().trim().toLowerCase();
+    return pos === 'executive director' || pos === 'chief financial officer (cfo)' || pos === 'cfo';
+  }
+
+  function formatCurrency(val) {
+    return '$' + Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  let currentInitiatives = [];
+
+  async function loadFinances() {
+    const isAdmin = isAuthorizedFinancialAdmin();
+    document.getElementById('fin-role-badge').innerText = isAdmin ? 'Admin (Full Access)' : 'Read-Only';
+    document.getElementById('fin-role-badge').className = 'fin-badge ' + (isAdmin ? 'active' : 'pending');
+    document.getElementById('fin-permission-notice').style.display = isAdmin ? 'none' : 'block';
+    document.getElementById('fin-actions-bar').style.display = isAdmin ? 'flex' : 'none';
+
+    const initBody = document.getElementById('initiatives-table-body');
+    const ledgerBody = document.getElementById('ledger-table-body');
+    try {
+      const data = await fetch(`${SCRIPT_URL}?action=finances&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+      if (data.error) {
+        initBody.innerHTML = `<tr><td colspan="6" style="color:red; text-align:center;">${escapeHtml(data.error)}</td></tr>`;
+        ledgerBody.innerHTML = '';
+        return;
+      }
+      renderFinances(data);
+    } catch (err) {
+      initBody.innerHTML = `<tr><td colspan="6" style="color:red; text-align:center;">Could not load financial data: ${escapeHtml(err.message)}</td></tr>`;
+    }
+  }
+
+  function renderFinances(data) {
+    const s = data.summary || {};
+    document.getElementById('dash-org-balance').innerText = formatCurrency(s.orgBalance);
+    document.getElementById('dash-grant-balance').innerText = formatCurrency(s.grantBalance);
+    document.getElementById('dash-other-balance').innerText = formatCurrency(s.otherBalance);
+    document.getElementById('dash-initiative-income').innerText = formatCurrency(s.initiativeIncome);
+    document.getElementById('dash-total-expenses').innerText = formatCurrency(s.totalExpenses);
+    document.getElementById('dash-total-balance').innerText = formatCurrency(s.totalFinancialBalance);
+
+    currentInitiatives = data.initiatives || [];
+    const initBody = document.getElementById('initiatives-table-body');
+    initBody.innerHTML = currentInitiatives.length ? currentInitiatives.map(i => {
+      const statusClass = (i.status || 'Active').toLowerCase();
+      return `
+        <tr>
+          <td>${escapeHtml(i.name)}</td>
+          <td>${i.dateAdded ? new Date(i.dateAdded).toLocaleDateString() : ''}</td>
+          <td><span class="fin-badge ${statusClass}">${escapeHtml(i.status || 'Active')}</span></td>
+          <td>${formatCurrency(i.amountReceived)}</td>
+          <td>${formatCurrency(i.totalExpenses)}</td>
+          <td><strong>${formatCurrency(i.currentBalance)}</strong></td>
+        </tr>`;
+    }).join('') : `<tr><td colspan="6" style="color:var(--muted); text-align:center;">No initiatives recorded yet.</td></tr>`;
+
+    const initOptions = currentInitiatives.map(i => `<option value="${i.id}">${escapeHtml(i.name)}</option>`).join('');
+    const incomeSelect = document.getElementById('income-initiative-select');
+    const expenseSelect = document.getElementById('expense-initiative-select');
+    if (incomeSelect) incomeSelect.innerHTML = initOptions || '<option value="">No initiatives yet</option>';
+    if (expenseSelect) expenseSelect.innerHTML = initOptions || '<option value="">No initiatives yet</option>';
+
+    const ledger = data.auditTrail || [];
+    const ledgerBody = document.getElementById('ledger-table-body');
+    if (!isAuthorizedFinancialAdmin()) {
+      ledgerBody.innerHTML = `<tr><td colspan="6" style="color:var(--muted); text-align:center;">Ledger visible to Executive Director / CFO only.</td></tr>`;
+    } else if (!ledger.length) {
+      ledgerBody.innerHTML = `<tr><td colspan="6" style="color:var(--muted); text-align:center;">No transactions recorded yet.</td></tr>`;
+    } else {
+      ledgerBody.innerHTML = ledger.map(l => `
+        <tr>
+          <td>${l.timestamp ? new Date(l.timestamp).toLocaleString() : ''}</td>
+          <td>${escapeHtml(l.user)}</td>
+          <td>${escapeHtml(l.type)}</td>
+          <td>${escapeHtml(l.category)}</td>
+          <td>${formatCurrency(l.amount)}</td>
+          <td>${escapeHtml(l.description || '—')}</td>
+        </tr>`).join('');
+    }
+  }
+
+  function openAddIncomeFor(target) {
+    openModal('modal-add-income');
+    document.getElementById('income-source-select').value = target;
+    toggleInitiativeIncomeSelect();
+  }
+
+  function toggleInitiativeIncomeSelect() {
+    const val = document.getElementById('income-source-select').value;
+    document.getElementById('field-income-initiative').style.display = (val === 'Initiative') ? 'block' : 'none';
+  }
+
+  function toggleInitiativeExpenseSelect() {
+    const val = document.getElementById('expense-source-select').value;
+    document.getElementById('field-expense-initiative').style.display = (val === 'Specific Initiative') ? 'block' : 'none';
+  }
+
+  async function submitUpdateOrgBalance() {
+    const errorEl = document.getElementById('modal-update-org-error');
+    errorEl.style.display = 'none';
+    const newBalance = parseFloat(document.getElementById('input-org-balance').value);
+    if (isNaN(newBalance)) { errorEl.innerText = 'Enter a valid amount.'; errorEl.style.display = 'block'; return; }
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'updateOrgBalance',
+          email: currentUser.email,
+          newBalance,
+          reason: document.getElementById('input-org-reason').value.trim()
+        })
+      }).then(r => r.json());
+      if (res.success) {
+        closeModal('modal-update-org');
+        document.getElementById('input-org-balance').value = '';
+        document.getElementById('input-org-reason').value = '';
+        loadFinances();
+      } else {
+        errorEl.innerText = res.error || 'Could not update the balance.';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.innerText = 'Network error: ' + err.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  async function submitFinancialIncome() {
+    const errorEl = document.getElementById('modal-add-income-error');
+    errorEl.style.display = 'none';
+    const source = document.getElementById('income-source-select').value;
+    const amount = parseFloat(document.getElementById('income-amount').value);
+    const description = document.getElementById('income-desc').value.trim();
+    if (isNaN(amount) || amount <= 0) { errorEl.innerText = 'Enter a valid positive amount.'; errorEl.style.display = 'block'; return; }
+    const payload = { action: 'addFinancialIncome', email: currentUser.email, source, amount, description };
+    if (source === 'Initiative') payload.initiativeId = document.getElementById('income-initiative-select').value;
+    try {
+      const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+      if (res.success) {
+        closeModal('modal-add-income');
+        document.getElementById('income-amount').value = '';
+        document.getElementById('income-desc').value = '';
+        loadFinances();
+      } else {
+        errorEl.innerText = res.error || 'Could not record income.';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.innerText = 'Network error: ' + err.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  async function submitFinancialExpense() {
+    const errorEl = document.getElementById('modal-add-expense-error');
+    errorEl.style.display = 'none';
+    const description = document.getElementById('expense-desc').value.trim();
+    const amount = parseFloat(document.getElementById('expense-amount').value);
+    const category = document.getElementById('expense-source-select').value;
+    const reference = document.getElementById('expense-ref').value.trim();
+    if (!description || isNaN(amount) || amount <= 0) {
+      errorEl.innerText = 'Enter a description and a valid amount.';
+      errorEl.style.display = 'block';
+      return;
+    }
+    const payload = { action: 'addExpense', email: currentUser.email, description, amount, category, reference };
+    if (category === 'Specific Initiative') payload.targetId = document.getElementById('expense-initiative-select').value;
+    try {
+      const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+      if (res.success) {
+        closeModal('modal-add-expense');
+        document.getElementById('expense-desc').value = '';
+        document.getElementById('expense-amount').value = '';
+        document.getElementById('expense-ref').value = '';
+        loadFinances();
+      } else {
+        errorEl.innerText = res.error || 'Could not record the expense.';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      errorEl.innerText = 'Network error: ' + err.message;
+      errorEl.style.display = 'block';
+    }
+  }
+
+  async function submitCreateInitiative() {
+    const errorEl = document.getElementById('modal-add-initiative-error');
+    errorEl.style.display = 'none';
+    const name = document.getElementById('init-name').value.trim();
+    const amountReceived = parseFloat(document.getElementById('init-income').value) || 0;
+    const status = document.getElementById('init-status').value;
+    if (!name) { errorEl.innerText = 'Enter an initiative name.'; errorEl.style.display = 'block'; return; }
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'addInitiative', email: currentUser.email, name, amountReceived, status })
+      }).then(r => r.json());
+      if (res.success) {
+        closeModal('modal-add-initiative');
+        document.getElementById('init-name').value = '';
+        document.getElementById('init-income').value = '';
+        loadFinances();
+      } else {
+        errorEl.innerText = res.error || 'Could not create the initiative.';
         errorEl.style.display = 'block';
       }
     } catch (err) {
