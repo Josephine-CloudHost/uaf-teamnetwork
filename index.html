@@ -1512,13 +1512,7 @@ async function submitDeleteAccount() {
   // Extracts the Drive file ID from any of the URL formats we've used over time
 // (uc?id=, uc?export=download&id=, or the googleusercontent CDN format), so
 // old and new voice messages both resolve correctly.
-function extractDriveFileId(url) {
-  if (!url) return null;
-  let m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m) return m[1];
-  m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  return m ? m[1] : null;
-}
+
 
 function extractDriveFileId(url) {
   if (!url) return null;
@@ -2019,8 +2013,7 @@ async function toggleVoicePlayback(btnEl) {
 
   // ---------- NOTIFICATIONS ----------
 
-  const NOTIF_ICONS = { profile: '👤', chat: '💬', group: '👥', document: '📄', feed: '📢', opportunity: '🎯', call: '📞' };
-
+  const NOTIF_ICONS = { profile: '👤', chat: '💬', group: '👥', document: '📄', feed: '📢', opportunity: '🎯', call: '📞', task: '✅', finance: '💰' };
   async function loadNotifications() {
     const container = document.getElementById('notifications-list');
     container.innerHTML = 'Loading notifications...';
@@ -2205,7 +2198,7 @@ async function loadProjectOptionsForSettings(selectedProjectId) {
         else { errorEl.innerText = uploadRes.error || 'Photo upload failed'; errorEl.style.display = 'block'; return; }
       }
 
-      const payload = {
+            const payload = {
         action: 'updateProfile',
         email: currentUser.email,
         name: document.getElementById('settings-full-name').value,
@@ -2216,7 +2209,7 @@ async function loadProjectOptionsForSettings(selectedProjectId) {
         pastPositions: document.getElementById('settings-past-positions').value,
         prefix: document.getElementById('settings-prefix').value,
         gender: document.getElementById('settings-gender').value,
-        preferredName: document.getElementById('settings-preferred-name').value
+        preferredName: document.getElementById('settings-preferred-name').value,
         userType: document.getElementById('settings-user-type').value,
         county: document.getElementById('settings-user-type').value === 'County Level Team Member'
           ? document.getElementById('settings-county').value : '',
@@ -2228,7 +2221,7 @@ async function loadProjectOptionsForSettings(selectedProjectId) {
         projectRole: document.getElementById('settings-leading-project').value === 'Yes'
           ? document.getElementById('settings-project-role').value : ''
       };
-
+      
       const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
       if (res.success) {
         currentUser = { ...currentUser, ...payload, displayName: res.displayName };
