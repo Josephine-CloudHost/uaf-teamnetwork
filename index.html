@@ -972,24 +972,46 @@ async function submitDeleteAccount() {
   // Renders one chat bubble. Own messages ("mine") sit on the left with no name
   // label; everyone else's ("other") sit on the right, labeled with ONLY their
   // UAF display name — never their raw account/full name.
-  function renderMessage(m) {
-    const isMine = currentUser && m.email === currentUser.email;
-    const senderLabel = profileNameMap[m.email] || m.name || 'Unknown';
-    const rowClass = isMine ? 'mine' : 'other';
-    const time = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const body = (m.type === 'voice' && m.link)
-      ? `<audio controls src="${m.link}"></audio>`
-      : `<span>${escapeHtml(m.text)}</span>`;
-    return `
-      <div class="msg-row ${rowClass}">
-        <div class="msg-bubble">
-          ${!isMine ? `<div class="msg-sender">${escapeHtml(senderLabel)}</div>` : ''}
-          ${body}
-          <div class="msg-time">${time}</div>
-        </div>
-      </div>
-    `;
+  // Extracts the Drive file ID from any of the URL formats we've used over time
+// (uc?id=, uc?export=download&id=, or the googleusercontent CDN format), so
+// old and new voice messages both resolve correctly.
+function extractDriveFileId(url) {
+  if (!url) return null;
+  let m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+function renderMessage(m) {
+  const isMine = currentUser && m.email === currentUser.email;
+  const senderLabel = profileNameMap[m.email] || m.name || 'Unknown';
+  const rowClass = isMine ? 'mine' : 'other';
+  const time = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  let body;
+  if (m.type === 'voice' && m.link) {
+    const fileId = extractDriveFileId(m.link);
+    // Google Drive's own preview player streams audio correctly (proper duration,
+    // seeking, playback) — a raw <audio src="drive-url"> tag can't do this
+    // reliably because Drive's download-style URLs aren't seekable audio sources.
+    body = fileId
+      ? `<iframe src="https://drive.google.com/file/d/${fileId}/preview" width="230" height="50" style="border:none;" allow="autoplay"></iframe>`
+      : `<audio controls src="${m.link}"></audio>`;
+  } else {
+    body = `<span>${escapeHtml(m.text)}</span>`;
   }
+
+  return `
+    <div class="msg-row ${rowClass}">
+      <div class="msg-bubble">
+        ${!isMine ? `<div class="msg-sender">${escapeHtml(senderLabel)}</div>` : ''}
+        ${body}
+        <div class="msg-time">${time}</div>
+      </div>
+    </div>
+  `;
+}
 
   async function loadMessages() {
     const msgs = await fetch(`${SCRIPT_URL}?action=messages&channelId=${activeChannelId}&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
