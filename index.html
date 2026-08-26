@@ -425,7 +425,44 @@
               <label>Phone</label>
               <input type="text" id="settings-phone">
             </div>
+            <div class="field">
+              <label>User Type</label>
+              <select id="settings-user-type" onchange="toggleCountyField()">
+                <option value="">— Select —</option>
+                <option value="Admin">Admin</option>
+                <option value="Executive Management Team Member">Executive Management Team Member</option>
+                <option value="County Level Team Member">County Level Team Member</option>
+                <option value="Volunteer">Volunteer</option>
+                <option value="Supporter">Supporter</option>
+                <option value="Board">Board</option>
+              </select>
+            </div>
 
+            <div class="field" id="settings-county-field" style="display:none">
+              <label>County</label>
+              <input type="text" id="settings-county" placeholder="e.g. Montserrado">
+            </div>
+
+            <div class="field">
+              <label>Leading any project?</label>
+              <select id="settings-leading-project" onchange="toggleProjectFields()">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </div>
+
+            <div id="project-detail-fields" style="display:none">
+              <div class="field">
+                <label>Which Project</label>
+                <select id="settings-project-select">
+                  <option value="">Loading projects…</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Role in the Project</label>
+                <input type="text" id="settings-project-role" placeholder="e.g. Project Lead, Coordinator, M&amp;E Officer">
+              </div>
+            </div>
             <button class="btn" onclick="saveProfileSettings()">Save Profile</button>
           </div>
         </details>
@@ -1582,6 +1619,8 @@ async function toggleVoicePlayback(btnEl) {
           ${p.bio ? `<div class="bio">${p.bio}</div>` : ''}
           ${p.pastPositions ? `<div class="contact">Past: ${p.pastPositions}</div>` : ''}
           ${p.phone ? `<div class="contact">📞 ${p.phone}</div>` : ''}
+          ${p.userType ? `<div class="contact">🏷️ ${p.userType}${p.userType === 'County Level Team Member' && p.county ? ' — ' + p.county : ''}</div>` : ''}
+          ${p.leadingProject === 'Yes' && p.projectName ? `<div class="contact">📁 Leading: ${p.projectName} (${p.projectRole || 'Role not set'})</div>` : ''}
           <div class="contact">✉️ ${p.email}</div>
         </div>
       </div>
@@ -1725,8 +1764,45 @@ async function toggleVoicePlayback(btnEl) {
     pendingSettingsPhotoBase64 = null;
     const preview = document.getElementById('settings-avatar-preview');
     preview.innerHTML = currentUser.photoUrl ? `<img src="${currentUser.photoUrl}">` : (currentUser.displayName || currentUser.name || 'U')[0];
+    document.getElementById('settings-user-type').value = currentUser.userType || '';
+    document.getElementById('settings-county').value = currentUser.county || '';
+    toggleCountyField();
+
+    document.getElementById('settings-leading-project').value = currentUser.leadingProject === 'Yes' ? 'Yes' : 'No';
+    toggleProjectFields();
+    loadProjectOptionsForSettings(currentUser.projectId);
+    document.getElementById('settings-project-role').value = currentUser.projectRole || '';
   }
 
+  function toggleCountyField() {
+  const val = document.getElementById('settings-user-type').value;
+  document.getElementById('settings-county-field').style.display = (val === 'County Level Team Member') ? 'block' : 'none';
+}
+
+function toggleProjectFields() {
+  const val = document.getElementById('settings-leading-project').value;
+  document.getElementById('project-detail-fields').style.display = (val === 'Yes') ? 'block' : 'none';
+}
+
+// Populates "Which Project" from the Initiatives already entered by the
+// ED/CFO in the Finances tab, so a project only has to be created once.
+async function loadProjectOptionsForSettings(selectedProjectId) {
+  const select = document.getElementById('settings-project-select');
+  select.innerHTML = '<option value="">Loading projects…</option>';
+  try {
+    const data = await fetch(`${SCRIPT_URL}?action=finances&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+    const initiatives = (data && data.initiatives) || [];
+    if (!initiatives.length) {
+      select.innerHTML = '<option value="">No projects/initiatives entered yet</option>';
+      return;
+    }
+    select.innerHTML = initiatives.map(i => `<option value="${i.id}">${escapeHtml(i.name)}</option>`).join('');
+    if (selectedProjectId) select.value = selectedProjectId;
+  } catch (err) {
+    select.innerHTML = '<option value="">Could not load projects</option>';
+  }
+}
+  
   // Resizes/compresses an image client-side before it's uploaded, so a large phone
   // photo can't fail to load or blow past the upload cap — everything sent for a
   // profile picture is capped at maxDim px on its longest side and re-encoded as a
@@ -1811,6 +1887,16 @@ async function toggleVoicePlayback(btnEl) {
         prefix: document.getElementById('settings-prefix').value,
         gender: document.getElementById('settings-gender').value,
         preferredName: document.getElementById('settings-preferred-name').value
+        userType: document.getElementById('settings-user-type').value,
+        county: document.getElementById('settings-user-type').value === 'County Level Team Member'
+          ? document.getElementById('settings-county').value : '',
+        leadingProject: document.getElementById('settings-leading-project').value,
+        projectId: document.getElementById('settings-leading-project').value === 'Yes'
+          ? document.getElementById('settings-project-select').value : '',
+        projectName: document.getElementById('settings-leading-project').value === 'Yes'
+          ? (document.getElementById('settings-project-select').selectedOptions[0]?.textContent || '') : '',
+        projectRole: document.getElementById('settings-leading-project').value === 'Yes'
+          ? document.getElementById('settings-project-role').value : ''
       };
 
       const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
