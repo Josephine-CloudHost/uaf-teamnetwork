@@ -91,32 +91,26 @@
   .team-card .contact { font-size: 12px; color: var(--muted); margin-top: 6px; }
   .team-search { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; margin-bottom: 14px; background: #fff; }
 
-  /* Settings / profile form */
-  .settings-section { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
-  .settings-section h4 { margin-top: 0; }
-  .prefix-row { display: flex; gap: 8px; }
-  .prefix-row select { max-width: 110px; flex-shrink: 0; }
-  .photo-preview-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-  .photo-preview-row .avatar { width: 56px; height: 56px; font-size: 20px; }
-
-  /* Collapsible profile setup */
-  #profile-setup-details summary { cursor: pointer; font-weight: 700; font-size: 15px; list-style: none; display: flex; align-items: center; justify-content: space-between; }
-  #profile-setup-details summary::-webkit-details-marker { display: none; }
-  #profile-setup-details summary::after { content: '▾'; font-size: 13px; color: var(--muted); transition: transform 0.15s ease; }
-  #profile-setup-details[open] summary::after { transform: rotate(180deg); }
-  #profile-setup-details .profile-setup-body { margin-top: 14px; }
-
-  /* Collapsible chat management (delete chat) — same look as Profile Setup above */
-  #chat-management-details summary { cursor: pointer; font-weight: 700; font-size: 15px; list-style: none; display: flex; align-items: center; justify-content: space-between; }
-  #chat-management-details summary::-webkit-details-marker { display: none; }
-  #chat-management-details summary::after { content: '▾'; font-size: 13px; color: var(--muted); transition: transform 0.15s ease; }
-  #chat-management-details[open] summary::after { transform: rotate(180deg); }
-  #chat-management-details .profile-setup-body { margin-top: 14px; }
-  .chat-manage-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); gap: 10px; }
-  .chat-manage-row:last-child { border-bottom: none; }
-  .chat-manage-row .name { font-weight: 600; font-size: 14px; }
-  .chat-manage-row .type { font-size: 11px; color: var(--muted); }
-  .chat-manage-row .btn.danger { width: auto; padding: 5px 12px; font-size: 12px; flex-shrink: 0; }
+    /* Settings list — flat, modern, no boxed cards (icon + title/subtitle rows) */
+  .settings-list { background: var(--card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); margin-bottom: 18px; }
+  .settings-group-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 16px 6px; }
+  .settings-list > .settings-group-label:first-child { padding-top: 14px; }
+  .settings-row { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-bottom: 1px solid var(--line); cursor: pointer; text-decoration: none; color: inherit; list-style: none; transition: background 0.12s ease; }
+  .settings-row::-webkit-details-marker { display: none; }
+  .settings-row:hover { background: var(--paper); }
+  .settings-list > .settings-row:last-child,
+  .settings-list > details:last-child .settings-row { border-bottom: none; }
+  .settings-row-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: var(--primary); color: #fff; }
+  .settings-row-icon.danger { background: #FDE8E8; }
+  .settings-row-text { flex: 1; min-width: 0; }
+  .settings-row-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .settings-row-title.danger { color: #B3261E; }
+  .settings-row-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .settings-row-chevron { font-size: 15px; color: var(--muted); flex-shrink: 0; transition: transform 0.15s ease; }
+  details[open] > summary .settings-row-chevron { transform: rotate(90deg); }
+  .inline-select { border: none; background: transparent; font-size: 13px; color: var(--muted); text-align: right; padding-right: 2px; }
+  .settings-row-expand { padding: 4px 16px 18px; border-bottom: 1px solid var(--line); }
+  details:last-child .settings-row-expand { border-bottom: none; }
 
   /* Notifications tab */
   .notif-item { display: flex; gap: 10px; align-items: flex-start; }
@@ -381,27 +375,48 @@
       <div id="tasks-list">Loading tasks…</div>
     </div>
     <!-- SETTINGS TAB -->
+        <!-- SETTINGS TAB -->
     <div id="tab-settings" class="panel">
       <h3 style="margin-top:0">App Settings</h3>
 
-      <div class="settings-section">
-        <h4>Theme</h4>
-        <select onchange="applyTheme(this.value)">
-          <option value="teal">UAF Colors (Red &amp; Blue)</option>
-          <option value="forest">Forest Green</option>
-          <option value="sunset">Sunset Warm</option>
-          <option value="midnight">Midnight Dark</option>
-        </select>
-        <div style="margin-top:12px;">
-          <button class="btn secondary" id="enable-notif-btn" onclick="requestNotificationPermission()">Enable Mobile Live Notifications</button>
-          <div id="notif-status" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
-        </div>
-      </div>
+      <div class="settings-list">
+        <div class="settings-group-label">Preferences</div>
 
-      <div class="settings-section">
+        <div class="settings-row" style="cursor:default;">
+          <div class="settings-row-icon">🎨</div>
+          <div class="settings-row-text">
+            <div class="settings-row-title">Theme</div>
+            <div class="settings-row-subtitle">App color scheme</div>
+          </div>
+          <select class="inline-select" onchange="applyTheme(this.value)">
+            <option value="teal">UAF Colors</option>
+            <option value="forest">Forest Green</option>
+            <option value="sunset">Sunset Warm</option>
+            <option value="midnight">Midnight Dark</option>
+          </select>
+        </div>
+
+        <div class="settings-row" id="notif-settings-row" onclick="requestNotificationPermission()">
+          <div class="settings-row-icon">🔔</div>
+          <div class="settings-row-text">
+            <div class="settings-row-title">Live Notifications</div>
+            <div class="settings-row-subtitle" id="notif-status">Tap to enable on this device</div>
+          </div>
+          <div class="settings-row-chevron">›</div>
+        </div>
+
+        <div class="settings-group-label">Profile</div>
+
         <details id="profile-setup-details">
-          <summary>Profile Setup</summary>
-          <div class="profile-setup-body">
+          <summary class="settings-row">
+            <div class="settings-row-icon">👤</div>
+            <div class="settings-row-text">
+              <div class="settings-row-title">Profile Setup</div>
+              <div class="settings-row-subtitle">Name, photo, position, and project details</div>
+            </div>
+            <div class="settings-row-chevron">›</div>
+          </summary>
+          <div class="settings-row-expand">
             <div id="settings-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
             <div id="settings-success" style="color:var(--job); font-size:13px; display:none; margin-bottom:10px;"></div>
 
@@ -461,6 +476,7 @@
               <label>Phone</label>
               <input type="text" id="settings-phone">
             </div>
+
             <div class="field">
               <label>User Type</label>
               <select id="settings-user-type" onchange="toggleCountyField()">
@@ -499,52 +515,76 @@
                 <input type="text" id="settings-project-role" placeholder="e.g. Project Lead, Coordinator, M&amp;E Officer">
               </div>
             </div>
+
             <button class="btn" onclick="saveProfileSettings()">Save Profile</button>
           </div>
         </details>
-      </div>
 
-      <div class="settings-section">
         <details id="chat-management-details" ontoggle="if(this.open) loadChatManagementList()">
-          <summary>Manage Chats</summary>
-          <div class="profile-setup-body">
+          <summary class="settings-row">
+            <div class="settings-row-icon">💬</div>
+            <div class="settings-row-text">
+              <div class="settings-row-title">Manage Chats</div>
+              <div class="settings-row-subtitle">Delete group chats and direct messages</div>
+            </div>
+            <div class="settings-row-chevron">›</div>
+          </summary>
+          <div class="settings-row-expand">
             <div id="chat-management-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
             <p style="font-size:12px; color:var(--muted); margin-top:0;">Deleting a chat here removes it — and its full message history — for everyone in it. The Team channel can't be deleted.</p>
             <div id="chat-management-list">Loading chats...</div>
           </div>
         </details>
-      </div>
 
-            <div class="settings-section">
-        <h4>Account</h4>
-        <button class="btn danger" onclick="logoutUser()">Log Out</button>
-      </div>
+        <div class="settings-group-label">Account</div>
 
-      <div class="settings-section">
-        <h4>Other UAF Services</h4>
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          <a href="https://josephine-cloudhost.github.io/uaf-task-manager-frontend/" target="_blank" style="color:var(--primary); font-size:14px; text-decoration:underline;">UAF Tasks Tracker</a>
-          <a href="https://tinyurl.com/uafsite" target="_blank" style="color:var(--primary); font-size:14px; text-decoration:underline;">UAF Blogsite</a>
-          <a href="https://web.facebook.com/profile.php?id=100094538285249" target="_blank" style="color:var(--primary); font-size:14px; text-decoration:underline;">UAF Facebook</a>
+        <div class="settings-row" onclick="shareApp()">
+          <div class="settings-row-icon">📤</div>
+          <div class="settings-row-text">
+            <div class="settings-row-title">Share App</div>
+            <div class="settings-row-subtitle" id="share-status">Invite a teammate to join</div>
+          </div>
+          <div class="settings-row-chevron">›</div>
+        </div>
+
+        <div class="settings-row" onclick="logoutUser()">
+          <div class="settings-row-icon">🚪</div>
+          <div class="settings-row-text">
+            <div class="settings-row-title">Log Out</div>
+          </div>
+          <div class="settings-row-chevron">›</div>
+        </div>
+
+        <div class="settings-group-label">Other UAF Services</div>
+
+        <a class="settings-row" href="https://josephine-cloudhost.github.io/uaf-task-manager-frontend/" target="_blank">
+          <div class="settings-row-icon">✅</div>
+          <div class="settings-row-text"><div class="settings-row-title">UAF Tasks Tracker</div></div>
+          <div class="settings-row-chevron">↗</div>
+        </a>
+        <a class="settings-row" href="https://tinyurl.com/uafsite" target="_blank">
+          <div class="settings-row-icon">🌐</div>
+          <div class="settings-row-text"><div class="settings-row-title">UAF Blogsite</div></div>
+          <div class="settings-row-chevron">↗</div>
+        </a>
+        <a class="settings-row" href="https://web.facebook.com/profile.php?id=100094538285249" target="_blank">
+          <div class="settings-row-icon">📘</div>
+          <div class="settings-row-text"><div class="settings-row-title">UAF Facebook</div></div>
+          <div class="settings-row-chevron">↗</div>
+        </a>
+
+        <div class="settings-group-label" style="color:#B3261E;">Danger Zone</div>
+
+        <div class="settings-row" onclick="openModal('delete-account-modal')">
+          <div class="settings-row-icon danger">🗑️</div>
+          <div class="settings-row-text">
+            <div class="settings-row-title danger">Delete Account</div>
+            <div class="settings-row-subtitle">Permanently removes your profile — can't be undone</div>
+          </div>
+          <div class="settings-row-chevron">›</div>
         </div>
       </div>
-
-      <div class="settings-section">
-        <h4>Share App</h4>
-        <p style="font-size:12px; color:var(--muted); margin-top:0;">Invite a teammate to join UAF Team Network.</p>
-        <button class="btn secondary" onclick="shareApp()">📤 Share App Link</button>
-        <div id="share-status" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
-      </div>
-      
-      <div class="settings-section">
-        <h4 style="color:#B3261E">Danger Zone</h4>
-        <p style="font-size:12px; color:var(--muted); margin-top:0;">Deleting your account removes your profile permanently and can't be undone.</p>
-        <button class="btn danger" onclick="openModal('delete-account-modal')">Delete Account</button>
-      </div>
     </div>
-  </main>
-</div>
-
 <!-- POST UPDATE MODAL -->
 <div class="modal" id="update-modal">
   <div class="modal-card">
@@ -2526,20 +2566,20 @@ async function loadProjectOptionsForSettings(selectedProjectId) {
   }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-  function updateNotifButtonState() {
+    function updateNotifButtonState() {
     const statusEl = document.getElementById('notif-status');
-    const btn = document.getElementById('enable-notif-btn');
+    const rowEl = document.getElementById('notif-settings-row');
     if (!('Notification' in window)) {
-      statusEl.innerText = 'This browser does not support notifications.';
-      btn.disabled = true;
+      statusEl.innerText = 'Not supported in this browser';
+      if (rowEl) rowEl.style.opacity = '0.5';
       return;
     }
     if (Notification.permission === 'granted') {
-      statusEl.innerText = 'Live notifications are enabled on this device.';
+      statusEl.innerText = 'Enabled on this device';
     } else if (Notification.permission === 'denied') {
-      statusEl.innerText = 'Notifications are blocked for this site in your browser settings — you\'ll need to re-allow them there.';
+      statusEl.innerText = "Blocked — enable in your browser's site settings";
     } else {
-      statusEl.innerText = '';
+      statusEl.innerText = 'Tap to enable on this device';
     }
   }
 
