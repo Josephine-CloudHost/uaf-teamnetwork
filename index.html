@@ -309,7 +309,7 @@
         <span class="fin-badge" id="fin-role-badge">Read-Only</span>
       </div>
       <div class="fin-permission-notice" id="fin-permission-notice">
-        You have read-only access to UAF Finances. Updating balances or recording income/expenses is limited to the Executive Director and CFO.
+        You have read-only access to UAF Finances. Updating balances or recording income/expenses is limited to the Executive Director and the Cheif Financial Officer.
       </div>
 
 <div class="fin-dashboard-grid">
@@ -358,7 +358,7 @@
   </div>
 </div>
 
-     <div class="fin-section" id="fin-ledger-section" style="display:none;">
+         <div class="fin-section" id="fin-ledger-section" style="display:none;">
   <div class="fin-section-header"><h4>Transaction Ledger</h4></div>
   <div class="fin-table-wrap">
     <table class="fin-table">
@@ -367,6 +367,9 @@
     </table>
   </div>
 </div>
+    </div>  <!-- THIS: closes tab-finances -->
+
+ 
 
     <!-- DOCUMENTS TAB -->
     <div id="tab-documents" class="panel">
@@ -695,20 +698,19 @@
 <!-- FINANCE MODALS -->
 <div class="modal" id="modal-update-org">
   <div class="modal-card">
-    <h3>Update Organizational Account Balance</h3>
+    <h3>Update Operational Account Balance</h3>
     <div id="modal-update-org-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
-    <div class="field"><label>New Balance ($)</label><input type="number" step="0.01" id="input-org-balance"></div>
+    <div class="field"><label>New Balance</label><input type="number" step="0.01" id="input-org-balance"></div>
+    <div class="field"><label>Currency</label>
+      <select id="input-org-currency">
+        <option value="USD">USD ($)</option>
+        <option value="LRD">LRD (L$)</option>
+      </select>
+    </div>
     <div class="field"><label>Reason / Note</label><input type="text" id="input-org-reason" placeholder="e.g. Annual audit reconciliation"></div>
-   <div class="field"><label>Currency</label>
-  <select id="__ID__-currency">
-    <option value="USD">USD ($)</option>
-    <option value="LRD">LRD (L$)</option>
-  </select>
-</div>
 <button class="btn" onclick="openModal('modal-update-org')">Update Operational Balance</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-update-org')">Cancel</button>
   </div>
-  
 </div>
 
 <div class="modal" id="modal-add-income">
@@ -728,6 +730,9 @@
       <select id="income-initiative-select"></select>
     </div>
     <div class="field"><label>Amount ($)</label><input type="number" step="0.01" id="income-amount"></div>
+    <div class="field"><label>Currency</label>
+  <select id="income-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select>
+</div>
     <div class="field"><label>Description / Source</label><input type="text" id="income-desc" placeholder="e.g. USAID Grant Q3 disbursement"></div>
     <button class="btn" onclick="submitFinancialIncome()">Record Income</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-income')">Cancel</button>
@@ -738,6 +743,9 @@
   <div class="modal-card">
     <h3>Record Financial Expense</h3>
     <div id="modal-add-expense-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+    <div class="field"><label>Currency</label>
+  <select id="expense-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select>
+</div>
     <div class="field"><label>Description</label><input type="text" id="expense-desc"></div>
     <div class="field"><label>Amount ($)</label><input type="number" step="0.01" id="expense-amount"></div>
     <div class="field">
@@ -764,6 +772,9 @@
     <h3>New Financial Initiative</h3>
     <div id="modal-add-initiative-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
     <div class="field"><label>Initiative Name</label><input type="text" id="init-name"></div>
+    <div class="field"><label>Currency</label>
+  <select id="init-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select>
+</div>
     <div class="field"><label>Initial Income ($)</label><input type="number" step="0.01" id="init-income"></div>
     <div class="field">
       <label>Status</label>
@@ -2394,7 +2405,9 @@ function renderFinances(data) {
   financesAccess = data.access || {};
   const isDetailed = !!financesAccess.canViewDetailed;
   const canManage = !!financesAccess.canManageFinances;
-
+let currentInitiatives = [];
+let currentLedger = [];
+let financesAccess = {};
   // --- Role badge + permission notice + admin action bar ---
   const badgeEl = document.getElementById('fin-role-badge');
   const noticeEl = document.getElementById('fin-permission-notice');
@@ -2591,35 +2604,34 @@ async function submitDeleteInitiative(initiativeId) {
     document.getElementById('field-expense-initiative').style.display = (val === 'Specific Initiative') ? 'block' : 'none';
   }
 
-  async function submitUpdateOrgBalance() {
-    const errorEl = document.getElementById('modal-update-org-error');
-    errorEl.style.display = 'none';
-    const newBalance = parseFloat(document.getElementById('input-org-balance').value);
-    if (isNaN(newBalance)) { errorEl.innerText = 'Enter a valid amount.'; errorEl.style.display = 'block'; return; }
-    try {
-      const res = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'updateOrgBalance',
-          email: currentUser.email,
-          newBalance,
-          reason: document.getElementById('input-org-reason').value.trim()
-        })
-      }).then(r => r.json());
-      if (res.success) {
-        closeModal('modal-update-org');
-        document.getElementById('input-org-balance').value = '';
-        document.getElementById('input-org-reason').value = '';
-        loadFinances();
-      } else {
-        errorEl.innerText = res.error || 'Could not update the balance.';
-        errorEl.style.display = 'block';
-      }
-    } catch (err) {
-      errorEl.innerText = 'Network error: ' + err.message;
+ async function submitUpdateOrgBalance() {
+  const errorEl = document.getElementById('modal-update-org-error');
+  errorEl.style.display = 'none';
+  const newBalance = parseFloat(document.getElementById('input-org-balance').value);
+  const currency = document.getElementById('input-org-currency').value;
+  if (isNaN(newBalance)) { errorEl.innerText = 'Enter a valid amount.'; errorEl.style.display = 'block'; return; }
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'updateOrgBalance', email: currentUser.email, newBalance, currency,
+        reason: document.getElementById('input-org-reason').value.trim()
+      })
+    }).then(r => r.json());
+    if (res.success) {
+      closeModal('modal-update-org');
+      document.getElementById('input-org-balance').value = '';
+      document.getElementById('input-org-reason').value = '';
+      loadFinances();
+    } else {
+      errorEl.innerText = res.error || 'Could not update the balance.';
       errorEl.style.display = 'block';
     }
+  } catch (err) {
+    errorEl.innerText = 'Network error: ' + err.message;
+    errorEl.style.display = 'block';
   }
+}
 
   async function submitFinancialIncome() {
     const errorEl = document.getElementById('modal-add-income-error');
