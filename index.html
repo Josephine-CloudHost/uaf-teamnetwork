@@ -144,6 +144,17 @@
 .voice-player .vp-play { background:none; border:none; cursor:pointer; font-size:15px; width:24px; height:24px; flex-shrink:0; color:inherit; }
 .voice-player .vp-seek { flex:1; height:3px; accent-color: currentColor; }
 .voice-player .vp-time { font-size:11px; opacity:0.85; min-width:30px; text-align:right; }
+.msg-bubble { position: relative; }
+.msg-bubble-top { display:flex; justify-content:space-between; align-items:flex-start; gap:6px; margin-bottom:2px; }
+.msg-menu-btn { background:none; border:none; cursor:pointer; font-size:14px; line-height:1; padding:0 2px; opacity:0.7; color:inherit; flex-shrink:0; }
+.msg-menu-btn:hover { opacity:1; }
+.msg-menu { display:none; position:absolute; top:22px; right:6px; background:#fff; color:var(--ink); border:1px solid var(--line); border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); z-index:20; overflow:hidden; min-width:90px; }
+.msg-menu button { display:block; width:100%; text-align:left; padding:8px 12px; background:none; border:none; font-size:13px; cursor:pointer; color:var(--ink); }
+.msg-menu button:hover { background:var(--paper); }
+.msg-menu button.danger-item { color:#B3261E; }
+.msg-edit-row { display:flex; gap:6px; align-items:center; }
+.msg-edit-input { flex:1; padding:4px 8px; border-radius:6px; border:1px solid var(--line); font-size:13px; }
+.msg-edit-save, .msg-edit-cancel { background:none; border:none; cursor:pointer; font-size:14px; color:inherit; }
 </style>
 </head>
 <body>
@@ -484,6 +495,7 @@
   // always reflects their CURRENT profile, not stale data from when they first sent
   // a message.
   let profileNameMap = {};
+  let lastMessagesById = {}; // id -> message object, used when starting an edit
   let pendingSettingsPhotoBase64 = null; // set when the user picks a new profile photo
   let pendingSettingsPhotoMime = null;
   const SESSION_KEY = 'uaf_session'; // { email, token } saved in localStorage for "stay signed in"
@@ -996,6 +1008,12 @@ function extractDriveFileId(url) {
   return m ? m[1] : null;
 }
 
+function canEditMessage(m) {
+  if (m.type !== 'user') return false;
+  const hoursSince = (Date.now() - new Date(m.timestamp).getTime()) / (1000 * 60 * 60);
+  return hoursSince <= 5;
+}
+
 function renderMessage(m) {
   const isMine = currentUser && m.email === currentUser.email;
   const senderLabel = profileNameMap[m.email] || m.name || 'Unknown';
@@ -1015,14 +1033,92 @@ function renderMessage(m) {
     body = `<span>${escapeHtml(m.text)}</span>`;
   }
 
+  let menuHtml = '';
+  if (isMine) {
+    const canEdit = canEditMessage(m);
+    menuHtml = `
+      <button class="msg-menu-btn" onclick="toggleMsgMenu(event,'${m.id}')">⋮</button>
+      <div class="msg-menu" id="menu-${m.id}">
+        ${canEdit ? `<button onclick="startEditMessage('${m.id}')">Edit</button>` : ''}
+        <button class="danger-item" onclick="confirmDeleteMessage('${m.id}')">Delete</button>
+      </div>`;
+  }
+
   return `
-    <div class="msg-row ${rowClass}">
+    <div class="msg-row ${rowClass}" data-msg-id="${m.id}">
       <div class="msg-bubble">
-        ${!isMine ? `<div class="msg-sender">${escapeHtml(senderLabel)}</div>` : ''}
-        ${body}
+        <div class="msg-bubble-top">
+          ${!isMine ? `<div class="msg-sender">${escapeHtml(senderLabel)}</div>` : `<span></span>`}
+          ${menuHtml}
+        </div>
+        <div class="msg-body">${body}</div>
         <div class="msg-time">${time}</div>
       </div>
+    </div>
+  `;
+}
+
+  function closeAllMsgMenus() {
+  document.querySelectorAll('.msg-menu').forEach(el => el.style.display = 'none');
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.msg-menu') && !e.target.closest('.msg-menu-btn')) closeAllMsgMenus();
+});
+
+function toggleMsgMenu(e, id) {
+  e.stopPropagation();
+  const menu = document.getElementById(`menu-${id}`);
+  const isOpen = menu.style.display === 'block';
+  closeAllMsgMenus();
+  menu.style.display = isOpen ? 'none' : 'block';
+}
+
+async function confirmDeleteMessage(id) {
+  closeAllMsgMenus();
+  if (!confirm('Delete this message? This cannot be undone.')) return;
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'deleteMessage', messageId: id, email: currentUser.email })
+    }).then(r => r.json());
+    if (res.success) loadMessages();
+    else alert(res.error || 'Could not delete message.');
+  } catch (err) {
+    alert('Network error: ' + err.message);
+  }
+}
+
+function startEditMessage(id) {
+  closeAllMsgMenus();
+  const msg = lastMessagesById[id];
+  if (!msg) return;
+  const bodyEl = document.querySelector(`[data-msg-id="${id}"] .msg-body`);
+  if (!bodyEl) return;
+  bodyEl.innerHTML = `
+    <div class="msg-edit-row">
+      <input type="text" class="msg-edit-input" value="${escapeHtml(msg.text)}">
+      <button class="msg-edit-save" onclick="saveEditMessage('${id}')">✓</button>
+      <button class="msg-edit-cancel" onclick="loadMessages()">✕</button>
     </div>`;
+  const input = bodyEl.querySelector('.msg-edit-input');
+  input.focus();
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveEditMessage(id); });
+}
+
+async function saveEditMessage(id) {
+  const input = document.querySelector(`[data-msg-id="${id}"] .msg-edit-input`);
+  const text = input ? input.value.trim() : '';
+  if (!text) { alert('Message cannot be empty.'); return; }
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'editMessage', messageId: id, email: currentUser.email, text })
+    }).then(r => r.json());
+    if (res.success) loadMessages();
+    else alert(res.error || 'Could not edit message.');
+  } catch (err) {
+    alert('Network error: ' + err.message);
+  }
 }
 
 // Caches loaded audio as blob URLs so replaying doesn't refetch.
@@ -1090,12 +1186,14 @@ async function toggleVoicePlayback(btnEl) {
   }
 }
 
-  async function loadMessages() {
-    const msgs = await fetch(`${SCRIPT_URL}?action=messages&channelId=${activeChannelId}&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
-    const container = document.getElementById('chat-messages');
-    container.innerHTML = msgs.map(renderMessage).join('');
-    container.scrollTop = container.scrollHeight;
-  }
+ async function loadMessages() {
+  const msgs = await fetch(`${SCRIPT_URL}?action=messages&channelId=${activeChannelId}&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+  const container = document.getElementById('chat-messages');
+  lastMessagesById = {};
+  msgs.forEach(m => { lastMessagesById[m.id] = m; });
+  container.innerHTML = msgs.map(renderMessage).join('');
+  container.scrollTop = container.scrollHeight;
+}
 
   async function sendMessage() {
     const input = document.getElementById('chat-input');
