@@ -333,6 +333,8 @@
           <table class="fin-table">
             <thead><tr><th>Name</th><th>Added</th><th>Status</th><th>Income</th><th>Expenses</th><th>Balance</th></tr></thead>
             <tbody id="initiatives-table-body"><tr><td colspan="6" style="color:var(--muted); text-align:center;">Loading…</td></tr></tbody>
+          <thead><tr><th>Date</th><th>User</th><th>Type</th><th>Source</th><th>Amount</th><th>Description</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Name</th><th>Added</th><th>Status</th><th>Income</th><th>Expenses</th><th>Balance</th><th>Actions</th></tr></thead>
           </table>
         </div>
       </div>
@@ -748,6 +750,38 @@
     </div>
     <button class="btn" onclick="submitCreateInitiative()">Create Initiative</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-initiative')">Cancel</button>
+  </div>
+</div>
+
+    <div class="modal" id="modal-edit-entry">
+  <div class="modal-card">
+    <h3>Edit Financial Entry</h3>
+    <div id="modal-edit-entry-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+    <input type="hidden" id="edit-entry-id">
+    <div class="field"><label>Amount ($)</label><input type="number" step="0.01" id="edit-entry-amount"></div>
+    <div class="field"><label>Description</label><input type="text" id="edit-entry-description"></div>
+    <button class="btn" onclick="submitEditEntry()">Save Changes</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-edit-entry')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-edit-initiative">
+  <div class="modal-card">
+    <h3>Edit Initiative</h3>
+    <div id="modal-edit-initiative-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+    <input type="hidden" id="edit-init-id">
+    <div class="field"><label>Name</label><input type="text" id="edit-init-name"></div>
+    <div class="field"><label>Starting Income ($)</label><input type="number" step="0.01" id="edit-init-amount"></div>
+    <div class="field">
+      <label>Status</label>
+      <select id="edit-init-status">
+        <option value="Active">Active</option>
+        <option value="Pending">Pending</option>
+        <option value="Completed">Completed</option>
+      </select>
+    </div>
+    <button class="btn" onclick="submitEditInitiative()">Save Changes</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-edit-initiative')">Cancel</button>
   </div>
 </div>
 <!-- TASK / ACTIVITY MODAL -->
@@ -2313,7 +2347,9 @@ async function loadProjectOptionsForSettings(selectedProjectId) {
     return '$' + Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  let currentInitiatives = [];
+let currentInitiatives = [];
+let currentLedger = [];
+let financesAccess = {};
 
   async function loadFinances() {
     const isAdmin = isAuthorizedFinancialAdmin();
@@ -2338,53 +2374,159 @@ async function loadProjectOptionsForSettings(selectedProjectId) {
   }
 
   function renderFinances(data) {
-    const s = data.summary || {};
-    document.getElementById('dash-org-balance').innerText = formatCurrency(s.orgBalance);
-    document.getElementById('dash-grant-balance').innerText = formatCurrency(s.grantBalance);
-    document.getElementById('dash-other-balance').innerText = formatCurrency(s.otherBalance);
-    document.getElementById('dash-initiative-income').innerText = formatCurrency(s.initiativeIncome);
-    document.getElementById('dash-total-expenses').innerText = formatCurrency(s.totalExpenses);
-    document.getElementById('dash-total-balance').innerText = formatCurrency(s.totalFinancialBalance);
+  const s = data.summary || {};
+  const detail = data.detail || {};
+  financesAccess = data.access || {};
+  const canManage = !!financesAccess.canManageFinances;
 
-    currentInitiatives = data.initiatives || [];
-    const initBody = document.getElementById('initiatives-table-body');
-    initBody.innerHTML = currentInitiatives.length ? currentInitiatives.map(i => {
-      const statusClass = (i.status || 'Active').toLowerCase();
+  document.getElementById('dash-org-balance').innerText = formatCurrency(s.operationalBalance);
+  document.getElementById('dash-grant-balance').innerText = formatCurrency(s.grantBalance);
+  document.getElementById('dash-other-balance').innerText = formatCurrency(s.programBalance);
+  document.getElementById('dash-donation-balance').innerText = formatCurrency(s.donationBalance);
+  document.getElementById('dash-initiative-income').innerText = formatCurrency(detail.initiativesFundsTotal);
+  document.getElementById('dash-total-expenses').innerText = formatCurrency(detail.totalExpenses);
+  document.getElementById('dash-total-balance').innerText = formatCurrency(detail.totalFinancialBalance);
+
+  currentInitiatives = detail.initiatives || [];
+  const initBody = document.getElementById('initiatives-table-body');
+  initBody.innerHTML = currentInitiatives.length ? currentInitiatives.map(i => {
+    const statusClass = (i.status || 'Active').toLowerCase();
+    return `
+      <tr>
+        <td>${escapeHtml(i.name)}</td>
+        <td>${i.dateAdded ? new Date(i.dateAdded).toLocaleDateString() : ''}</td>
+        <td><span class="fin-badge ${statusClass}">${escapeHtml(i.status || 'Active')}</span></td>
+        <td>${formatCurrency(i.amountReceived)}</td>
+        <td>${formatCurrency(i.totalExpenses)}</td>
+        <td><strong>${formatCurrency(i.currentBalance)}</strong></td>
+        <td>${canManage ? `
+          <button class="btn secondary" style="width:auto; padding:3px 8px; font-size:11px;" onclick="openEditInitiativeModal('${i.id}')">Edit</button>
+          <button class="btn danger" style="width:auto; padding:3px 8px; font-size:11px;" onclick="submitDeleteInitiative('${i.id}')">Delete</button>` : ''}
+        </td>
+      </tr>`;
+  }).join('') : `<tr><td colspan="7" style="color:var(--muted); text-align:center;">No initiatives recorded yet.</td></tr>`;
+
+  const initOptions = currentInitiatives.map(i => `<option value="${i.id}">${escapeHtml(i.name)}</option>`).join('');
+  const incomeSelect = document.getElementById('income-initiative-select');
+  const expenseSelect = document.getElementById('expense-initiative-select');
+  if (incomeSelect) incomeSelect.innerHTML = initOptions || '<option value="">No initiatives yet</option>';
+  if (expenseSelect) expenseSelect.innerHTML = initOptions || '<option value="">No initiatives yet</option>';
+
+  currentLedger = data.auditTrail || [];
+  const ledgerBody = document.getElementById('ledger-table-body');
+  if (!canManage) {
+    ledgerBody.innerHTML = `<tr><td colspan="7" style="color:var(--muted); text-align:center;">Ledger visible to Executive Director / CFO only.</td></tr>`;
+  } else if (!currentLedger.length) {
+    ledgerBody.innerHTML = `<tr><td colspan="7" style="color:var(--muted); text-align:center;">No transactions recorded yet.</td></tr>`;
+  } else {
+    ledgerBody.innerHTML = currentLedger.map(l => {
+      const isBalanceUpdate = l.type === 'BalanceUpdate';
       return `
-        <tr>
-          <td>${escapeHtml(i.name)}</td>
-          <td>${i.dateAdded ? new Date(i.dateAdded).toLocaleDateString() : ''}</td>
-          <td><span class="fin-badge ${statusClass}">${escapeHtml(i.status || 'Active')}</span></td>
-          <td>${formatCurrency(i.amountReceived)}</td>
-          <td>${formatCurrency(i.totalExpenses)}</td>
-          <td><strong>${formatCurrency(i.currentBalance)}</strong></td>
-        </tr>`;
-    }).join('') : `<tr><td colspan="6" style="color:var(--muted); text-align:center;">No initiatives recorded yet.</td></tr>`;
-
-    const initOptions = currentInitiatives.map(i => `<option value="${i.id}">${escapeHtml(i.name)}</option>`).join('');
-    const incomeSelect = document.getElementById('income-initiative-select');
-    const expenseSelect = document.getElementById('expense-initiative-select');
-    if (incomeSelect) incomeSelect.innerHTML = initOptions || '<option value="">No initiatives yet</option>';
-    if (expenseSelect) expenseSelect.innerHTML = initOptions || '<option value="">No initiatives yet</option>';
-
-    const ledger = data.auditTrail || [];
-    const ledgerBody = document.getElementById('ledger-table-body');
-    if (!isAuthorizedFinancialAdmin()) {
-      ledgerBody.innerHTML = `<tr><td colspan="6" style="color:var(--muted); text-align:center;">Ledger visible to Executive Director / CFO only.</td></tr>`;
-    } else if (!ledger.length) {
-      ledgerBody.innerHTML = `<tr><td colspan="6" style="color:var(--muted); text-align:center;">No transactions recorded yet.</td></tr>`;
-    } else {
-      ledgerBody.innerHTML = ledger.map(l => `
-        <tr>
-          <td>${l.timestamp ? new Date(l.timestamp).toLocaleString() : ''}</td>
-          <td>${escapeHtml(l.user)}</td>
-          <td>${escapeHtml(l.type)}</td>
-          <td>${escapeHtml(l.category)}</td>
-          <td>${formatCurrency(l.amount)}</td>
-          <td>${escapeHtml(l.description || '—')}</td>
-        </tr>`).join('');
-    }
+      <tr>
+        <td>${l.timestamp ? new Date(l.timestamp).toLocaleString() : ''}</td>
+        <td>${escapeHtml(l.user)}</td>
+        <td>${escapeHtml(l.type)}</td>
+        <td>${escapeHtml(l.category)}</td>
+        <td>${formatCurrency(l.amount)}</td>
+        <td>${escapeHtml(l.description || '—')}</td>
+        <td>${isBalanceUpdate ? '<span style="color:var(--muted); font-size:11px;">Locked</span>' : `
+          <button class="btn secondary" style="width:auto; padding:3px 8px; font-size:11px;" onclick="openEditEntryModal('${l.id}')">Edit</button>
+          <button class="btn danger" style="width:auto; padding:3px 8px; font-size:11px;" onclick="submitDeleteEntry('${l.id}')">Delete</button>`}
+        </td>
+      </tr>`;
+    }).join('');
   }
+}
+
+function openEditEntryModal(entryId) {
+  const entry = currentLedger.find(l => l.id === entryId);
+  if (!entry) return;
+  document.getElementById('modal-edit-entry-error').style.display = 'none';
+  document.getElementById('edit-entry-id').value = entry.id;
+  document.getElementById('edit-entry-amount').value = entry.amount;
+  document.getElementById('edit-entry-description').value = entry.description || '';
+  openModal('modal-edit-entry');
+}
+
+async function submitEditEntry() {
+  const errorEl = document.getElementById('modal-edit-entry-error');
+  errorEl.style.display = 'none';
+  const entryId = document.getElementById('edit-entry-id').value;
+  const amount = parseFloat(document.getElementById('edit-entry-amount').value);
+  const description = document.getElementById('edit-entry-description').value.trim();
+  if (isNaN(amount) || amount <= 0) { errorEl.innerText = 'Enter a valid positive amount.'; errorEl.style.display = 'block'; return; }
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'editFinancialEntry', email: currentUser.email, entryId, amount, description })
+    }).then(r => r.json());
+    if (res.success) { closeModal('modal-edit-entry'); loadFinances(); }
+    else { errorEl.innerText = res.error || 'Could not save changes.'; errorEl.style.display = 'block'; }
+  } catch (err) {
+    errorEl.innerText = 'Network error: ' + err.message;
+    errorEl.style.display = 'block';
+  }
+}
+
+async function submitDeleteEntry(entryId) {
+  if (!confirm('Delete this financial entry? This cannot be undone.')) return;
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'deleteFinancialEntry', email: currentUser.email, entryId })
+    }).then(r => r.json());
+    if (res.success) loadFinances();
+    else alert(res.error || 'Could not delete that entry.');
+  } catch (err) {
+    alert('Network error: ' + err.message);
+  }
+}
+
+function openEditInitiativeModal(initiativeId) {
+  const init = currentInitiatives.find(i => i.id === initiativeId);
+  if (!init) return;
+  document.getElementById('modal-edit-initiative-error').style.display = 'none';
+  document.getElementById('edit-init-id').value = init.id;
+  document.getElementById('edit-init-name').value = init.name;
+  document.getElementById('edit-init-amount').value = init.amountReceived;
+  document.getElementById('edit-init-status').value = init.status || 'Active';
+  openModal('modal-edit-initiative');
+}
+
+async function submitEditInitiative() {
+  const errorEl = document.getElementById('modal-edit-initiative-error');
+  errorEl.style.display = 'none';
+  const initiativeId = document.getElementById('edit-init-id').value;
+  const name = document.getElementById('edit-init-name').value.trim();
+  const amountReceived = parseFloat(document.getElementById('edit-init-amount').value);
+  const status = document.getElementById('edit-init-status').value;
+  if (!name) { errorEl.innerText = 'Enter an initiative name.'; errorEl.style.display = 'block'; return; }
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'editInitiative', email: currentUser.email, initiativeId, name, amountReceived, status })
+    }).then(r => r.json());
+    if (res.success) { closeModal('modal-edit-initiative'); loadFinances(); }
+    else { errorEl.innerText = res.error || 'Could not save changes.'; errorEl.style.display = 'block'; }
+  } catch (err) {
+    errorEl.innerText = 'Network error: ' + err.message;
+    errorEl.style.display = 'block';
+  }
+}
+
+async function submitDeleteInitiative(initiativeId) {
+  if (!confirm('Delete this initiative? This cannot be undone.')) return;
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'deleteInitiative', email: currentUser.email, initiativeId })
+    }).then(r => r.json());
+    if (res.success) loadFinances();
+    else alert(res.error || 'Could not delete that initiative.');
+  } catch (err) {
+    alert('Network error: ' + err.message);
+  }
+}
 
   function openAddIncomeFor(target) {
     openModal('modal-add-income');
