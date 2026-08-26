@@ -313,7 +313,7 @@
       </div>
 
 <div class="fin-dashboard-grid">
-  <div class="fin-card"><div class="fin-label">Operational Account</div>
+  <div class="fin-card"><div class="fin-label">Operational Funds</div>
     <div class="fin-value" id="dash-org-balance-usd">$0.00</div>
     <div class="fin-value-sub" id="dash-org-balance-lrd">L$0.00</div></div>
   <div class="fin-card"><div class="fin-label">Grant Funds</div>
@@ -325,13 +325,18 @@
   <div class="fin-card"><div class="fin-label">Donations</div>
     <div class="fin-value" id="dash-donation-balance-usd">$0.00</div>
     <div class="fin-value-sub" id="dash-donation-balance-lrd">L$0.00</div></div>
-  <div class="fin-card"><div class="fin-label">Initiatives</div>
+
+  <!-- Detail-only cards: Executive Management + ED/CFO -->
+  <div class="fin-card" id="card-initiative-income" style="display:none;">
+    <div class="fin-label">Initiatives Funds</div>
     <div class="fin-value" id="dash-initiative-income-usd">$0.00</div>
     <div class="fin-value-sub" id="dash-initiative-income-lrd">L$0.00</div></div>
-  <div class="fin-card"><div class="fin-label">Total Expenses</div>
+  <div class="fin-card" id="card-total-expenses" style="display:none;">
+    <div class="fin-label">Total Expenses</div>
     <div class="fin-value" id="dash-total-expenses-usd">$0.00</div>
     <div class="fin-value-sub" id="dash-total-expenses-lrd">L$0.00</div></div>
-  <div class="fin-card total"><div class="fin-label">Total Financial Balance</div>
+  <div class="fin-card total" id="card-total-balance" style="display:none;">
+    <div class="fin-label">Total Financial Balance</div>
     <div class="fin-value" id="dash-total-balance-usd">$0.00</div>
     <div class="fin-value-sub" id="dash-total-balance-lrd">L$0.00</div></div>
 </div>
@@ -343,26 +348,25 @@
         <button class="btn secondary" onclick="openModal('modal-add-initiative')">+ New Initiative</button>
       </div>
 
-      <div class="fin-section">
-        <div class="fin-section-header"><h4>Initiatives</h4></div>
-        <div class="fin-table-wrap">
-          <table class="fin-table">
-          <thead><tr><th>Name</th><th>Currency</th><th>Added</th><th>Status</th><th>Income</th><th>Expenses</th><th>Balance</th><th>Actions</th></tr></thead>            <tbody id="initiatives-table-body"><tr><td colspan="6" style="color:var(--muted); text-align:center;">Loading…</td></tr></tbody>
-          <thead><tr><th>Date</th><th>User</th><th>Type</th><th>Source</th><th>Currency</th><th>Amount</th><th>Description</th><th>Actions</th></tr></thead>            <thead><tr><th>Name</th><th>Added</th><th>Status</th><th>Income</th><th>Expenses</th><th>Balance</th><th>Actions</th></tr></thead>
-          </table>
-        </div>
-      </div>
+    <div class="fin-section" id="fin-initiatives-section" style="display:none;">
+  <div class="fin-section-header"><h4>Initiatives Funds</h4></div>
+  <div class="fin-table-wrap">
+    <table class="fin-table">
+      <thead><tr><th>Name</th><th>Currency</th><th>Added</th><th>Status</th><th>Income</th><th>Expenses</th><th>Balance</th><th>Actions</th></tr></thead>
+      <tbody id="initiatives-table-body"><tr><td colspan="8" style="color:var(--muted); text-align:center;">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
 
-      <div class="fin-section">
-        <div class="fin-section-header"><h4>Transaction Ledger</h4></div>
-        <div class="fin-table-wrap">
-          <table class="fin-table">
-            <thead><tr><th>Date</th><th>User</th><th>Type</th><th>Source</th><th>Amount</th><th>Description</th></tr></thead>
-            <tbody id="ledger-table-body"><tr><td colspan="6" style="color:var(--muted); text-align:center;">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+     <div class="fin-section" id="fin-ledger-section" style="display:none;">
+  <div class="fin-section-header"><h4>Transaction Ledger</h4></div>
+  <div class="fin-table-wrap">
+    <table class="fin-table">
+      <thead><tr><th>Date</th><th>User</th><th>Type</th><th>Source</th><th>Currency</th><th>Amount</th><th>Description</th><th>Actions</th></tr></thead>
+      <tbody id="ledger-table-body"><tr><td colspan="8" style="color:var(--muted); text-align:center;">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
 
     <!-- DOCUMENTS TAB -->
     <div id="tab-documents" class="panel">
@@ -701,7 +705,7 @@
     <option value="LRD">LRD (L$)</option>
   </select>
 </div>
-    <button class="btn" onclick="submitUpdateOrgBalance()">Update Balance</button>
+<button class="btn" onclick="openModal('modal-update-org')">Update Operational Balance</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-update-org')">Cancel</button>
   </div>
   
@@ -2370,12 +2374,48 @@ async function loadProjectOptionsForSettings(selectedProjectId) {
   return symbol + Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+async function loadFinances() {
+  const initBody = document.getElementById('initiatives-table-body');
+  try {
+    const data = await fetch(`${SCRIPT_URL}?action=finances&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+    if (data.error) {
+      initBody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">${escapeHtml(data.error)}</td></tr>`;
+      return;
+    }
+    renderFinances(data);
+  } catch (err) {
+    initBody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Could not load financial data: ${escapeHtml(err.message)}</td></tr>`;
+  }
+}
+
 function renderFinances(data) {
   const s = data.summary || {};
   const detail = data.detail || {};
   financesAccess = data.access || {};
+  const isDetailed = !!financesAccess.canViewDetailed;
   const canManage = !!financesAccess.canManageFinances;
 
+  // --- Role badge + permission notice + admin action bar ---
+  const badgeEl = document.getElementById('fin-role-badge');
+  const noticeEl = document.getElementById('fin-permission-notice');
+  if (canManage) {
+    badgeEl.innerText = 'Admin (Full Access)';
+    badgeEl.className = 'fin-badge active';
+    noticeEl.style.display = 'none';
+  } else if (isDetailed) {
+    badgeEl.innerText = 'Executive Management (Detailed View)';
+    badgeEl.className = 'fin-badge pending';
+    noticeEl.innerText = 'You can see fund totals and initiatives, but updating balances or recording income/expenses is limited to the Executive Director and CFO.';
+    noticeEl.style.display = 'block';
+  } else {
+    badgeEl.innerText = 'Read-Only';
+    badgeEl.className = 'fin-badge pending';
+    noticeEl.innerText = 'You have read-only access to UAF Finances. Updating balances or recording income/expenses is limited to the Executive Director and CFO.';
+    noticeEl.style.display = 'block';
+  }
+  document.getElementById('fin-actions-bar').style.display = canManage ? 'flex' : 'none';
+
+  // --- Four core cards: everyone with finances-tab access sees these ---
   const setPair = (prefix, pair) => {
     document.getElementById(`${prefix}-usd`).innerText = formatCurrency(pair && pair.USD, 'USD');
     document.getElementById(`${prefix}-lrd`).innerText = formatCurrency(pair && pair.LRD, 'LRD');
@@ -2384,38 +2424,49 @@ function renderFinances(data) {
   setPair('dash-grant-balance', s.grantBalance);
   setPair('dash-other-balance', s.programBalance);
   setPair('dash-donation-balance', s.donationBalance);
-  setPair('dash-initiative-income', detail.initiativesFundsTotal);
-  setPair('dash-total-expenses', detail.totalExpenses);
-  setPair('dash-total-balance', detail.totalFinancialBalance);
 
-  currentInitiatives = detail.initiatives || [];
-  document.getElementById('initiatives-table-body').innerHTML = currentInitiatives.length
-    ? currentInitiatives.map(i => `
-      <tr>
-        <td>${escapeHtml(i.name)}</td>
-        <td>${i.currency}</td>
-        <td>${i.dateAdded ? new Date(i.dateAdded).toLocaleDateString() : ''}</td>
-        <td><span class="fin-badge ${(i.status||'Active').toLowerCase()}">${escapeHtml(i.status||'Active')}</span></td>
-        <td>${formatCurrency(i.amountReceived, i.currency)}</td>
-        <td>${formatCurrency(i.totalExpenses, i.currency)}</td>
-        <td><strong>${formatCurrency(i.currentBalance, i.currency)}</strong></td>
-        <td>${canManage ? `<button class="btn secondary" style="width:auto;padding:3px 8px;font-size:11px;" onclick="openEditInitiativeModal('${i.id}')">Edit</button>
-          <button class="btn danger" style="width:auto;padding:3px 8px;font-size:11px;" onclick="submitDeleteInitiative('${i.id}')">Delete</button>` : ''}</td>
-      </tr>`).join('')
-    : `<tr><td colspan="8" style="color:var(--muted); text-align:center;">No initiatives recorded yet.</td></tr>`;
+  // --- Detail-only cards + Initiatives table: Executive Management and above ---
+  document.getElementById('card-initiative-income').style.display = isDetailed ? '' : 'none';
+  document.getElementById('card-total-expenses').style.display = isDetailed ? '' : 'none';
+  document.getElementById('card-total-balance').style.display = isDetailed ? '' : 'none';
+  document.getElementById('fin-initiatives-section').style.display = isDetailed ? 'block' : 'none';
 
-  const initOptions = currentInitiatives.map(i => `<option value="${i.id}">${escapeHtml(i.name)} (${i.currency})</option>`).join('');
-  document.getElementById('income-initiative-select').innerHTML = initOptions || '<option value="">No initiatives yet</option>';
-  document.getElementById('expense-initiative-select').innerHTML = initOptions || '<option value="">No initiatives yet</option>';
+  if (isDetailed) {
+    setPair('dash-initiative-income', detail.initiativesFundsTotal);
+    setPair('dash-total-expenses', detail.totalExpenses);
+    setPair('dash-total-balance', detail.totalFinancialBalance);
 
-  currentLedger = data.auditTrail || [];
-  const ledgerBody = document.getElementById('ledger-table-body');
-  if (!canManage) {
-    ledgerBody.innerHTML = `<tr><td colspan="8" style="color:var(--muted); text-align:center;">Ledger visible to Executive Director / CFO only.</td></tr>`;
-  } else if (!currentLedger.length) {
-    ledgerBody.innerHTML = `<tr><td colspan="8" style="color:var(--muted); text-align:center;">No transactions recorded yet.</td></tr>`;
+    currentInitiatives = detail.initiatives || [];
+    document.getElementById('initiatives-table-body').innerHTML = currentInitiatives.length
+      ? currentInitiatives.map(i => `
+        <tr>
+          <td>${escapeHtml(i.name)}</td>
+          <td>${i.currency}</td>
+          <td>${i.dateAdded ? new Date(i.dateAdded).toLocaleDateString() : ''}</td>
+          <td><span class="fin-badge ${(i.status||'Active').toLowerCase()}">${escapeHtml(i.status||'Active')}</span></td>
+          <td>${formatCurrency(i.amountReceived, i.currency)}</td>
+          <td>${formatCurrency(i.totalExpenses, i.currency)}</td>
+          <td><strong>${formatCurrency(i.currentBalance, i.currency)}</strong></td>
+          <td>${canManage ? `<button class="btn secondary" style="width:auto;padding:3px 8px;font-size:11px;" onclick="openEditInitiativeModal('${i.id}')">Edit</button>
+            <button class="btn danger" style="width:auto;padding:3px 8px;font-size:11px;" onclick="submitDeleteInitiative('${i.id}')">Delete</button>` : ''}</td>
+        </tr>`).join('')
+      : `<tr><td colspan="8" style="color:var(--muted); text-align:center;">No initiatives recorded yet.</td></tr>`;
+
+    const initOptions = currentInitiatives.map(i => `<option value="${i.id}">${escapeHtml(i.name)} (${i.currency})</option>`).join('');
+    const incomeSelect = document.getElementById('income-initiative-select');
+    const expenseSelect = document.getElementById('expense-initiative-select');
+    if (incomeSelect) incomeSelect.innerHTML = initOptions || '<option value="">No initiatives yet</option>';
+    if (expenseSelect) expenseSelect.innerHTML = initOptions || '<option value="">No initiatives yet</option>';
   } else {
-    ledgerBody.innerHTML = currentLedger.map(l => {
+    currentInitiatives = [];
+  }
+
+  // --- Ledger: ED/CFO only ---
+  document.getElementById('fin-ledger-section').style.display = canManage ? 'block' : 'none';
+  if (canManage) {
+    currentLedger = data.auditTrail || [];
+    const ledgerBody = document.getElementById('ledger-table-body');
+    ledgerBody.innerHTML = currentLedger.length ? currentLedger.map(l => {
       const isBalanceUpdate = l.type === 'BalanceUpdate';
       return `<tr>
         <td>${l.timestamp ? new Date(l.timestamp).toLocaleString() : ''}</td>
@@ -2429,7 +2480,9 @@ function renderFinances(data) {
           <button class="btn secondary" style="width:auto;padding:3px 8px;font-size:11px;" onclick="openEditEntryModal('${l.id}')">Edit</button>
           <button class="btn danger" style="width:auto;padding:3px 8px;font-size:11px;" onclick="submitDeleteEntry('${l.id}')">Delete</button>`}</td>
       </tr>`;
-    }).join('');
+    }).join('') : `<tr><td colspan="8" style="color:var(--muted); text-align:center;">No transactions recorded yet.</td></tr>`;
+  } else {
+    currentLedger = [];
   }
 }
 function openEditEntryModal(entryId) {
