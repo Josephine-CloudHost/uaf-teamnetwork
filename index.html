@@ -419,11 +419,8 @@
           <button class="btn" onclick="submitMailingBroadcast()">Send Official Communication</button>
         </div>
 
-        <div style="margin-bottom:12px;">
-        <div style="margin-bottom:12px;">
-             <div style="margin-bottom:12px;">
+               <div style="margin-bottom:12px;">
           <input type="text" id="contact-search-input" placeholder="Search contacts by name, institution, telephone..." style="padding:8px 12px; border:1px solid var(--line); border-radius:8px; width:100%;" oninput="filterContactsList(this.value)">
-        </div>
         </div>
 
         <div style="margin-bottom:12px;">
@@ -451,10 +448,6 @@
 
       <!-- PARTNERSHIPS TAB -->
       <div id="tab-partnerships" class="panel">
-
-      <!-- PARTNERSHIPS TAB -->
-
-       <div id="tab-partnerships" class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <h3 style="margin:0;">Partnerships</h3>
           <button class="btn" id="new-partner-btn" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="openModal('modal-partnership')">+ Add Partner</button>
@@ -1021,9 +1014,7 @@
     }
   }
 
-  async function cachedFetch(action, cacheKey) {
-    
-  function setOnlineStatus(online) {
+    function setOnlineStatus(online) {
     const b = document.getElementById('connection-status-badge');
     if (b) {
       b.innerText = online ? '🟢 Live' : '📡 Offline';
@@ -1231,13 +1222,6 @@
       </td>
     </tr>
   `).join('');
-}
-
-async function toggleContactStatus(contactId, active) {
-  const res = await apiPost('toggleContactActive', { contactId, active });
-  if (res.error) { alert(res.error); loadContacts(); return; }
-  const c = allContacts.find(x => x.id === contactId);
-  if (c) c.active = active;
 }
 
 async function toggleContactStatus(contactId, active) {
