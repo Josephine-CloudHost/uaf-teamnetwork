@@ -837,7 +837,57 @@
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-initiative')">Cancel</button>
   </div>
 </div>
+<div class="modal" id="modal-program">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Add UAF Program</h3>
+    <div class="field"><label>Program Title</label><input type="text" id="prog-title"></div>
+    <div class="field"><label>Short Code</label><input type="text" id="prog-code"></div>
+    <div class="field"><label>Description</label><textarea id="prog-desc" rows="3"></textarea></div>
+    <div class="field"><label>Target Beneficiaries</label><input type="text" id="prog-target"></div>
+    <button class="btn" onclick="submitNewProgram()">Save Program</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-program')">Cancel</button>
+  </div>
+</div>
 
+<div class="modal" id="modal-impact">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Record Impact</h3>
+    <div class="field"><label>Initiative</label><input type="text" id="impact-initiative"></div>
+    <div class="field"><label>Location</label><input type="text" id="impact-location"></div>
+    <div class="field"><label>Male Reached</label><input type="number" id="impact-male"></div>
+    <div class="field"><label>Female Reached</label><input type="number" id="impact-female"></div>
+    <div class="field"><label>Average Age</label><input type="text" id="impact-age"></div>
+    <div class="field"><label>Impact Method</label><input type="text" id="impact-method"></div>
+    <div class="field"><label>Date</label><input type="date" id="impact-date"></div>
+    <div class="field"><label>Notes</label><textarea id="impact-notes" rows="2"></textarea></div>
+    <button class="btn" onclick="submitNewImpact()">Save Entry</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-impact')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-partnership">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Add Partnership</h3>
+    <div class="field"><label>Partner Name</label><input type="text" id="part-name"></div>
+    <div class="field"><label>Category</label>
+      <select id="part-category">
+        <option value="Collaborative Partner">Collaborative Partner</option>
+        <option value="Funding Partner">Funding Partner</option>
+        <option value="Technical Partner">Technical Partner</option>
+      </select>
+    </div>
+    <div class="field"><label>Date of Partnership</label><input type="date" id="part-date"></div>
+    <div class="field"><label>Purpose</label><textarea id="part-purpose" rows="2"></textarea></div>
+    <div class="field"><label>What UAF Gains</label><textarea id="part-gains" rows="2"></textarea></div>
+    <div class="field"><label>Partnership Period</label><input type="text" id="part-period"></div>
+    <div class="field"><label>Contact Email</label><input type="email" id="part-email"></div>
+    <div class="field"><label>Telephone</label><input type="text" id="part-tel"></div>
+    <div class="field"><label>Address</label><input type="text" id="part-address"></div>
+    <button class="btn" onclick="submitNewPartnership()">Save Partnership</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-partnership')">Cancel</button>
+  </div>
+</div>
+  
 <div class="modal" id="modal-financial-report">
   <div class="modal-card">
     <h3 style="margin-top:0;">Generate Financial Statement</h3>
@@ -1372,6 +1422,235 @@
     } else alert('No records found');
   }
 
+  // ---------- TASKS ----------
+let allTasks = [];
+let editingTaskId = null;
+
+async function loadTasks() {
+  allTasks = await cachedFetch('tasks', 'tasks');
+  const canAdd = currentUser && currentUser.isExecutiveManagement;
+  const canDelete = currentUser && currentUser.isSuperAdmin;
+  document.getElementById('new-task-btn').style.display = canAdd ? 'inline-block' : 'none';
+  renderTasksList(canDelete);
+}
+
+function renderTasksList(canDelete) {
+  const container = document.getElementById('tasks-list');
+  if (!Array.isArray(allTasks) || !allTasks.length) {
+    container.innerHTML = '<div style="color:var(--muted); font-size:13px;">No tasks yet.</div>';
+    return;
+  }
+  const canEdit = currentUser && currentUser.isExecutiveManagement;
+  container.innerHTML = allTasks.map(t => {
+    const isMine = currentUser && t.assigneeEmail === currentUser.email;
+    return `
+      <div class="program-card" style="margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <h4 style="margin:0 0 4px 0; color:var(--navy-text);">${escapeHtml(t.name)}</h4>
+            <div style="font-size:12px; color:var(--muted);">${escapeHtml(t.description || '')}</div>
+          </div>
+          <span style="font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:999px; background:${t.status === 'Completed' ? '#D1FAE5' : t.status === 'Overdue' ? '#FEE2E2' : '#E0E7FF'}; color:${t.status === 'Completed' ? '#065F46' : t.status === 'Overdue' ? '#991B1B' : '#3730A3'};">${escapeHtml(t.status || 'Upcoming')}</span>
+        </div>
+        <div style="font-size:12px; margin-top:8px; color:var(--ink);">📅 ${t.deadlineDate ? new Date(t.deadlineDate).toLocaleDateString() : '—'} • 👤 ${escapeHtml(t.assignedTo || t.assigneeEmail || 'Unassigned')}</div>
+        <div style="display:flex; gap:6px; margin-top:10px;">
+          ${isMine && t.status !== 'Completed' ? `<button class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px;" onclick="markTaskDoneUI('${t.id}')">Mark Done</button>` : ''}
+          ${canEdit ? `<button class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px;" onclick="openTaskModal('${t.id}')">Edit</button>` : ''}
+          ${canDelete ? `<button class="btn danger" style="width:auto; padding:4px 10px; font-size:11px;" onclick="deleteTaskUI('${t.id}')">Delete</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openTaskModal(taskId) {
+  editingTaskId = taskId || null;
+  const t = taskId ? allTasks.find(x => x.id === taskId) : null;
+  document.getElementById('task-modal-title').innerText = t ? 'Edit Task' : 'New Task';
+  document.getElementById('task-name-input').value = t ? t.name : '';
+  document.getElementById('task-desc-input').value = t ? t.description : '';
+  document.getElementById('task-date-input').value = t && t.deadlineDate ? new Date(t.deadlineDate).toISOString().split('T')[0] : '';
+  const sel = document.getElementById('task-individual-select');
+  sel.innerHTML = allTeamProfiles.map(p => `<option value="${p.email}" ${t && t.assigneeEmail === p.email ? 'selected' : ''}>${escapeHtml(p.displayName || p.name)}</option>`).join('');
+  openModal('task-modal');
+}
+
+async function submitTask() {
+  const name = document.getElementById('task-name-input').value.trim();
+  const description = document.getElementById('task-desc-input').value.trim();
+  const deadlineDate = document.getElementById('task-date-input').value;
+  const assigneeSelect = document.getElementById('task-individual-select');
+  const assigneeEmail = assigneeSelect.value;
+  const assignedTo = assigneeSelect.selectedOptions[0]?.textContent || assigneeEmail;
+  if (!name || !deadlineDate) { alert('Task name and deadline are required'); return; }
+
+  const payload = { name, description, deadlineDate, assigneeEmail, assignedTo };
+  const res = editingTaskId
+    ? await apiPost('updateTask', { ...payload, taskId: editingTaskId })
+    : await apiPost('createTask', payload);
+
+  if (res.error) { alert(res.error); return; }
+  closeModal('task-modal');
+  editingTaskId = null;
+  loadTasks();
+}
+
+async function markTaskDoneUI(taskId) {
+  await apiPost('markTaskDone', { taskId });
+  loadTasks();
+}
+
+async function deleteTaskUI(taskId) {
+  if (!confirm('Delete this task?')) return;
+  const res = await apiPost('deleteTask', { taskId });
+  if (res.error) { alert(res.error); return; }
+  loadTasks();
+}
+
+// ---------- PROGRAMS ----------
+let allPrograms = [];
+
+async function loadPrograms() {
+  allPrograms = await cachedFetch('programs', 'programs');
+  const canManage = currentUser && currentUser.isSuperAdmin;
+  document.getElementById('new-program-btn').style.display = canManage ? 'inline-block' : 'none';
+  const container = document.getElementById('programs-container');
+  if (!Array.isArray(allPrograms)) return;
+  container.innerHTML = allPrograms.map(p => `
+    <div class="program-card">
+      <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${escapeHtml(p.shortCode || '')}</span>
+      <h4 style="margin:4px 0 2px 0; color:var(--navy-text);">${escapeHtml(p.title)}</h4>
+      <div style="font-size:12.5px; color:var(--ink); margin:6px 0;">${escapeHtml(p.description || '')}</div>
+      <div style="font-size:11.5px; color:var(--muted);">🎯 ${escapeHtml(p.targetBeneficiaries || '')}</div>
+      ${canManage ? `<button class="btn danger" style="width:auto; padding:4px 10px; font-size:11px; margin-top:8px;" onclick="deleteProgramUI('${p.id}')">Delete</button>` : ''}
+    </div>
+  `).join('');
+}
+
+async function submitNewProgram() {
+  const title = document.getElementById('prog-title').value.trim();
+  if (!title) return;
+  await apiPost('addProgram', {
+    title,
+    shortCode: document.getElementById('prog-code').value.trim(),
+    description: document.getElementById('prog-desc').value.trim(),
+    targetBeneficiaries: document.getElementById('prog-target').value.trim()
+  });
+  closeModal('modal-program');
+  loadPrograms();
+}
+
+async function deleteProgramUI(programId) {
+  if (!confirm('Delete this program?')) return;
+  await apiPost('deleteProgram', { programId });
+  loadPrograms();
+}
+
+// ---------- IMPACT ----------
+let allImpact = [];
+
+async function loadImpact() {
+  allImpact = await cachedFetch('impact', 'impact');
+  const canManage = currentUser && currentUser.isSuperAdmin;
+  document.getElementById('new-impact-btn').style.display = canManage ? 'inline-block' : 'none';
+  const container = document.getElementById('impact-list');
+  if (!Array.isArray(allImpact)) return;
+  container.innerHTML = allImpact.map(i => `
+    <div class="program-card" style="margin-bottom:10px;">
+      <h4 style="margin:0 0 4px 0; color:var(--navy-text);">${escapeHtml(i.initiative)}</h4>
+      <div style="font-size:12px; color:var(--ink);">📍 ${escapeHtml(i.location || '')} • 👥 ${i.totalReached} reached (${i.maleReached}M / ${i.femaleReached}F)</div>
+      <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">${escapeHtml(i.notes || '')}</div>
+      ${canManage ? `<button class="btn danger" style="width:auto; padding:4px 10px; font-size:11px; margin-top:8px;" onclick="deleteImpactUI('${i.id}')">Delete</button>` : ''}
+    </div>
+  `).join('');
+}
+
+async function submitNewImpact() {
+  const initiative = document.getElementById('impact-initiative').value.trim();
+  if (!initiative) return;
+  await apiPost('addImpactEntry', {
+    initiative,
+    location: document.getElementById('impact-location').value.trim(),
+    maleReached: document.getElementById('impact-male').value,
+    femaleReached: document.getElementById('impact-female').value,
+    averageAge: document.getElementById('impact-age').value.trim(),
+    impactMethod: document.getElementById('impact-method').value.trim(),
+    date: document.getElementById('impact-date').value,
+    notes: document.getElementById('impact-notes').value.trim()
+  });
+  closeModal('modal-impact');
+  loadImpact();
+}
+
+async function deleteImpactUI(impactId) {
+  if (!confirm('Delete this impact entry?')) return;
+  await apiPost('deleteImpactEntry', { impactId });
+  loadImpact();
+}
+
+// ---------- PARTNERSHIPS ----------
+let allPartnerships = [];
+
+async function loadPartnerships() {
+  allPartnerships = await cachedFetch('partnerships', 'partnerships');
+  const canManage = currentUser && currentUser.isSuperAdmin;
+  document.getElementById('new-partner-btn').style.display = canManage ? 'inline-block' : 'none';
+  const container = document.getElementById('partnerships-container');
+  if (!Array.isArray(allPartnerships)) return;
+  container.innerHTML = allPartnerships.map(p => `
+    <div class="program-card">
+      <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${escapeHtml(p.category)}</span>
+      <h4 style="margin:4px 0 2px 0; color:var(--navy-text);">${escapeHtml(p.name)}</h4>
+      <div style="font-size:12.5px; color:var(--ink); margin:6px 0;">${escapeHtml(p.purpose || '')}</div>
+      <div style="font-size:11.5px; color:var(--muted);">📞 ${escapeHtml(p.tel || '—')} • ✉️ ${escapeHtml(p.email || '—')}</div>
+      ${canManage ? `<button class="btn danger" style="width:auto; padding:4px 10px; font-size:11px; margin-top:8px;" onclick="deletePartnershipUI('${p.id}')">Delete</button>` : ''}
+    </div>
+  `).join('');
+}
+
+async function submitNewPartnership() {
+  const name = document.getElementById('part-name').value.trim();
+  if (!name) return;
+  await apiPost('addPartnership', {
+    name,
+    category: document.getElementById('part-category').value,
+    dateOfPartnership: document.getElementById('part-date').value,
+    purpose: document.getElementById('part-purpose').value.trim(),
+    whatUafGains: document.getElementById('part-gains').value.trim(),
+    partnershipPeriod: document.getElementById('part-period').value.trim(),
+    partnerEmail: document.getElementById('part-email').value.trim(),
+    tel: document.getElementById('part-tel').value.trim(),
+    address: document.getElementById('part-address').value.trim()
+  });
+  closeModal('modal-partnership');
+  loadPartnerships();
+}
+
+// ---------- DOCUMENTS (also missing — called by switchTab and would throw) ----------
+async function loadDocuments() {
+  const docs = await cachedFetch('documents', 'documents');
+  const container = document.getElementById('doc-list');
+  if (!Array.isArray(docs)) return;
+  container.innerHTML = docs.map(d => `
+    <div class="program-card" style="margin-bottom:8px;">
+      <a href="${d.fileUrl}" target="_blank" style="font-weight:700; color:var(--primary);">${escapeHtml(d.fileName)}</a>
+      <div style="font-size:11px; color:var(--muted); margin-top:2px;">Shared by ${escapeHtml(d.email)} • ${new Date(d.timestamp).toLocaleDateString()}</div>
+    </div>
+  `).join('');
+}
+
+async function uploadDocument(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const base64 = await fileToBase64(file);
+  const up = await apiPost('uploadFile', { base64Data: base64, fileName: file.name, mimeType: file.type });
+  if (up.directUrl) {
+    await apiPost('addDocument', { fileName: file.name, fileUrl: up.directUrl, mimeType: file.type });
+    loadDocuments();
+  }
+  event.target.value = '';
+}
+  
   // ---------- BOTTOM TEAM BAR ----------
   async function loadAllProfiles() {
     allTeamProfiles = await cachedFetch('profiles', 'profiles');
