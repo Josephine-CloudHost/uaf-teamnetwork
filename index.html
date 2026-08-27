@@ -1,30 +1,3 @@
-Here is the complete, fully fixed **Frontend** (`index.html`) updated to match your Google Apps Script **v5.0 Backend**.
-
-### Summary of Key Fixes & Alignments:
-1. **Per-Request Session Authentication (`sessionToken`)**:
-   - All guarded backend actions (messages, profile updates, tasks, finance operations, chat management, file uploads) now send `sessionToken` alongside `email`.
-   - `getMessages` and `getNotifications` include `sessionToken` in the query parameters.
-2. **Signup, Email Verification & Password Reset Flows**:
-   - **Signup**: Captures profile info and transitions directly to the **6-digit Email Verification** screen (with resend capability).
-   - **Login**: Detects unverified accounts (`needsVerification: true`) and prompts for verification.
-   - **Password Reset**: Added a complete "Forgot Password" / "Reset Password with Code" modal flow.
-3. **Role-Based Permissions (Privilege Escalation Fix)**:
-   - Replaced fragile free-text checks (`currentPosition`, `projectRole`) with backend-aligned `currentUser.authorizedRole` (`'Executive Director'` | `'CFO'`) and `currentUser.authorizedTaskAdmin` (`true`).
-   - Added an **Admin Role Management modal** allowing Executive Directors and CFOs to grant or revoke admin/coordinator roles directly from the Team Directory.
-4. **Project Options in Settings**:
-   - `loadProjectOptionsForSettings()` now queries the lightweight, permission-independent `action=projectOptions` endpoint instead of the restricted `finances` endpoint.
-5. **Group Chat Enhancements**:
-   - Implemented **Leave Group** (`leaveGroup`), **Remove Group Member** (`removeGroupMember`), and **Direct Messaging from Team Directory** (`getOrCreateDM`).
-6. **Task Status Fix**:
-   - Added `Completed` to the task status options in the task modal so editing completed tasks does not reset them to `Upcoming`.
-7. **Multi-Currency Finance Display**:
-   - Fully aligned dashboard cards, income/expense recording, initiatives, and transaction ledger with dual **USD** and **LRD** support.
-
----
-
-### Fixed Frontend (`index.html`)
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
