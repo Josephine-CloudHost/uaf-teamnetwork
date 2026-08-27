@@ -27,40 +27,28 @@
     --line: #D3DEEE;
     --muted: #5C6B82;
     --team-ring: #C07954;
-    --radius-window: 20px;
-    --radius-card: 12px;
+    --app-font-size: 14.5px;
+    --app-density: 16px;
+    --app-brightness: 100%;
   }
 
-  [data-theme="forest"] {
-    --outer-bg-gradient: linear-gradient(135deg, #2D5840 0%, #1A3828 100%);
-    --sidebar-bg: #1B4D33;
-    --tab-active-bg: #2B6645;
-    --tab-text: #16402A;
-  }
-  [data-theme="sunset"] {
-    --outer-bg-gradient: linear-gradient(135deg, #873819 0%, #52210E 100%);
-    --sidebar-bg: #9C3814;
-    --tab-active-bg: #8C3414;
-    --tab-text: #591F09;
-  }
-  [data-theme="midnight"] {
-    --outer-bg-gradient: linear-gradient(135deg, #1C2033 0%, #0E101A 100%);
-    --sidebar-bg: #1C233D;
-    --tab-active-bg: #2B3559;
-    --tab-text: #141A30;
-  }
+  [data-theme="forest"] { --sidebar-bg: #1B4D33; --tab-active-bg: #2B6645; --tab-text: #16402A; }
+  [data-theme="sunset"] { --sidebar-bg: #9C3814; --tab-active-bg: #8C3414; --tab-text: #591F09; }
+  [data-theme="midnight"] { --sidebar-bg: #1C233D; --tab-active-bg: #2B3559; --tab-text: #141A30; }
 
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    padding: 16px;
+    padding: 14px;
     min-height: 100vh;
     background: var(--outer-bg-gradient);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     color: var(--ink);
+    font-size: var(--app-font-size);
     display: flex;
     align-items: center;
     justify-content: center;
+    filter: brightness(var(--app-brightness));
   }
 
   #session-check {
@@ -71,18 +59,18 @@
     align-items: center;
     justify-content: center;
     z-index: 9999;
-    color: #FFFFFF;
-    font-size: 15px;
-    font-weight: 500;
+    color: #FFF;
+    font-size: 16px;
+    font-weight: 600;
   }
 
-  /* Main Floating App Window */
+  /* Main Window Architecture */
   .app-window {
     width: 100%;
-    max-width: 1280px;
-    min-height: 92vh;
+    max-width: 1300px;
+    height: 94vh;
     background: var(--window-bg);
-    border-radius: var(--radius-window);
+    border-radius: 20px;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
     display: flex;
     overflow: hidden;
@@ -92,7 +80,7 @@
   /* Auth Screen */
   #auth-screen {
     width: 100%;
-    min-height: 92vh;
+    height: 100%;
     display: none;
     align-items: center;
     justify-content: center;
@@ -102,7 +90,7 @@
   #auth-screen.visible { display: flex; }
   .auth-card {
     background: #FFF;
-    border-radius: var(--radius-card);
+    border-radius: 12px;
     padding: 36px;
     width: 100%;
     max-width: 440px;
@@ -110,47 +98,47 @@
     border: 1px solid var(--line);
   }
 
-  /* Left Vertical Sidebar */
+  /* Fixed Left Sidebar (Reduced width for Android view) */
   .app-sidebar {
-    width: 68px;
+    width: 56px;
     background: var(--sidebar-bg);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px 0 20px;
+    padding: 20px 0;
     flex-shrink: 0;
-    gap: 20px;
-    z-index: 10;
+    gap: 18px;
+    z-index: 100;
   }
   .sidebar-btn {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 22px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 20px;
     cursor: pointer;
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s ease;
+    transition: background 0.15s ease;
     position: relative;
   }
   .sidebar-btn:hover, .sidebar-btn.active {
     color: #FFF;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.22);
   }
-  .sidebar-btn .sidebar-badge {
+  .sidebar-badge {
     position: absolute;
-    top: 4px;
-    right: 4px;
+    top: 3px;
+    right: 3px;
     background: var(--accent);
     color: #fff;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 700;
     border-radius: 999px;
-    padding: 1px 5px;
+    padding: 1px 4px;
   }
 
   /* Main Container */
@@ -159,26 +147,27 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
+    height: 100%;
+    position: relative;
     background: var(--window-bg);
   }
 
   /* Top Navigation Bar */
   .app-topbar {
-    height: 64px;
-    padding: 0 28px;
+    height: 60px;
+    padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #FFFFFF;
+    background: #FFF;
     border-bottom: 1px solid var(--line);
     flex-shrink: 0;
     gap: 16px;
   }
   .topbar-brand {
-    font-size: 19px;
+    font-size: 18.5px;
     font-weight: 800;
     color: var(--navy-text);
-    white-space: nowrap;
   }
   .topbar-search-box {
     display: flex;
@@ -191,10 +180,6 @@
     width: 100%;
     max-width: 380px;
   }
-  .topbar-search-box:focus-within {
-    border-color: var(--primary);
-    background: #FFF;
-  }
   .topbar-search-box input {
     border: none;
     outline: none;
@@ -205,36 +190,20 @@
   .topbar-user {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     font-size: 14px;
     font-weight: 600;
     color: var(--navy-text);
     cursor: pointer;
-    white-space: nowrap;
   }
-  .topbar-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #254587;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    overflow: hidden;
-    border: 2px solid #C07954;
-    flex-shrink: 0;
-  }
-  .topbar-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* Horizontal Tabstrip */
+  /* Upper Tabstrip */
   .app-tabstrip {
     background: var(--tab-strip-bg);
     display: flex;
     align-items: center;
-    padding: 0 24px;
-    gap: 4px;
+    padding: 0 20px;
+    gap: 3px;
     overflow-x: auto;
     border-bottom: 1px solid var(--line);
     flex-shrink: 0;
@@ -243,18 +212,16 @@
     background: none;
     border: none;
     color: var(--tab-text);
-    padding: 13px 20px;
+    padding: 12px 18px;
     font-size: 13.5px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
     border-radius: 6px 6px 0 0;
-    transition: background 0.12s ease;
   }
-  .app-tabstrip button:hover { background: rgba(59, 87, 157, 0.12); }
   .app-tabstrip button.active {
     background: var(--tab-active-bg);
-    color: #FFFFFF;
+    color: #FFF;
     font-weight: 700;
   }
   .app-tabstrip button .badge {
@@ -264,111 +231,270 @@
     font-weight: 700;
     border-radius: 999px;
     padding: 1px 5px;
-    margin-left: 5px;
+    margin-left: 4px;
   }
 
-  /* Free Open Canvas Workspace */
+  /* Free Open Scrolling Canvas */
   .app-content-body {
     flex: 1;
     background: var(--content-bg);
-    padding: 24px 28px;
-    overflow-y: visible;
+    padding: 24px 28px 90px;
+    overflow-y: auto;
+    position: relative;
   }
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* Post Update Button */
-  .btn-post-update {
+  /* Universal User Avatar Renderer */
+  .uaf-avatar {
+    border-radius: 50%;
     background: var(--primary);
-    color: #FFFFFF;
-    border: none;
-    padding: 11px 20px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 13.5px;
-    cursor: pointer;
-    display: inline-flex;
+    color: #FFF;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 18px;
-    box-shadow: 0 2px 6px rgba(0, 56, 168, 0.25);
-  }
-  .btn-post-update:hover { background: #002E8C; }
-
-  /* WhatsApp-Style Chat Components */
-  .chat-app-container {
-    background: #FFF;
-    border-radius: var(--radius-card);
-    border: 1px solid var(--line);
-    min-height: 520px;
+    justify-content: center;
+    font-weight: 700;
     overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--team-ring);
   }
-  .chat-view-header {
+  .uaf-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* LinkedIn-Style Post Cards */
+  .feed-post-card {
+    background: #FFF;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+  }
+  .post-author-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .post-author-name {
+    font-weight: 700;
+    color: var(--navy-text);
+    font-size: 15px;
+  }
+  .post-author-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .post-body-text {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .post-img {
+    width: 100%;
+    max-height: 380px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+  .post-metrics-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 4px 6px;
+    font-size: 12px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--line);
+    margin-top: 8px;
+  }
+  .post-actions-bar {
+    display: flex;
+    gap: 4px;
+    padding-top: 8px;
+  }
+  .post-act-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 8px 6px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.12s ease;
+  }
+  .post-act-btn:hover { background: #F1F5F9; color: var(--navy-text); }
+  .post-act-btn.active { color: var(--primary); font-weight: 700; }
+  .post-comments-drawer {
+    display: none;
+    margin-top: 12px;
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+  }
+  .comment-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+  .comment-bubble {
+    background: #F1F5F9;
+    border-radius: 10px;
+    padding: 8px 12px;
+    flex: 1;
+  }
+
+  /* 4-Quadrant Finances Layout (Matching Reference Image) */
+  .fin-hub-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0 28px;
+  }
+  .fin-hub-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 580px;
+    position: relative;
+  }
+  .fin-hub-center-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 68px;
+    background: #FFFFFF;
+    border: 4px solid #2F4888;
+    border-radius: 50%;
+    z-index: 5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--primary);
+  }
+  .fin-quadrant {
+    min-height: 140px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    position: relative;
+  }
+  .fin-quadrant.orange {
+    background: #FF6600;
+    color: #FFFFFF;
+    border-radius: 28px 8px 28px 8px;
+  }
+  .fin-quadrant.blue {
+    background: #004D80;
+    color: #FFFFFF;
+    border-radius: 8px 28px 8px 28px;
+  }
+  .fin-quadrant-title {
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .fin-quadrant-value {
+    font-size: 22px;
+    font-weight: 800;
+    margin-top: 8px;
+  }
+  .fin-quadrant-sub {
+    font-size: 13px;
+    opacity: 0.9;
+    font-weight: 600;
+  }
+
+  /* Programs & Impact Grids */
+  .programs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .program-card { background: #FFF; border: 1px solid var(--line); border-radius: 12px; padding: 18px; position: relative; }
+
+  /* WhatsApp Style Chatroom Area */
+  .chat-app-wrapper {
+    background: #FFF;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    min-height: 540px;
+    display: flex;
+    flex-direction: column;
+  }
+  .chat-header-bar {
     background: #F8FAFC;
     padding: 12px 18px;
     border-bottom: 1px solid var(--line);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    flex-shrink: 0;
   }
-  .chat-back-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    color: var(--primary);
-    cursor: pointer;
-    font-weight: bold;
-    padding: 4px 8px;
-  }
-  .chat-messages-area {
-    padding: 20px;
+  .chat-scrolling-messages {
+    flex: 1;
     min-height: 380px;
+    padding: 18px;
+    overflow-y: auto;
+    background: #F4F7FB;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: #F4F7FB;
   }
-  .msg-row { display: flex; width: 100%; gap: 8px; }
-  .msg-row.mine { justify-content: flex-start; }
-  .msg-row.other { justify-content: flex-end; }
-  .msg-bubble {
-    max-width: 75%;
-    padding: 10px 14px;
-    border-radius: 14px;
-    font-size: 14px;
-    line-height: 1.45;
-    position: relative;
-    word-break: break-word;
-  }
-  .msg-row.mine .msg-bubble { background: var(--accent-soft); color: var(--ink); border-bottom-left-radius: 4px; }
-  .msg-row.other .msg-bubble { background: var(--primary); color: #FFF; border-bottom-right-radius: 4px; }
-  .msg-time { font-size: 10px; opacity: 0.7; margin-top: 4px; text-align: right; }
-
-  /* Bottom Team Carousel Row */
-  .app-bottom-team-bar {
-    padding: 12px 28px 16px;
-    background: #FFFFFF;
-    border-top: 1.5px solid var(--line);
+  .chat-fixed-input-bar {
+    padding: 12px 18px;
+    background: #FFF;
+    border-top: 1px solid var(--line);
+    display: flex;
+    gap: 8px;
+    align-items: center;
     flex-shrink: 0;
   }
-  .bottom-team-header {
+
+  /* Dynamic Call Bar */
+  .call-banner-bar {
+    background: var(--navy-text);
+    color: #FFF;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 14px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    align-items: center;
   }
-  .bottom-team-label {
-    font-weight: 800;
-    font-size: 14px;
-    color: var(--navy-text);
+
+  /* Static Footer Team Drawer (Auto-hiding on scroll) */
+  .app-bottom-team-bar {
+    position: absolute;
+    bottom: 0;
+    left: 56px;
+    right: 0;
+    background: #FFFFFF;
+    border-top: 1.5px solid var(--line);
+    padding: 10px 24px;
+    z-index: 50;
+    transition: transform 0.25s ease;
+  }
+  .app-bottom-team-bar.hidden {
+    transform: translateY(100%);
   }
   .bottom-team-list {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 18px;
     overflow-x: auto;
-    padding: 4px 0 8px;
+    padding-bottom: 2px;
   }
   .bottom-team-item {
     display: flex;
@@ -377,33 +503,12 @@
     cursor: pointer;
     flex-shrink: 0;
   }
-  .bottom-team-circle {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 2.5px solid var(--team-ring);
-    background: #FFFFFF;
-    color: var(--primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 15px;
-    overflow: hidden;
-    transition: transform 0.15s ease;
-  }
-  .bottom-team-item:hover .bottom-team-circle,
-  .bottom-team-item.active .bottom-team-circle {
-    transform: scale(1.1);
-    box-shadow: 0 4px 10px rgba(0, 56, 168, 0.3);
-  }
-  .bottom-team-circle img { width: 100%; height: 100%; object-fit: cover; }
   .bottom-team-name {
     font-size: 11px;
     color: var(--navy-text);
     font-weight: 600;
-    margin-top: 4px;
-    max-width: 64px;
+    margin-top: 3px;
+    max-width: 60px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -414,72 +519,35 @@
     display: none;
     background: #F8FAFC;
     border: 1px solid var(--line);
-    border-radius: var(--radius-card);
+    border-radius: 12px;
     padding: 16px 20px;
     margin-top: 10px;
-    animation: fadeIn 0.15s ease;
   }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Cards & General UI */
-  .feed-post { background: #FFF; border: 1px solid var(--line); border-radius: var(--radius-card); padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-  .feed-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; flex-shrink: 0; border: 2px solid var(--team-ring); }
-  .avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .feed-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: 8px; margin-top: 12px; }
+  /* Settings Collapsibles */
+  .settings-list { background: #FFF; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 18px; }
+  .settings-group-label { font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 18px 6px; }
+  .settings-row { display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-bottom: 1px solid var(--line); cursor: pointer; text-decoration: none; color: inherit; }
+  .settings-row-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--primary); color: #fff; flex-shrink: 0; }
+  .settings-row-expand { padding: 10px 18px 18px; border-bottom: 1px solid var(--line); font-size: 13.5px; line-height: 1.6; }
 
-  /* Partnerships Grid */
-  .partnership-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-top: 16px; }
-  .partner-card { background: #FFF; border: 1px solid var(--line); border-radius: var(--radius-card); padding: 18px; position: relative; }
-  .partner-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; background: #E0E7FF; color: #3730A3; margin-bottom: 8px; }
-
-  /* Forms & Buttons */
+  /* Standard Components */
+  .btn { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 11px; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; }
+  .btn.secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+  .btn.danger { background: transparent; color: #B3261E; border: 1px solid #B3261E; }
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
-  .field input, .field textarea, .field select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; background: #FFF; font-family: inherit; }
+  .field input, .field textarea, .field select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; background: #FFF; }
   .prefix-row { display: flex; gap: 8px; }
   .prefix-row select { width: 90px; flex-shrink: 0; }
   .prefix-row input { flex: 1; }
-  .btn { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 11px; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
-  .btn.secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
-  .btn.danger { background: transparent; color: #B3261E; border: 1px solid #B3261E; }
-
-  /* Finances */
-  .fin-dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 20px; }
-  .fin-card { background: #FFF; border: 1px solid var(--line); border-radius: var(--radius-card); padding: 16px; }
-  .fin-card .fin-label { font-size: 11.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
-  .fin-card .fin-value { font-size: 21px; font-weight: 800; color: var(--navy-text); }
-  .fin-card .fin-value-sub { font-size: 13.5px; font-weight: 600; color: var(--muted); margin-top: 4px; }
-  .fin-card.total { background: var(--tab-active-bg); border-color: var(--primary); }
-  .fin-card.total .fin-label, .fin-card.total .fin-value-sub { color: rgba(255,255,255,0.8); }
-  .fin-card.total .fin-value { color: #FFF; }
-  .fin-section { background: #FFF; border: 1px solid var(--line); border-radius: var(--radius-card); padding: 18px; margin-bottom: 20px; }
-  .fin-actions-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
-  .fin-actions-bar .btn { width: auto; padding: 8px 16px; font-size: 13px; }
-  .fin-table-wrap { width: 100%; overflow-x: auto; }
-  table.fin-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  table.fin-table th, table.fin-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
-  table.fin-table th { color: var(--muted); font-weight: 700; font-size: 11.5px; text-transform: uppercase; }
-
-  /* Settings Collapsibles */
-  .settings-list { background: #FFF; border-radius: var(--radius-card); overflow: hidden; border: 1px solid var(--line); margin-bottom: 18px; }
-  .settings-group-label { font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 18px 6px; }
-  .settings-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--line); cursor: pointer; text-decoration: none; color: inherit; list-style: none; }
-  .settings-row-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--primary); color: #fff; flex-shrink: 0; }
-  .settings-row-icon.danger { background: #FDE8E8; }
-  .settings-row-text { flex: 1; min-width: 0; }
-  .settings-row-title { font-size: 14px; font-weight: 600; color: var(--ink); }
-  .settings-row-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .settings-row-expand { padding: 8px 18px 20px; border-bottom: 1px solid var(--line); font-size: 13.5px; line-height: 1.6; color: var(--ink); }
-
-  /* Modals */
   .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
   .modal.open { display: flex; }
-  .modal-card { background: #FFF; padding: 24px; border-radius: var(--radius-card); width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+  .modal-card { background: #FFF; padding: 24px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
 
   @media (max-width: 860px) {
     body { padding: 0; }
-    .app-window { min-height: 100vh; border-radius: 0; }
+    .app-window { height: 100vh; border-radius: 0; }
     .topbar-search-box { display: none; }
   }
 </style>
@@ -490,7 +558,7 @@
 
 <div class="app-window">
 
-  <!-- ==================== LEFT SIDEBAR ==================== -->
+  <!-- ==================== LEFT STATIC SIDEBAR ==================== -->
   <aside class="app-sidebar" id="app-sidebar" style="display:none;">
     <button class="sidebar-btn active" onclick="switchTab('feed')" title="Main Feed">🏠</button>
     <button class="sidebar-btn" onclick="openFullChatsTab()" title="Chats">💬<span class="sidebar-badge" id="sidebar-chat-badge" style="display:none"></span></button>
@@ -498,86 +566,56 @@
     <button class="sidebar-btn" onclick="switchTab('settings')" title="Settings">⚙️</button>
   </aside>
 
-  <!-- ==================== MAIN CONTENT WRAPPER ==================== -->
+  <!-- ==================== MAIN APPLICATION SHELL ==================== -->
   <div class="app-main">
 
     <!-- AUTH SCREEN -->
     <div id="auth-screen">
       <div class="auth-card">
-        <h2 id="auth-title" style="margin-top:0; color:var(--navy-text);">UAF Team Network</h2>
+        <h2 style="margin-top:0; color:var(--navy-text);" id="auth-title">UAF Team Network</h2>
         <div id="auth-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
-        <div id="auth-success" style="color:green; font-size:13px; display:none; margin-bottom:10px;"></div>
 
-        <!-- Mode: Login / Signup -->
         <div id="auth-fields-standard">
-          <div class="field" id="name-field" style="display:none">
-            <label>Full Name</label>
-            <input type="text" id="auth-name" placeholder="John Doe">
-          </div>
+          <div class="field" id="name-field" style="display:none"><label>Full Name</label><input type="text" id="auth-name" placeholder="John Doe"></div>
           <div class="field" id="prefix-pref-field" style="display:none">
             <label>Prefix &amp; Preferred Name</label>
             <div class="prefix-row">
-              <select id="auth-prefix">
-                <option value="">—</option>
-                <option value="Mr.">Mr.</option>
-                <option value="Mrs.">Mrs.</option>
-                <option value="Ms.">Ms.</option>
-                <option value="Dr.">Dr.</option>
-              </select>
+              <select id="auth-prefix"><option value="">—</option><option value="Mr.">Mr.</option><option value="Mrs.">Mrs.</option><option value="Ms.">Ms.</option><option value="Dr.">Dr.</option></select>
               <input type="text" id="auth-preferred-name" placeholder="e.g. Torbor">
             </div>
           </div>
-          <div class="field" id="phone-field" style="display:none">
-            <label>Phone Number (Optional)</label>
-            <input type="text" id="auth-phone" placeholder="+231 ...">
-          </div>
-          <div class="field">
-            <label>Email Address</label>
-            <input type="email" id="auth-email">
-          </div>
-          <div class="field">
-            <label>Password</label>
-            <input type="password" id="auth-pass">
-          </div>
-          <div class="field" id="code-field" style="display:none">
-            <label>Team Access Code</label>
-            <input type="text" id="auth-code">
-          </div>
+          <div class="field" id="phone-field" style="display:none"><label>Phone</label><input type="text" id="auth-phone"></div>
+          <div class="field"><label>Email Address</label><input type="email" id="auth-email"></div>
+          <div class="field"><label>Password</label><input type="password" id="auth-pass"></div>
+          <div class="field" id="code-field" style="display:none"><label>Team Access Code</label><input type="text" id="auth-code"></div>
 
           <button class="btn" id="auth-submit" onclick="submitAuth()">Sign In</button>
-
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; margin-top:14px; font-size:13px;">
             <a href="#" id="auth-toggle" onclick="toggleAuthMode(event)">Need an account? Sign up</a>
-            <a href="#" id="auth-forgot" onclick="showForgotPassword(event)">Forgot password?</a>
+            <a href="#" onclick="showForgotPassword(event)">Forgot password?</a>
           </div>
         </div>
 
-        <!-- Mode: Email Verification -->
         <div id="auth-fields-verify" style="display:none;">
-          <p style="font-size:13px; color:var(--muted); margin-top:0;">We sent a 6-digit verification code to <strong id="verify-target-email"></strong>.</p>
-          <div class="field">
-            <label>6-Digit Verification Code</label>
-            <input type="text" id="auth-verify-code" placeholder="123456" maxlength="6" style="letter-spacing:4px; font-size:18px; text-align:center;">
-          </div>
+          <p style="font-size:13px; color:var(--muted);">Enter the 6-digit verification code sent to <strong id="verify-target-email"></strong>.</p>
+          <div class="field"><label>Verification Code</label><input type="text" id="auth-verify-code" maxlength="6" style="text-align:center; letter-spacing:4px; font-size:18px;"></div>
           <button class="btn" onclick="submitEmailVerification()">Verify Account</button>
           <button class="btn secondary" style="margin-top:8px;" onclick="resendVerificationCode()">Resend Code</button>
-          <p style="text-align:center; font-size:13px; margin-top:12px;"><a href="#" onclick="cancelAuthSubflow(event)">Back to Sign In</a></p>
+          <p style="text-align:center; font-size:13px; margin-top:10px;"><a href="#" onclick="cancelAuthSubflow(event)">Back to Sign In</a></p>
         </div>
 
-        <!-- Mode: Password Reset -->
         <div id="auth-fields-reset" style="display:none;">
-          <p style="font-size:13px; color:var(--muted); margin-top:0;" id="reset-desc">Enter your email to receive a password reset code.</p>
-          <div class="field" id="reset-email-field"><label>Email Address</label><input type="email" id="reset-email"></div>
-          <div class="field" id="reset-token-field" style="display:none;"><label>Reset Code</label><input type="text" id="reset-token" maxlength="6" style="letter-spacing:4px; font-size:18px; text-align:center;"></div>
+          <div class="field" id="reset-email-field"><label>Email</label><input type="email" id="reset-email"></div>
+          <div class="field" id="reset-token-field" style="display:none;"><label>Reset Code</label><input type="text" id="reset-token" maxlength="6" style="text-align:center; letter-spacing:4px;"></div>
           <div class="field" id="reset-newpass-field" style="display:none;"><label>New Password</label><input type="password" id="reset-newpass"></div>
           <button class="btn" id="reset-submit-btn" onclick="submitPasswordResetRequest()">Send Reset Code</button>
-          <p style="text-align:center; font-size:13px; margin-top:12px;"><a href="#" onclick="cancelAuthSubflow(event)">Back to Sign In</a></p>
+          <p style="text-align:center; font-size:13px; margin-top:10px;"><a href="#" onclick="cancelAuthSubflow(event)">Back to Sign In</a></p>
         </div>
       </div>
     </div>
 
-    <!-- MAIN APP SHELL -->
-    <div id="app-screen" style="display:none; flex-direction:column; width:100%;">
+    <!-- LOGGED IN VIEW -->
+    <div id="app-screen" style="display:none; flex-direction:column; height:100%; width:100%;">
 
       <!-- TOP BAR -->
       <header class="app-topbar">
@@ -588,192 +626,209 @@
         </div>
         <div class="topbar-user" onclick="switchTab('settings')">
           <span id="user-display">User Name</span>
-          <div class="topbar-avatar" id="header-avatar">U</div>
+          <div class="uaf-avatar" id="header-avatar" style="width:36px; height:36px; font-size:13px;">U</div>
         </div>
       </header>
 
-      <!-- UPPER TABSTRIP -->
+      <!-- UPPER TAB MENU -->
       <nav class="app-tabstrip">
         <button class="active" onclick="switchTab('feed')">Main Feed</button>
-        <button onclick="switchTab('team')">Contacts</button>
         <button onclick="switchTab('partnerships')">Partnerships</button>
         <button onclick="switchTab('documents')">Documents</button>
         <button onclick="switchTab('tasks')">Tasks<span class="badge" id="tasks-badge" style="display:none"></span></button>
         <button onclick="switchTab('finances')">UAF Finances</button>
+        <button onclick="switchTab('programs')">UAF Programs</button>
+        <button onclick="switchTab('impact')">Impact</button>
       </nav>
 
-      <!-- FREE OPEN CONTENT CANVAS -->
-      <main class="app-content-body">
+      <!-- SCROLLABLE FREE CONTENT AREA -->
+      <main class="app-content-body" id="main-content-scroll" onscroll="handleScrollFooter(this)">
 
-        <!-- SEARCH RESULTS PANEL -->
+        <!-- SEARCH RESULTS -->
         <div id="tab-search-results" class="panel">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
             <h3 style="margin:0; color:var(--navy-text);">Search Results</h3>
-            <button class="btn secondary" style="width:auto; padding:4px 10px; font-size:12px;" onclick="closeSearch()">Clear Search</button>
+            <button class="btn secondary" style="width:auto; padding:4px 10px; font-size:12px;" onclick="closeSearch()">Clear</button>
           </div>
-          <div id="search-results-container">Type to search across the system...</div>
+          <div id="search-results-container"></div>
         </div>
 
-        <!-- MAIN FEED -->
+        <!-- MAIN FEED (LinkedIn Style) -->
         <div id="tab-feed" class="panel active">
-          <button class="btn-post-update" onclick="openModal('update-modal')">
-            <span>+</span> Post Updates
-          </button>
-          <div id="feed-container">Loading feed updates...</div>
-        </div>
-
-        <!-- CONTACTS / TEAM DIRECTORY -->
-        <div id="tab-team" class="panel">
-          <h3 style="margin-top:0; color:var(--navy-text);">Team Directory &amp; Contacts</h3>
-          <div id="team-list">Loading contacts...</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <button class="btn" style="width:auto; padding:10px 18px; font-size:13.5px;" onclick="openModal('update-modal')">+ Post Team Update</button>
+          </div>
+          <div id="feed-container">Loading updates...</div>
         </div>
 
         <!-- PARTNERSHIPS TAB -->
         <div id="tab-partnerships" class="panel">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
-            <div>
-              <h3 style="margin:0; color:var(--navy-text);">Organizational Partnerships</h3>
-              <div style="font-size:13px; color:var(--muted); margin-top:2px;">Strategic, technical, implementing, and funding partners</div>
-            </div>
-            <button class="btn" id="new-partner-btn" style="width:auto; padding:8px 16px; font-size:13px; display:none;" onclick="openAddPartnershipModal()">+ New Partner</button>
+            <h3 style="margin:0; color:var(--navy-text);">Partnerships Register</h3>
+            <button class="btn" id="new-partner-btn" style="width:auto; padding:8px 16px; font-size:13px; display:none;" onclick="openModal('modal-partnership')">+ Add Partner</button>
           </div>
-          <div class="partnership-grid" id="partnerships-container">Loading partnerships...</div>
+          <div class="programs-grid" id="partnerships-container">Loading partnerships...</div>
         </div>
 
-        <!-- DOCUMENTS -->
+        <!-- DOCUMENTS TAB -->
         <div id="tab-documents" class="panel">
-          <h3 style="margin-top:0; color:var(--navy-text);">Uploaded Documents &amp; Resources</h3>
+          <h3 style="margin-top:0; color:var(--navy-text);">Documents Repository</h3>
           <input type="file" id="doc-file-input" onchange="uploadDocument(event)">
           <div id="doc-list" style="margin-top:16px;"></div>
         </div>
 
-        <!-- TASKS -->
+        <!-- TASKS TAB -->
         <div id="tab-tasks" class="panel">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
             <h3 style="margin:0; color:var(--navy-text);">Tasks &amp; Activities</h3>
             <button class="btn" id="new-task-btn" style="width:auto; padding:8px 14px; font-size:13px; display:none;" onclick="openTaskModal()">+ New Task</button>
           </div>
-          <div class="task-filter-bar" id="task-filter-bar">
-            <button class="active" onclick="setTaskFilter('All', this)">All</button>
-            <button onclick="setTaskFilter('Upcoming', this)">Upcoming</button>
-            <button onclick="setTaskFilter('Overdue', this)">Overdue</button>
-            <button onclick="setTaskFilter('Completed', this)">Completed</button>
-            <button onclick="setTaskFilter('Cancelled', this)">Cancelled</button>
-          </div>
-          <div id="tasks-list">Loading tasks…</div>
+          <div id="tasks-list">Loading tasks...</div>
         </div>
 
-        <!-- UAF FINANCES -->
+        <!-- UAF FINANCES (4-Quadrant Matching Reference Image) -->
         <div id="tab-finances" class="panel">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h3 style="margin:0; color:var(--navy-text);">UAF Finances</h3>
-            <span class="fin-badge" id="fin-role-badge">Read-Only</span>
-          </div>
-          <div class="fin-permission-notice" id="fin-permission-notice">
-            You have read-only access to UAF Finances.
+            <span id="fin-role-badge" style="font-size:12px; padding:3px 10px; border-radius:999px; background:#E0E7FF; color:#3730A3; font-weight:700;">Read-Only</span>
           </div>
 
-          <div class="fin-dashboard-grid">
-            <div class="fin-card"><div class="fin-label">Operational Funds</div>
-              <div class="fin-value" id="dash-org-balance-usd">$0.00</div>
-              <div class="fin-value-sub" id="dash-org-balance-lrd">L$0.00</div></div>
-            <div class="fin-card"><div class="fin-label">Grant Funds</div>
-              <div class="fin-value" id="dash-grant-balance-usd">$0.00</div>
-              <div class="fin-value-sub" id="dash-grant-balance-lrd">L$0.00</div></div>
-            <div class="fin-card"><div class="fin-label">Program Funds</div>
-              <div class="fin-value" id="dash-other-balance-usd">$0.00</div>
-              <div class="fin-value-sub" id="dash-other-balance-lrd">L$0.00</div></div>
-            <div class="fin-card"><div class="fin-label">Donations</div>
-              <div class="fin-value" id="dash-donation-balance-usd">$0.00</div>
-              <div class="fin-value-sub" id="dash-donation-balance-lrd">L$0.00</div></div>
+          <!-- 4-Quadrant Visual Hub -->
+          <div class="fin-hub-container">
+            <div class="fin-hub-grid">
+              <div class="fin-hub-center-circle">UAF</div>
 
-            <!-- Detail Cards (Exec Management + ED/CFO) -->
-            <div class="fin-card" id="card-initiative-income" style="display:none;">
-              <div class="fin-label">Initiatives Funds</div>
-              <div class="fin-value" id="dash-initiative-income-usd">$0.00</div>
-              <div class="fin-value-sub" id="dash-initiative-income-lrd">L$0.00</div></div>
-            <div class="fin-card" id="card-total-expenses" style="display:none;">
-              <div class="fin-label">Total Expenses</div>
-              <div class="fin-value" id="dash-total-expenses-usd">$0.00</div>
-              <div class="fin-value-sub" id="dash-total-expenses-lrd">L$0.00</div></div>
-            <div class="fin-card total" id="card-total-balance" style="display:none;">
-              <div class="fin-label">Total Financial Balance</div>
-              <div class="fin-value" id="dash-total-balance-usd">$0.00</div>
-              <div class="fin-value-sub" id="dash-total-balance-lrd">L$0.00</div></div>
-          </div>
+              <!-- Top Left: Operational Funds (Orange) -->
+              <div class="fin-quadrant orange">
+                <div class="fin-quadrant-title">OPERATIONAL FUNDS</div>
+                <div>
+                  <div class="fin-quadrant-value" id="dash-org-balance-usd">$0.00</div>
+                  <div class="fin-quadrant-sub" id="dash-org-balance-lrd">L$ 0.00</div>
+                </div>
+              </div>
 
-          <div class="fin-actions-bar" id="fin-actions-bar" style="display:none;">
-            <button class="btn" onclick="openModal('modal-update-org')">Update Org Balance</button>
-            <button class="btn secondary" onclick="openAddIncomeModal()">+ Add Income</button>
-            <button class="btn danger" onclick="openModal('modal-add-expense')">− Record Expense</button>
-            <button class="btn secondary" onclick="openModal('modal-add-initiative')">+ New Initiative</button>
-            <button class="btn secondary" style="background:#254587; color:#fff;" onclick="openModal('modal-financial-report')">📊 Generate Report</button>
-          </div>
+              <!-- Top Right: Grant Funds (Blue) -->
+              <div class="fin-quadrant blue">
+                <div class="fin-quadrant-title">Grant Funds</div>
+                <div>
+                  <div class="fin-quadrant-value" id="dash-grant-balance-usd">$0.00</div>
+                  <div class="fin-quadrant-sub" id="dash-grant-balance-lrd">L$ 0.00</div>
+                </div>
+              </div>
 
-          <div class="fin-section" id="fin-initiatives-section" style="display:none;">
-            <div class="fin-section-header"><h4 style="margin:0;">Initiatives Funds</h4></div>
-            <div class="fin-table-wrap">
-              <table class="fin-table">
-                <thead><tr><th>Name</th><th>Currency</th><th>Added</th><th>Status</th><th>Income</th><th>Expenses</th><th>Balance</th><th>Actions</th></tr></thead>
-                <tbody id="initiatives-table-body"><tr><td colspan="8" style="color:var(--muted); text-align:center;">Loading…</td></tr></tbody>
-              </table>
+              <!-- Bottom Left: Program Funds (Blue) -->
+              <div class="fin-quadrant blue">
+                <div class="fin-quadrant-title">Program Funds</div>
+                <div>
+                  <div class="fin-quadrant-value" id="dash-other-balance-usd">$0.00</div>
+                  <div class="fin-quadrant-sub" id="dash-other-balance-lrd">L$ 0.00</div>
+                </div>
+              </div>
+
+              <!-- Bottom Right: Donations (Orange) -->
+              <div class="fin-quadrant orange">
+                <div class="fin-quadrant-title">Donations</div>
+                <div>
+                  <div class="fin-quadrant-value" id="dash-donation-balance-usd">$0.00</div>
+                  <div class="fin-quadrant-sub" id="dash-donation-balance-lrd">L$ 0.00</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="fin-section" id="fin-ledger-section" style="display:none;">
-            <div class="fin-section-header"><h4 style="margin:0;">Transaction Ledger</h4></div>
-            <div class="fin-table-wrap">
-              <table class="fin-table">
-                <thead><tr><th>Date</th><th>User</th><th>Type</th><th>Source</th><th>Currency</th><th>Amount</th><th>Description</th><th>Actions</th></tr></thead>
-                <tbody id="ledger-table-body"><tr><td colspan="8" style="color:var(--muted); text-align:center;">Loading…</td></tr></tbody>
+          <!-- Admin Actions Bar -->
+          <div class="fin-actions-bar" id="fin-actions-bar" style="display:none; justify-content:center; gap:8px;">
+            <button class="btn" style="width:auto; padding:8px 14px;" onclick="openModal('modal-update-org')">Update Balance</button>
+            <button class="btn secondary" style="width:auto; padding:8px 14px;" onclick="openAddIncomeModal()">+ Income</button>
+            <button class="btn danger" style="width:auto; padding:8px 14px;" onclick="openModal('modal-add-expense')">− Expense</button>
+            <button class="btn secondary" style="width:auto; padding:8px 14px;" onclick="openModal('modal-add-initiative')">+ Initiative</button>
+            <button class="btn secondary" style="width:auto; padding:8px 14px; background:#254587; color:#fff;" onclick="openModal('modal-financial-report')">📊 Report</button>
+          </div>
+
+          <!-- Collapsible Executive Tables -->
+          <details class="settings-list" id="fin-initiatives-section" style="display:none; margin-top:16px;">
+            <summary class="settings-row"><div class="settings-row-title">Initiatives Funds Details</div><div>›</div></summary>
+            <div class="settings-row-expand" style="overflow-x:auto;">
+              <table class="fin-table" style="width:100%;">
+                <thead><tr><th>Name</th><th>Currency</th><th>Income</th><th>Expenses</th><th>Balance</th><th>Action</th></tr></thead>
+                <tbody id="initiatives-table-body"></tbody>
               </table>
             </div>
-          </div>
+          </details>
+
+          <details class="settings-list" id="fin-ledger-section" style="display:none;">
+            <summary class="settings-row"><div class="settings-row-title">Audited Transaction Ledger</div><div>›</div></summary>
+            <div class="settings-row-expand" style="overflow-x:auto;">
+              <table class="fin-table" style="width:100%;">
+                <thead><tr><th>Date</th><th>User</th><th>Category</th><th>Amount</th><th>Description</th><th>Action</th></tr></thead>
+                <tbody id="ledger-table-body"></tbody>
+              </table>
+            </div>
+          </details>
         </div>
 
-        <!-- NOTIFICATIONS -->
+        <!-- UAF PROGRAMS TAB -->
+        <div id="tab-programs" class="panel">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h3 style="margin:0; color:var(--navy-text);">UAF Core Programs</h3>
+            <button class="btn" id="new-program-btn" style="width:auto; padding:8px 16px; font-size:13px; display:none;" onclick="openAddProgramModal()">+ New Program</button>
+          </div>
+          <div class="programs-grid" id="programs-container">Loading programs...</div>
+        </div>
+
+        <!-- IMPACT TAB -->
+        <div id="tab-impact" class="panel">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <div>
+              <h3 style="margin:0; color:var(--navy-text);">Impact Metrics &amp; Outreach</h3>
+              <div style="font-size:12px; color:var(--muted);">Tracking lives empowered across Liberia</div>
+            </div>
+            <button class="btn" id="new-impact-btn" style="width:auto; padding:8px 16px; font-size:13px; display:none;" onclick="openAddImpactModal()">+ Record Impact</button>
+          </div>
+          <div id="impact-metrics-summary" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:16px;"></div>
+          <div id="impact-list">Loading impact entries...</div>
+        </div>
+
+        <!-- NOTIFICATIONS TAB -->
         <div id="tab-notifications" class="panel">
           <h3 style="margin-top:0; color:var(--navy-text);">Notifications</h3>
           <div id="notifications-list">Loading notifications...</div>
         </div>
 
-        <!-- WHATSAPP-STYLE FULL CHATS VIEW -->
+        <!-- CHATS FULL TAB -->
         <div id="tab-chats" class="panel">
-          <div class="chat-app-container">
+          <div class="call-banner-bar">
+            <span id="call-status-label">Team Audio Meeting Room</span>
+            <button class="btn" id="call-action-btn" style="width:auto; padding:6px 14px; font-size:12px; background:#0038A8;" onclick="handleCallAction()">📞 Call Team</button>
+          </div>
+
+          <div class="chat-app-wrapper">
             <!-- Screen 1: Chat List -->
             <div id="chat-list-view">
-              <div class="chat-view-header">
-                <h3 style="margin:0; color:var(--navy-text);">Conversations</h3>
-                <div style="display:flex; gap:8px;">
-                  <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="startCall('uaf-global-team-room','team','Team')">📞 Join Call</button>
-                  <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openCreateGroupModal()">+ New Group</button>
-                </div>
+              <div class="chat-header-bar">
+                <h4 style="margin:0; color:var(--navy-text);">Conversations</h4>
+                <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openCreateGroupModal()">+ Group</button>
               </div>
-              <div id="chats-list" style="padding:16px;">Loading conversations...</div>
+              <div id="chats-list" style="padding:12px;"></div>
             </div>
 
-            <!-- Screen 2: Dedicated Chat Room -->
+            <!-- Screen 2: Dedicated Room -->
             <div id="chat-room-view" style="display:none;">
-              <div class="chat-view-header">
+              <div class="chat-header-bar">
                 <div style="display:flex; align-items:center; gap:10px;">
-                  <button class="chat-back-btn" onclick="backToChatList()" title="Back to Chat List">←</button>
-                  <div class="avatar" id="chat-room-avatar" style="width:36px; height:36px; font-size:14px;">C</div>
-                  <div>
-                    <strong id="chat-title" style="color:var(--navy-text); font-size:15px; display:block;">Chat</strong>
-                    <span id="chat-type-label" style="font-size:11px; color:var(--muted);">CONVERSATION</span>
-                  </div>
+                  <button class="btn secondary" style="width:auto; padding:4px 8px; font-size:16px;" onclick="backToChatList()">←</button>
+                  <div class="uaf-avatar" id="chat-room-avatar" style="width:34px; height:34px;">C</div>
+                  <strong id="chat-title" style="color:var(--navy-text);">Chat</strong>
                 </div>
                 <div>
                   <button class="btn secondary" id="add-member-btn" style="width:auto; padding:4px 8px; font-size:11px;" onclick="openAddMemberModal()">+ Member</button>
                   <button class="btn secondary" id="group-settings-btn" style="width:auto; padding:4px 8px; font-size:11px;" onclick="openGroupSettingsModal()">⚙ Group</button>
-                  <button class="btn" style="width:auto; padding:4px 10px; font-size:11px;" onclick="startCallFromChat()">📞 Call</button>
                 </div>
               </div>
-              <div class="chat-messages-area" id="chat-messages"></div>
-              <div style="padding:12px 18px; background:#FFF; border-top:1px solid var(--line); display:flex; gap:8px; align-items:center;">
-                <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--line)" onkeydown="if(event.key==='Enter') sendMessage();">
-                <span id="voice-timer" style="display:none; font-size:12px; color:var(--muted);">0:00</span>
-                <button class="btn secondary" id="voice-btn" style="width:auto; padding:8px 12px; font-size:16px;" onclick="toggleVoiceRecording()">🎤</button>
+              <div class="chat-scrolling-messages" id="chat-messages"></div>
+              <div class="chat-fixed-input-bar">
+                <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--line);" onkeydown="if(event.key==='Enter') sendMessage();">
+                <button class="btn secondary" id="voice-btn" style="width:auto; padding:8px 12px;" onclick="toggleVoiceRecording()" title="Audio Memo">🎙️</button>
                 <button class="btn" style="width:auto; padding:10px 18px;" onclick="sendMessage()">Send</button>
               </div>
             </div>
@@ -782,64 +837,57 @@
 
         <!-- SETTINGS TAB -->
         <div id="tab-settings" class="panel">
-          <h3 style="margin-top:0; color:var(--navy-text);">App &amp; Profile Settings</h3>
+          <h3 style="margin-top:0; color:var(--navy-text);">Settings &amp; Organizational Handbook</h3>
 
           <div class="settings-list">
-            <div class="settings-group-label">Preferences &amp; Notifications</div>
+            <!-- Appearance Customization -->
+            <div class="settings-group-label">Display &amp; Appearance Customization</div>
             <div class="settings-row" style="cursor:default;">
-              <div class="settings-row-icon">🎨</div>
+              <div class="settings-row-icon">🔤</div>
               <div class="settings-row-text">
-                <div class="settings-row-title">Color Theme</div>
-                <div class="settings-row-subtitle">Customize interface look</div>
+                <div class="settings-row-title">Font Size &amp; Writing Scale</div>
+                <div class="settings-row-subtitle">Adjust overall text readability</div>
               </div>
-              <select id="theme-select" style="width:auto; padding:6px;" onchange="applyTheme(this.value)">
-                <option value="teal">UAF Colors</option>
-                <option value="forest">Forest Green</option>
-                <option value="sunset">Sunset Warm</option>
-                <option value="midnight">Midnight Dark</option>
+              <select style="width:auto;" onchange="applyFontSize(this.value)">
+                <option value="13px">Small</option>
+                <option value="14.5px" selected>Medium (Default)</option>
+                <option value="16px">Large</option>
+                <option value="18px">Extra Large</option>
               </select>
             </div>
 
-            <div class="settings-row" onclick="requestNotificationPermission()">
-              <div class="settings-row-icon">🔔</div>
+            <div class="settings-row" style="cursor:default;">
+              <div class="settings-row-icon">☀️</div>
               <div class="settings-row-text">
-                <div class="settings-row-title">Live Device Notifications</div>
-                <div class="settings-row-subtitle" id="notif-status">Tap to enable live push notifications on this device</div>
+                <div class="settings-row-title">Screen Brightness / Night Dim</div>
               </div>
-              <div>›</div>
+              <input type="range" min="60" max="100" value="100" style="width:120px;" oninput="applyBrightness(this.value)">
             </div>
 
-            <div class="settings-group-label">Profile &amp; Account Security</div>
-            <details id="profile-setup-details">
+            <!-- Contacts / Users Directory (Moved here) -->
+            <div class="settings-group-label">Team &amp; User Directory</div>
+            <details>
+              <summary class="settings-row">
+                <div class="settings-row-icon">👥</div>
+                <div class="settings-row-text"><div class="settings-row-title">Users Directory</div><div class="settings-row-subtitle">Browse full team roster and contact channels</div></div>
+                <div>›</div>
+              </summary>
+              <div class="settings-row-expand" id="settings-users-list">Loading users...</div>
+            </details>
+
+            <!-- Profile Info -->
+            <div class="settings-group-label">Account &amp; Security</div>
+            <details>
               <summary class="settings-row">
                 <div class="settings-row-icon">👤</div>
-                <div class="settings-row-text">
-                  <div class="settings-row-title">Edit Profile Information</div>
-                  <div class="settings-row-subtitle">Update name, avatar, bio, position, county</div>
-                </div>
+                <div class="settings-row-text"><div class="settings-row-title">Edit Profile Information</div><div class="settings-row-subtitle">Update name, photo, bio, phone, county</div></div>
                 <div>›</div>
               </summary>
               <div class="settings-row-expand">
-                <div id="settings-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
-                <div id="settings-success" style="color:green; font-size:13px; display:none; margin-bottom:10px;"></div>
-
                 <div class="field"><label>Profile Picture</label><input type="file" id="settings-photo" accept="image/*" onchange="previewSettingsPhoto(event)"></div>
-                <div class="field">
-                  <label>Prefix &amp; Preferred Name</label>
-                  <div class="prefix-row">
-                    <select id="settings-prefix">
-                      <option value="">—</option>
-                      <option value="Mr.">Mr.</option>
-                      <option value="Mrs.">Mrs.</option>
-                      <option value="Ms.">Ms.</option>
-                      <option value="Dr.">Dr.</option>
-                    </select>
-                    <input type="text" id="settings-preferred-name" placeholder="e.g. Torbor">
-                  </div>
-                </div>
                 <div class="field"><label>Full Name</label><input type="text" id="settings-full-name"></div>
-                <div class="field"><label>Bio / Intro</label><textarea id="settings-bio" rows="2"></textarea></div>
-                <div class="field"><label>Current Position (Display Only)</label><input type="text" id="settings-position"></div>
+                <div class="field"><label>Bio / Summary</label><textarea id="settings-bio" rows="2"></textarea></div>
+                <div class="field"><label>Position (Display)</label><input type="text" id="settings-position"></div>
                 <div class="field"><label>Phone</label><input type="text" id="settings-phone"></div>
                 <div class="field"><label>County</label><input type="text" id="settings-county"></div>
                 <button class="btn" onclick="saveProfileSettings()">Save Profile</button>
@@ -848,157 +896,76 @@
 
             <div class="settings-row" onclick="openModal('modal-change-password')">
               <div class="settings-row-icon">🔒</div>
-              <div class="settings-row-text">
-                <div class="settings-row-title">Change Password</div>
-                <div class="settings-row-subtitle">Update your login security credentials</div>
-              </div>
+              <div class="settings-row-text"><div class="settings-row-title">Change Password</div></div>
               <div>›</div>
             </div>
 
-            <div class="settings-row" onclick="shareApp()">
-              <div class="settings-row-icon">📤</div>
-              <div class="settings-row-text">
-                <div class="settings-row-title">Share App</div>
-                <div class="settings-row-subtitle">Invite team colleagues to join</div>
-              </div>
-              <div>›</div>
-            </div>
-
-            <!-- COMPREHENSIVE NGO POLICIES & GUIDES -->
-            <div class="settings-group-label">Platform Guide &amp; Staff Policies</div>
-
+            <!-- Comprehensive UAF History Narrative -->
+            <div class="settings-group-label">Organizational History</div>
             <details>
               <summary class="settings-row">
-                <div class="settings-row-icon">📖</div>
-                <div class="settings-row-text">
-                  <div class="settings-row-title">App Guide &amp; Purpose</div>
-                  <div class="settings-row-subtitle">Overview of tabs and operational workflows</div>
-                </div>
+                <div class="settings-row-icon">📜</div>
+                <div class="settings-row-text"><div class="settings-row-title">History of Upskill Africa Foundation</div><div class="settings-row-subtitle">Origins, founders, and organizational growth</div></div>
                 <div>›</div>
               </summary>
-              <div class="settings-row-expand">
-                <p><strong>UAF Team Network</strong> is the unified communication, management, and resource platform for Upskill Africa Foundation staff and volunteers.</p>
-                <ul>
-                  <li><strong>Main Feed:</strong> Real-time organizational updates, announcements, and opportunity digests.</li>
-                  <li><strong>Contacts:</strong> Staff directory with roles, positions, and contact channels.</li>
-                  <li><strong>Partnerships:</strong> Centralized register of strategic, implementing, and funding partners.</li>
-                  <li><strong>Documents:</strong> Safe repository for policies, reports, toolkits, and project files.</li>
-                  <li><strong>Tasks:</strong> Activity assignment, timeline tracking, and reminder sweeps.</li>
-                  <li><strong>UAF Finances:</strong> Multi-currency (USD &amp; LRD) budget tracking, grant accounting, initiative ledgers, and audited statements.</li>
-                </ul>
+              <div class="settings-row-expand" style="font-size:13.5px; line-height:1.65;">
+                <p><strong>Founded July 2, 2023</strong> by <strong>Chris Nen Torbor</strong> and <strong>Litrice M. Browne</strong>, when they reached out to Jeremiah Kollie and Michael Donor at their residence in Pipeline and presented the dream to educate Liberians and Africans.</p>
+                <p>The vision was embraced and supported especially by Michael B. Donor, operating over a full year with three core individuals: Torbor, Donor, and Browne. Originally operating informally as <em>"Upskill - Education and Social Services"</em>.</p>
+                <p>In early 2024, Rejoice Korvah was recruited as Social Affairs Officer. Later in mid-2024, UAF recruited Michael Togbah (General Secretary), Gifty Promise Nimenee (Social Affairs Officer), Garmai M. Kollie (Chief Financial Officer), and Emmanuel Suah (Help Desk), implementing multiple programs. Subsequent recruits included Fatu Yamah and Moses Saah.</p>
+                <p>In 2026, UAF expanded its executive team: Stephen T. Powo, Jr. (Education Empowerment Officer), Frances Joyce Mawolo (Child Protection Officer), Joyce V. Cole (Resource Mobilization Officer), John Muyuneh (Financial Assistant), and Francilia F. Nagbe (Executive Assistant), alongside county coordinators in Maryland (Solomon Weah, Romeo S. Prowd, Ramble Romeo) and Nimba (Christopher Yelebo).</p>
+                <p>Upskill was formally registered on <strong>September 6, 2025</strong> as <strong>Upskill Africa Foundation (UAF)</strong>, partnered with Litrich Agro and Innovation Enterprise (IE).</p>
               </div>
             </details>
 
+            <!-- NGO Behavioral Policies -->
+            <div class="settings-group-label">Code of Conduct &amp; Legal Policies</div>
             <details>
               <summary class="settings-row">
                 <div class="settings-row-icon">⚖️</div>
-                <div class="settings-row-text">
-                  <div class="settings-row-title">Staff Code of Conduct &amp; Ethics</div>
-                  <div class="settings-row-subtitle">NGO standard behavioral expectations</div>
-                </div>
+                <div class="settings-row-text"><div class="settings-row-title">NGO Staff Behavioral Policy</div></div>
                 <div>›</div>
               </summary>
               <div class="settings-row-expand">
-                <p>All members of UAF are expected to adhere to the highest standards of integrity, respect, and professionalism:</p>
-                <ol>
-                  <li><strong>Respect &amp; Inclusion:</strong> Maintain zero tolerance for harassment, discrimination, or abusive conduct based on gender, ethnicity, religion, or background.</li>
-                  <li><strong>Integrity in Operations:</strong> Accurately record financial entries, project metrics, and administrative activities without falsification.</li>
-                  <li><strong>Safeguarding:</strong> Actively protect the rights, privacy, and safety of youth, beneficiaries, and community partners.</li>
-                </ol>
+                <p>Zero tolerance for harassment, integrity in financial accounting, and safeguarding of youth and vulnerable community members.</p>
               </div>
             </details>
 
             <details>
               <summary class="settings-row">
                 <div class="settings-row-icon">🛡️</div>
-                <div class="settings-row-text">
-                  <div class="settings-row-title">Confidentiality &amp; Data Protection Policy</div>
-                  <div class="settings-row-subtitle">Non-misuse policy referencing applicable law</div>
-                </div>
+                <div class="settings-row-text"><div class="settings-row-title">Confidentiality &amp; Non-Misuse Policy</div></div>
                 <div>›</div>
               </summary>
               <div class="settings-row-expand">
-                <p>All data, documents, beneficiary lists, and financial records within this platform are proprietary and strictly confidential under applicable data protection legislation and organizational agreements:</p>
-                <ul>
-                  <li><strong>Non-Disclosure:</strong> Proprietary data may not be copied, distributed, or shared with third parties without written authorization from the Executive Director.</li>
-                  <li><strong>Account Security:</strong> Session credentials and passwords must remain confidential. Account sharing is strictly prohibited.</li>
-                </ul>
+                <p>All beneficiary and financial data are strictly protected under applicable Data Protection frameworks and Cyber Laws. Unauthorized distribution is prohibited.</p>
               </div>
             </details>
 
-            <details>
-              <summary class="settings-row">
-                <div class="settings-row-icon">🚪</div>
-                <div class="settings-row-text">
-                  <div class="settings-row-title">Resignation &amp; Offboarding Procedure</div>
-                  <div class="settings-row-subtitle">Standard protocol upon separation from UAF</div>
-                </div>
-                <div>›</div>
-              </summary>
-              <div class="settings-row-expand">
-                <p>Upon formal resignation or conclusion of service with UAF:</p>
-                <ol>
-                  <li>Complete standard handovers of all assigned documents, project assets, and pending tasks.</li>
-                  <li>Digital access credentials and authorized roles will be retired automatically upon separation.</li>
-                  <li>Non-disclosure commitments regarding organizational records continue to apply post-employment under law.</li>
-                </ol>
-              </div>
-            </details>
-
-            <div class="settings-group-label">Other UAF Services</div>
-            <a class="settings-row" href="https://josephine-cloudhost.github.io/uaf-task-manager-frontend/" target="_blank">
-              <div class="settings-row-icon">✅</div>
-              <div class="settings-row-text"><div class="settings-row-title">UAF Tasks Tracker</div></div>
-              <div>↗</div>
-            </a>
-            <a class="settings-row" href="https://tinyurl.com/uafsite" target="_blank">
-              <div class="settings-row-icon">🌐</div>
-              <div class="settings-row-text"><div class="settings-row-title">UAF Official Blogsite</div></div>
-              <div>↗</div>
-            </a>
-            <a class="settings-row" href="https://web.facebook.com/profile.php?id=100094538285249" target="_blank">
-              <div class="settings-row-icon">📘</div>
-              <div class="settings-row-text"><div class="settings-row-title">UAF Facebook Page</div></div>
-              <div>↗</div>
-            </a>
-
-            <div class="settings-group-label" style="color:#B3261E;">Danger Zone</div>
-            <div class="settings-row" onclick="openModal('delete-account-modal')">
-              <div class="settings-row-icon danger">🗑️</div>
-              <div class="settings-row-text">
-                <div class="settings-row-title" style="color:#B3261E;">Delete Account</div>
-                <div class="settings-row-subtitle">Permanently delete your profile</div>
-              </div>
-              <div>›</div>
+            <!-- Log Out of Account Button -->
+            <div style="padding:16px;">
+              <button class="btn danger" style="background:#FDE8E8; color:#B3261E; border:1px solid #B3261E;" onclick="logoutUser()">Log Out of UAF Network</button>
             </div>
           </div>
         </div>
 
       </main>
 
-      <!-- ==================== BOTTOM TEAM AVATAR BAR ==================== -->
-      <footer class="app-bottom-team-bar">
-        <div class="bottom-team-header">
-          <div class="bottom-team-label">Team Directory</div>
-          <span style="font-size:12px; color:var(--muted);">Tap a circle to view details</span>
-        </div>
+      <!-- ==================== STATIC BOTTOM TEAM DRAWER ==================== -->
+      <footer class="app-bottom-team-bar" id="app-bottom-team-bar">
         <div class="bottom-team-list" id="bottom-team-row"></div>
-
-        <!-- Collapsible Expand Drawer -->
         <div id="team-member-popover">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div style="display:flex; gap:12px; align-items:center;">
-              <div class="avatar" id="popover-avatar" style="width:48px; height:48px;">U</div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; gap:10px; align-items:center;">
+              <div class="uaf-avatar" id="popover-avatar" style="width:44px; height:44px;">U</div>
               <div>
-                <strong id="popover-name" style="font-size:15px; color:var(--navy-text);">Name</strong>
-                <div id="popover-role" style="font-size:13px; color:var(--accent); font-weight:600;">Position</div>
-                <div id="popover-meta" style="font-size:12px; color:var(--muted); margin-top:2px;">County • Role</div>
+                <strong id="popover-name" style="color:var(--navy-text);">Name</strong>
+                <div id="popover-role" style="font-size:12px; color:var(--accent); font-weight:600;">Position</div>
               </div>
             </div>
-            <button class="btn secondary" style="width:auto; padding:4px 8px; font-size:12px;" onclick="closeTeamPopover()">✕ Close</button>
+            <button class="btn secondary" style="width:auto; padding:3px 8px; font-size:11px;" onclick="closeTeamPopover()">✕</button>
           </div>
-          <div id="popover-bio" style="font-size:13px; margin:10px 0; color:var(--ink);"></div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;" id="popover-actions"></div>
+          <div id="popover-bio" style="font-size:12.5px; margin:8px 0;"></div>
+          <div id="popover-actions" style="display:flex; gap:8px;"></div>
         </div>
       </footer>
 
@@ -1008,174 +975,117 @@
 
 <!-- ==================== MODALS ==================== -->
 
-<!-- CHANGE PASSWORD MODAL -->
-<div class="modal" id="modal-change-password">
-  <div class="modal-card">
-    <h3 style="margin-top:0; color:var(--navy-text);">Change Password</h3>
-    <div id="change-pass-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
-    <div class="field"><label>Current Password</label><input type="password" id="change-pass-current"></div>
-    <div class="field"><label>New Password (min 6 characters)</label><input type="password" id="change-pass-new"></div>
-    <div class="field"><label>Confirm New Password</label><input type="password" id="change-pass-confirm"></div>
-    <button class="btn" onclick="submitChangePassword()">Update Password</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-change-password')">Cancel</button>
-  </div>
-</div>
-
-<!-- ADD/EDIT PARTNERSHIP MODAL -->
-<div class="modal" id="modal-partnership">
-  <div class="modal-card">
-    <h3 id="modal-partnership-title" style="margin-top:0; color:var(--navy-text);">Add Partnership</h3>
-    <div id="modal-partnership-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
-    <input type="hidden" id="part-id">
-    <div class="field"><label>Partner Organization Name</label><input type="text" id="part-name"></div>
-    <div class="field">
-      <label>Category</label>
-      <select id="part-category">
-        <option value="Collaborative Partner">Collaborative Partner</option>
-        <option value="Technical Partner">Technical Partner</option>
-        <option value="Implementing Partner">Implementing Partner</option>
-        <option value="Donor / Funder">Donor / Funder</option>
-        <option value="Supporter">Supporter</option>
-        <option value="Government / Institutional">Government / Institutional</option>
-      </select>
-    </div>
-    <div class="field"><label>Date Established</label><input type="date" id="part-date"></div>
-    <div class="field"><label>Partnership Period / Duration</label><input type="text" id="part-period" placeholder="e.g. 2024–2026 or 1 Year"></div>
-    <div class="field"><label>Purpose of Partnership</label><textarea id="part-purpose" rows="2"></textarea></div>
-    <div class="field"><label>What UAF Stands to Gain / Mutual Benefit</label><textarea id="part-gains" rows="2"></textarea></div>
-    <div class="field"><label>Partner Email</label><input type="email" id="part-email"></div>
-    <div class="field"><label>Telephone / Contact Number</label><input type="text" id="part-tel"></div>
-    <div class="field"><label>Physical Address / Location</label><input type="text" id="part-address"></div>
-    <button class="btn" onclick="submitPartnership()">Save Partner</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-partnership')">Cancel</button>
-  </div>
-</div>
-
-<!-- FINANCIAL REPORT MODAL -->
-<div class="modal" id="modal-financial-report">
-  <div class="modal-card">
-    <h3 style="margin-top:0; color:var(--navy-text);">Generate Financial Statement</h3>
-    <div class="field"><label>Start Date</label><input type="date" id="report-start-date"></div>
-    <div class="field"><label>End Date</label><input type="date" id="report-end-date"></div>
-    <div class="field">
-      <label>Category</label>
-      <select id="report-category">
-        <option value="All">All Categories</option>
-        <option value="Operational Account">Operational Account</option>
-        <option value="Grant">Grant</option>
-        <option value="Other Balance">Program Funds</option>
-        <option value="Donation">Donations</option>
-        <option value="Initiative">Specific Initiatives</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Currency</label>
-      <select id="report-currency">
-        <option value="All">All Currencies</option>
-        <option value="USD">USD ($)</option>
-        <option value="LRD">LRD (L$)</option>
-      </select>
-    </div>
-    <button class="btn" onclick="downloadFinancialReport()">📥 Download CSV Report</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-financial-report')">Cancel</button>
-  </div>
-</div>
-
-<!-- STANDARD ACTION MODALS -->
+<!-- POST MODAL -->
 <div class="modal" id="update-modal">
   <div class="modal-card">
-    <h3 style="margin-top:0; color:var(--navy-text);">Post Team Update</h3>
-    <div class="field"><textarea id="post-text" rows="3" placeholder="What's happening?"></textarea></div>
-    <div class="field"><label>Attach Photo (Optional)</label><input type="file" id="post-photo" accept="image/*"></div>
-    <button class="btn" onclick="submitTeamUpdate()">Share Update</button>
+    <h3 style="margin-top:0; color:var(--navy-text);">Share Team Update</h3>
+    <div class="field"><textarea id="post-text" rows="3" placeholder="What would you like to share?"></textarea></div>
+    <div class="field"><label>Attach Image</label><input type="file" id="post-photo" accept="image/*"></div>
+    <button class="btn" onclick="submitTeamUpdate()">Post Update</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('update-modal')">Cancel</button>
   </div>
 </div>
 
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal" id="modal-change-password">
+  <div class="modal-card">
+    <h3 style="margin-top:0; color:var(--navy-text);">Change Password</h3>
+    <div class="field"><label>Current Password</label><input type="password" id="change-pass-current"></div>
+    <div class="field"><label>New Password</label><input type="password" id="change-pass-new"></div>
+    <button class="btn" onclick="submitChangePassword()">Update</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-change-password')">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD PROGRAM MODAL -->
+<div class="modal" id="modal-program">
+  <div class="modal-card">
+    <h3 style="margin-top:0; color:var(--navy-text);">Add Core Program</h3>
+    <div class="field"><label>Program Title</label><input type="text" id="prog-title"></div>
+    <div class="field"><label>Short Code</label><input type="text" id="prog-code" placeholder="e.g. WHEP"></div>
+    <div class="field"><label>Target Beneficiaries</label><input type="text" id="prog-target"></div>
+    <div class="field"><label>Description</label><textarea id="prog-desc" rows="3"></textarea></div>
+    <button class="btn" onclick="submitProgram()">Save Program</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-program')">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD IMPACT MODAL -->
+<div class="modal" id="modal-impact">
+  <div class="modal-card">
+    <h3 style="margin-top:0; color:var(--navy-text);">Record Impact Data</h3>
+    <div class="field"><label>Initiative / Program</label><input type="text" id="imp-initiative"></div>
+    <div class="field"><label>Location (County / Community)</label><input type="text" id="imp-location"></div>
+    <div class="field"><label>Men Reached</label><input type="number" id="imp-men" value="0"></div>
+    <div class="field"><label>Women Reached</label><input type="number" id="imp-women" value="0"></div>
+    <div class="field"><label>Average Age</label><input type="text" id="imp-age" placeholder="e.g. 16-25"></div>
+    <div class="field"><label>Impact Method</label>
+      <select id="imp-method">
+        <option value="Trained">Trained</option>
+        <option value="Direct Aid / Given Money">Direct Aid / Given Money</option>
+        <option value="Reintegrated in School">Reintegrated in School</option>
+        <option value="Toolkits Distributed">Toolkits Distributed</option>
+      </select>
+    </div>
+    <button class="btn" onclick="submitImpact()">Record Metric</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-impact')">Cancel</button>
+  </div>
+</div>
+
+<!-- FINANCE MODALS -->
 <div class="modal" id="modal-update-org">
   <div class="modal-card">
-    <h3 style="margin-top:0; color:var(--navy-text);">Update Operational Balance</h3>
+    <h3 style="margin-top:0;">Update Operational Balance</h3>
     <div class="field"><label>New Balance</label><input type="number" step="0.01" id="input-org-balance"></div>
     <div class="field"><label>Currency</label><select id="input-org-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
-    <div class="field"><label>Reason</label><input type="text" id="input-org-reason"></div>
-    <button class="btn" onclick="submitUpdateOrgBalance()">Save Balance</button>
+    <button class="btn" onclick="submitUpdateOrgBalance()">Save</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-update-org')">Cancel</button>
   </div>
 </div>
 
 <div class="modal" id="modal-add-income">
   <div class="modal-card">
-    <h3 style="margin-top:0; color:var(--navy-text);">Record Financial Income</h3>
+    <h3 style="margin-top:0;">Record Income</h3>
     <div class="field"><label>Target</label>
-      <select id="income-source-select" onchange="toggleInitiativeIncomeSelect()">
+      <select id="income-source-select">
         <option value="Grant">Grant</option>
         <option value="Other Balance">Program Funds</option>
         <option value="Donation">Donation</option>
-        <option value="Initiative">Specific Initiative</option>
       </select>
     </div>
-    <div class="field" id="field-income-initiative" style="display:none;"><label>Initiative</label><select id="income-initiative-select"></select></div>
     <div class="field"><label>Amount</label><input type="number" step="0.01" id="income-amount"></div>
     <div class="field"><label>Currency</label><select id="income-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
-    <div class="field"><label>Description</label><input type="text" id="income-desc"></div>
-    <button class="btn" onclick="submitFinancialIncome()">Record Income</button>
+    <button class="btn" onclick="submitIncome()">Record</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-income')">Cancel</button>
   </div>
 </div>
 
 <div class="modal" id="modal-add-expense">
   <div class="modal-card">
-    <h3 style="margin-top:0; color:var(--navy-text);">Record Financial Expense</h3>
-    <div class="field"><label>Currency</label><select id="expense-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
+    <h3 style="margin-top:0;">Record Expense</h3>
     <div class="field"><label>Description</label><input type="text" id="expense-desc"></div>
     <div class="field"><label>Amount</label><input type="number" step="0.01" id="expense-amount"></div>
     <div class="field"><label>Source</label>
-      <select id="expense-source-select" onchange="toggleInitiativeExpenseSelect()">
+      <select id="expense-source-select">
         <option value="Operational Account">Operational Account</option>
         <option value="Grant">Grant</option>
         <option value="Other Balance">Program Funds</option>
         <option value="Donation">Donation</option>
-        <option value="Specific Initiative">Specific Initiative</option>
       </select>
     </div>
-    <div class="field" id="field-expense-initiative" style="display:none;"><label>Initiative</label><select id="expense-initiative-select"></select></div>
-    <button class="btn danger" onclick="submitFinancialExpense()">Submit Expense</button>
+    <div class="field"><label>Currency</label><select id="expense-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
+    <button class="btn danger" onclick="submitExpense()">Submit Expense</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-expense')">Cancel</button>
   </div>
 </div>
 
-<div class="modal" id="modal-add-initiative">
+<div class="modal" id="modal-financial-report">
   <div class="modal-card">
-    <h3 style="margin-top:0; color:var(--navy-text);">New Initiative</h3>
-    <div class="field"><label>Name</label><input type="text" id="init-name"></div>
-    <div class="field"><label>Currency</label><select id="init-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
-    <div class="field"><label>Initial Income</label><input type="number" step="0.01" id="init-income"></div>
-    <div class="field"><label>Status</label><select id="init-status"><option value="Active">Active</option><option value="Pending">Pending</option><option value="Completed">Completed</option></select></div>
-    <button class="btn" onclick="submitCreateInitiative()">Create</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-initiative')">Cancel</button>
-  </div>
-</div>
-
-<div class="modal" id="task-modal">
-  <div class="modal-card">
-    <h3 id="task-modal-title" style="margin-top:0; color:var(--navy-text);">New Task</h3>
-    <input type="hidden" id="task-id-input">
-    <div class="field"><label>Task Name</label><input type="text" id="task-name-input"></div>
-    <div class="field"><label>Description</label><textarea id="task-desc-input" rows="2"></textarea></div>
-    <div class="field"><label>Deadline</label><input type="date" id="task-date-input"></div>
-    <div class="field"><label>Assignee</label><select id="task-individual-select"></select></div>
-    <button class="btn" onclick="submitTask()">Save Task</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('task-modal')">Cancel</button>
-  </div>
-</div>
-
-<div class="modal" id="delete-account-modal">
-  <div class="modal-card">
-    <h3 style="color:#B3261E; margin-top:0;">Delete Account</h3>
-    <p style="font-size:13px; color:var(--muted);">Permanently delete your profile. This cannot be undone.</p>
-    <div class="field"><label>Confirm password</label><input type="password" id="delete-account-password"></div>
-    <button class="btn danger" onclick="submitDeleteAccount()">Delete My Account</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('delete-account-modal')">Cancel</button>
+    <h3 style="margin-top:0;">Download Financial Statement</h3>
+    <div class="field"><label>Start Date</label><input type="date" id="report-start-date"></div>
+    <div class="field"><label>End Date</label><input type="date" id="report-end-date"></div>
+    <button class="btn" onclick="downloadFinancialReport()">Download CSV</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-financial-report')">Cancel</button>
   </div>
 </div>
 
@@ -1184,17 +1094,10 @@
   let currentUser = null;
   let currentSessionToken = null;
   let activeChannelId = 'team';
-  let activeChannelType = 'team';
   let isSignupMode = false;
-  let pendingVerificationEmail = null;
   let allTeamProfiles = [];
-  let allChannels = [];
-  let allPartnerships = [];
-  let allTasks = [];
   let profileNameMap = {};
-  let lastMessagesById = {};
-  let cachedInitiativesList = [];
-  let currentSelectedTeamEmail = null;
+  let lastScrollTop = 0;
   const SESSION_KEY = 'uaf_session';
 
   function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('open'); }
@@ -1212,162 +1115,77 @@
 
   function canManageFinances() {
     if (!currentUser) return false;
-    const role = (currentUser.authorizedRole || '').toString().trim();
-    return role === 'Executive Director' || role === 'CFO';
+    const r = (currentUser.authorizedRole || '').trim();
+    return r === 'Executive Director' || r === 'CFO';
   }
-  function canViewDetailedFinances() {
-    if (!currentUser) return false;
-    return canManageFinances() || currentUser.userType === 'Executive Management Team Member';
-  }
-  function isAuthorizedTaskAdmin() {
+  function isAuthorizedCoordinator() {
     if (!currentUser) return false;
     return canManageFinances() || currentUser.authorizedTaskAdmin === true;
   }
 
-  function saveSession(email, token) {
-    currentSessionToken = token;
-    try { localStorage.setItem(SESSION_KEY, JSON.stringify({ email, token })); } catch (e) {}
-  }
-  function clearSession() {
-    currentSessionToken = null;
-    try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
-  }
-  function getSession() {
-    try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch (e) { return null; }
+  // Universal Avatar Generator with Photo Detection
+  function getAvatarHtml(email, name, photoUrl, size = 36) {
+    const profile = allTeamProfiles.find(p => p.email === email);
+    const photo = photoUrl || (profile && profile.photoUrl);
+    const letter = (name || (profile && profile.displayName) || 'U')[0];
+    if (photo) return `<div class="uaf-avatar" style="width:${size}px; height:${size}px;"><img src="${photo}"></div>`;
+    return `<div class="uaf-avatar" style="width:${size}px; height:${size}px; font-size:${size*0.4}px;">${letter}</div>`;
   }
 
-  async function tryAutoLogin() {
-    const session = getSession();
-    if (!session || !session.email || !session.token) return false;
-    currentSessionToken = session.token;
-    try {
-      const res = await apiPost('validateSession', { email: session.email, token: session.token });
-      if (res.success && res.profile) {
-        currentUser = res.profile;
-        return true;
-      }
-    } catch (err) { return 'network-error'; }
-    clearSession();
-    return false;
+  // Auto-hiding bottom team footer on scroll
+  function handleScrollFooter(el) {
+    const st = el.scrollTop;
+    const bar = document.getElementById('app-bottom-team-bar');
+    if (st > lastScrollTop && st > 40) bar.classList.add('hidden');
+    else bar.classList.remove('hidden');
+    lastScrollTop = st <= 0 ? 0 : st;
   }
 
-  window.addEventListener('DOMContentLoaded', async () => {
-    const result = await tryAutoLogin();
-    document.getElementById('session-check').style.display = 'none';
-    if (result === true) enterApp();
-    else document.getElementById('auth-screen').classList.add('visible');
-  });
-
-  // ---------- AUTH FLOWS ----------
+  // ---------- AUTH ----------
   function toggleAuthMode(e) {
     if (e) e.preventDefault();
     isSignupMode = !isSignupMode;
     document.getElementById('name-field').style.display = isSignupMode ? 'block' : 'none';
     document.getElementById('prefix-pref-field').style.display = isSignupMode ? 'block' : 'none';
-    document.getElementById('phone-field').style.display = isSignupMode ? 'block' : 'none';
     document.getElementById('code-field').style.display = isSignupMode ? 'block' : 'none';
-    document.getElementById('auth-title').innerText = isSignupMode ? 'Create Account' : 'UAF Team Network';
     document.getElementById('auth-submit').innerText = isSignupMode ? 'Sign Up' : 'Sign In';
-    document.getElementById('auth-toggle').innerText = isSignupMode ? 'Already have an account? Sign in' : 'Need an account? Sign up';
-  }
-
-  function showVerificationView(email) {
-    pendingVerificationEmail = email;
-    document.getElementById('auth-fields-standard').style.display = 'none';
-    document.getElementById('auth-fields-verify').style.display = 'block';
-    document.getElementById('verify-target-email').innerText = email;
-  }
-
-  function showForgotPassword(e) {
-    if (e) e.preventDefault();
-    document.getElementById('auth-fields-standard').style.display = 'none';
-    document.getElementById('auth-fields-reset').style.display = 'block';
-  }
-
-  function cancelAuthSubflow(e) {
-    if (e) e.preventDefault();
-    document.getElementById('auth-fields-verify').style.display = 'none';
-    document.getElementById('auth-fields-reset').style.display = 'none';
-    document.getElementById('auth-fields-standard').style.display = 'block';
   }
 
   async function submitAuth() {
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-pass').value;
-    if (!email || !password) return;
-
     if (isSignupMode) {
       const name = document.getElementById('auth-name').value.trim();
       const teamCode = document.getElementById('auth-code').value.trim();
       const prefix = document.getElementById('auth-prefix').value;
       const preferredName = document.getElementById('auth-preferred-name').value.trim();
-      const phone = document.getElementById('auth-phone').value.trim();
-      const res = await apiPost('signup', { email, password, name, teamCode, prefix, preferredName, phone });
-      if (res.success) showVerificationView(email);
-      else alert(res.error || 'Signup failed');
+      const res = await apiPost('signup', { email, password, name, teamCode, prefix, preferredName });
+      if (res.success) {
+        document.getElementById('auth-fields-standard').style.display = 'none';
+        document.getElementById('auth-fields-verify').style.display = 'block';
+        document.getElementById('verify-target-email').innerText = email;
+      } else alert(res.error || 'Signup failed');
     } else {
       const res = await apiPost('login', { email, password });
       if (res.success && res.sessionToken) {
         currentUser = res.profile;
-        saveSession(email, res.sessionToken);
+        currentSessionToken = res.sessionToken;
+        localStorage.setItem(SESSION_KEY, JSON.stringify({ email, token: res.sessionToken }));
         enterApp();
-      } else if (res.needsVerification) {
-        showVerificationView(email);
-      } else {
-        alert(res.error || 'Invalid login.');
-      }
+      } else alert(res.error || 'Invalid credentials');
     }
   }
 
   async function submitEmailVerification() {
+    const email = document.getElementById('verify-target-email').innerText;
     const code = document.getElementById('auth-verify-code').value.trim();
-    const res = await apiPost('verifyEmail', { email: pendingVerificationEmail, code });
-    if (res.success && res.sessionToken) {
-      currentUser = res.profile;
-      saveSession(pendingVerificationEmail, res.sessionToken);
-      enterApp();
-    } else alert(res.error || 'Verification failed');
-  }
-
-  async function resendVerificationCode() {
-    await apiPost('resendVerification', { email: pendingVerificationEmail });
-    alert('Code resent.');
-  }
-
-  async function submitPasswordResetRequest() {
-    const email = document.getElementById('reset-email').value.trim();
-    const token = document.getElementById('reset-token').value.trim();
-    const newPassword = document.getElementById('reset-newpass').value;
-    if (document.getElementById('reset-token-field').style.display === 'none') {
-      await apiPost('requestPasswordReset', { email });
-      document.getElementById('reset-token-field').style.display = 'block';
-      document.getElementById('reset-newpass-field').style.display = 'block';
-    } else {
-      const res = await apiPost('resetPassword', { email, token, newPassword });
-      if (res.success) { alert('Password reset! Please log in.'); cancelAuthSubflow(); }
-    }
-  }
-
-  async function submitChangePassword() {
-    const currentPassword = document.getElementById('change-pass-current').value;
-    const newPassword = document.getElementById('change-pass-new').value;
-    const confirmPassword = document.getElementById('change-pass-confirm').value;
-    const errorEl = document.getElementById('change-pass-error');
-    errorEl.style.display = 'none';
-
-    if (newPassword !== confirmPassword) {
-      errorEl.innerText = 'New passwords do not match.';
-      errorEl.style.display = 'block';
-      return;
-    }
-    const res = await apiPost('changePassword', { currentPassword, newPassword });
+    const res = await apiPost('verifyEmail', { email, code });
     if (res.success) {
-      alert('Password updated successfully.');
-      closeModal('modal-change-password');
-    } else {
-      errorEl.innerText = res.error || 'Failed to update password.';
-      errorEl.style.display = 'block';
-    }
+      currentUser = res.profile;
+      currentSessionToken = res.sessionToken;
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ email, token: res.sessionToken }));
+      enterApp();
+    } else alert(res.error);
   }
 
   function enterApp() {
@@ -1377,23 +1195,19 @@
     document.getElementById('user-display').innerText = currentUser.displayName || currentUser.name;
 
     const av = document.getElementById('header-avatar');
-    av.innerHTML = currentUser.photoUrl ? `<img src="${currentUser.photoUrl}">` : (currentUser.displayName || currentUser.name || 'U')[0];
+    av.innerHTML = currentUser.photoUrl ? `<img src="${currentUser.photoUrl}">` : (currentUser.displayName || 'U')[0];
 
     loadAllProfiles();
     loadFeed();
+    loadPrograms();
+    loadImpact();
     loadPartnerships();
-    loadTasks();
-    refreshNotifBadge();
-    setInterval(refreshNotifBadge, 30000);
+    checkCallStatus();
   }
 
   async function logoutUser() {
-    if (currentUser) apiPost('logout', { email: currentUser.email }).catch(() => {});
-    clearSession();
-    currentUser = null;
-    document.getElementById('app-sidebar').style.display = 'none';
-    document.getElementById('app-screen').style.display = 'none';
-    document.getElementById('auth-screen').classList.add('visible');
+    localStorage.removeItem(SESSION_KEY);
+    location.reload();
   }
 
   // ---------- TAB NAVIGATION ----------
@@ -1406,18 +1220,16 @@
     if (target) target.classList.add('active');
 
     Array.from(document.querySelectorAll('.app-tabstrip button')).find(b => b.getAttribute('onclick')?.includes(`'${tabName}'`))?.classList.add('active');
-
     const sIdx = { feed: 0, chats: 1, notifications: 2, settings: 3 }[tabName];
     if (sIdx != null) document.querySelectorAll('.app-sidebar .sidebar-btn')[sIdx]?.classList.add('active');
 
     if (tabName === 'feed') loadFeed();
-    if (tabName === 'team') loadTeam();
-    if (tabName === 'partnerships') loadPartnerships();
-    if (tabName === 'documents') loadDocuments();
-    if (tabName === 'tasks') loadTasks();
     if (tabName === 'finances') loadFinances();
-    if (tabName === 'notifications') loadNotifications();
-    if (tabName === 'settings') loadSettingsForm();
+    if (tabName === 'programs') loadPrograms();
+    if (tabName === 'impact') loadImpact();
+    if (tabName === 'partnerships') loadPartnerships();
+    if (tabName === 'tasks') loadTasks();
+    if (tabName === 'documents') loadDocuments();
   }
 
   function openFullChatsTab() {
@@ -1426,399 +1238,81 @@
     loadChats();
   }
 
-  // ---------- UNIVERSAL SEARCH ----------
-  function handleUniversalSearch(q) {
-    q = (q || '').trim().toLowerCase();
-    if (!q) { closeSearch(); return; }
+  // ---------- LINKEDIN-STYLE FEED ----------
+  async function loadFeed() {
+    const data = await fetch(`${SCRIPT_URL}?action=feedPosts`).then(r => r.json());
+    const container = document.getElementById('feed-container');
+    if (!Array.isArray(data)) return;
 
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-search-results').classList.add('active');
-    const container = document.getElementById('search-results-container');
+    container.innerHTML = data.map(post => {
+      const isLiked = post.likes && post.likes.includes(currentUser.email);
+      const isDisliked = post.dislikes && post.dislikes.includes(currentUser.email);
+      const likesCount = (post.likes || []).length;
+      const dislikesCount = (post.dislikes || []).length;
+      const comments = post.comments || [];
 
-    const matchingContacts = allTeamProfiles.filter(p => `${p.displayName || p.name} ${p.currentPosition} ${p.county} ${p.email}`.toLowerCase().includes(q));
-    const matchingPartners = allPartnerships.filter(p => `${p.name} ${p.purpose} ${p.category} ${p.whatUafGains}`.toLowerCase().includes(q));
-    const matchingTasks = allTasks.filter(t => `${t.name} ${t.description} ${t.assignedTo}`.toLowerCase().includes(q));
-
-    container.innerHTML = `
-      <div style="margin-bottom:16px;">
-        <h4 style="margin:0 0 8px 0; color:var(--navy-text);">Contacts (${matchingContacts.length})</h4>
-        ${matchingContacts.map(p => `<div class="feed-post" style="padding:10px; cursor:pointer;" onclick="toggleTeamMemberPopover('${p.email}')"><strong>${escapeHtml(p.displayName || p.name)}</strong> — ${escapeHtml(p.currentPosition || 'Staff')}</div>`).join('') || '<p style="color:var(--muted); font-size:12px;">No matching contacts.</p>'}
-      </div>
-      <div style="margin-bottom:16px;">
-        <h4 style="margin:0 0 8px 0; color:var(--navy-text);">Partnerships (${matchingPartners.length})</h4>
-        ${matchingPartners.map(pt => `<div class="feed-post" style="padding:10px;"><strong>${escapeHtml(pt.name)}</strong> (${escapeHtml(pt.category)}) — ${escapeHtml(pt.purpose)}</div>`).join('') || '<p style="color:var(--muted); font-size:12px;">No matching partnerships.</p>'}
-      </div>
-      <div>
-        <h4 style="margin:0 0 8px 0; color:var(--navy-text);">Tasks (${matchingTasks.length})</h4>
-        ${matchingTasks.map(t => `<div class="feed-post" style="padding:10px;"><strong>${escapeHtml(t.name)}</strong> — Due ${t.deadlineDate}</div>`).join('') || '<p style="color:var(--muted); font-size:12px;">No matching tasks.</p>'}
-      </div>
-    `;
-  }
-
-  function closeSearch() {
-    document.getElementById('global-search').value = '';
-    switchTab('feed');
-  }
-
-  // ---------- PARTNERSHIPS ----------
-  async function loadPartnerships() {
-    document.getElementById('new-partner-btn').style.display = canManageFinances() ? 'inline-block' : 'none';
-    const data = await fetch(`${SCRIPT_URL}?action=partnerships`).then(r => r.json());
-    allPartnerships = Array.isArray(data) ? data : [];
-    const container = document.getElementById('partnerships-container');
-    if (!allPartnerships.length) { container.innerHTML = `<p style="color:var(--muted)">No registered partnerships.</p>`; return; }
-    container.innerHTML = allPartnerships.map(p => `
-      <div class="partner-card">
-        <span class="partner-badge">${escapeHtml(p.category)}</span>
-        <h4 style="margin:4px 0 6px; font-size:16px; color:var(--navy-text);">${escapeHtml(p.name)}</h4>
-        <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">📅 Established: ${p.dateOfPartnership || '—'} • ⏱ Period: ${escapeHtml(p.partnershipPeriod || 'Ongoing')}</div>
-        <p style="font-size:13px; margin:6px 0;"><strong>Purpose:</strong> ${escapeHtml(p.purpose || '—')}</p>
-        <p style="font-size:13px; margin:6px 0;"><strong>What UAF Gains:</strong> ${escapeHtml(p.whatUafGains || '—')}</p>
-        <div style="font-size:12px; color:var(--muted); margin-top:10px; border-top:1px solid var(--line); padding-top:6px;">
-          ${p.email ? `✉️ ${escapeHtml(p.email)} ` : ''}${p.tel ? `• 📞 ${escapeHtml(p.tel)} ` : ''}${p.address ? `• 📍 ${escapeHtml(p.address)}` : ''}
-        </div>
-        ${canManageFinances() ? `
-          <div style="margin-top:10px; display:flex; gap:6px;">
-            <button class="btn secondary" style="width:auto; padding:3px 8px; font-size:11px;" onclick="openEditPartnershipModal('${p.id}')">Edit</button>
-            <button class="btn danger" style="width:auto; padding:3px 8px; font-size:11px;" onclick="deletePartnership('${p.id}')">Delete</button>
-          </div>
-        ` : ''}
-      </div>
-    `).join('');
-  }
-
-  function openAddPartnershipModal() {
-    document.getElementById('modal-partnership-title').innerText = 'Add Partnership';
-    document.getElementById('part-id').value = '';
-    document.getElementById('part-name').value = '';
-    document.getElementById('part-purpose').value = '';
-    document.getElementById('part-gains').value = '';
-    document.getElementById('part-period').value = '';
-    document.getElementById('part-email').value = '';
-    document.getElementById('part-tel').value = '';
-    document.getElementById('part-address').value = '';
-    openModal('modal-partnership');
-  }
-
-  function openEditPartnershipModal(id) {
-    const p = allPartnerships.find(item => item.id === id);
-    if (!p) return;
-    document.getElementById('modal-partnership-title').innerText = 'Edit Partnership';
-    document.getElementById('part-id').value = p.id;
-    document.getElementById('part-name').value = p.name;
-    document.getElementById('part-category').value = p.category;
-    document.getElementById('part-date').value = p.dateOfPartnership;
-    document.getElementById('part-period').value = p.partnershipPeriod;
-    document.getElementById('part-purpose').value = p.purpose;
-    document.getElementById('part-gains').value = p.whatUafGains;
-    document.getElementById('part-email').value = p.email;
-    document.getElementById('part-tel').value = p.tel;
-    document.getElementById('part-address').value = p.address;
-    openModal('modal-partnership');
-  }
-
-  async function submitPartnership() {
-    const id = document.getElementById('part-id').value;
-    const payload = {
-      action: id ? 'editPartnership' : 'addPartnership',
-      partnershipId: id || undefined,
-      name: document.getElementById('part-name').value.trim(),
-      category: document.getElementById('part-category').value,
-      dateOfPartnership: document.getElementById('part-date').value,
-      partnershipPeriod: document.getElementById('part-period').value.trim(),
-      purpose: document.getElementById('part-purpose').value.trim(),
-      whatUafGains: document.getElementById('part-gains').value.trim(),
-      partnerEmail: document.getElementById('part-email').value.trim(),
-      tel: document.getElementById('part-tel').value.trim(),
-      address: document.getElementById('part-address').value.trim()
-    };
-    if (!payload.name) return;
-    const res = await apiPost(payload.action, payload);
-    if (res.success) { closeModal('modal-partnership'); loadPartnerships(); }
-  }
-
-  async function deletePartnership(id) {
-    if (!confirm('Delete this partnership record?')) return;
-    const res = await apiPost('deletePartnership', { partnershipId: id });
-    if (res.success) loadPartnerships();
-  }
-
-  // ---------- WHATSAPP CHAT NAVIGATION ----------
-  async function loadChats() {
-    const channels = await fetch(`${SCRIPT_URL}?action=channels&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
-    allChannels = Array.isArray(channels) ? channels : [];
-    const container = document.getElementById('chats-list');
-    container.innerHTML = allChannels.map(c => {
-      let label = c.name;
-      let avatarHtml = `<div class="avatar">${label ? label[0] : 'C'}</div>`;
-      if (!label && c.type === 'dm') {
-        const other = c.members.find(m => m !== currentUser.email);
-        const profile = allTeamProfiles.find(p => p.email === other);
-        label = profileNameMap[other] || other || 'Direct Message';
-        avatarHtml = `<div class="avatar">${profile && profile.photoUrl ? `<img src="${profile.photoUrl}">` : label[0]}</div>`;
-      }
       return `
-        <div class="feed-post" style="display:flex; align-items:center; gap:12px; cursor:pointer; padding:12px; margin-bottom:8px;" onclick="openChatRoom('${c.channelId}', '${escapeHtml(label)}', '${c.type}')">
-          ${avatarHtml}
-          <div style="flex:1;">
-            <strong style="color:var(--navy-text); font-size:14.5px;">${escapeHtml(label)}</strong>
-            <div style="font-size:12px; color:var(--muted);">${c.type.toUpperCase()}</div>
+        <div class="feed-post-card">
+          <div class="post-author-row">
+            ${getAvatarHtml(post.authorEmail, post.authorName, null, 42)}
+            <div>
+              <div class="post-author-name">${escapeHtml(post.authorName)}</div>
+              <div class="post-author-sub">${escapeHtml(post.category || 'Member')} • ${new Date(post.timestamp).toLocaleDateString()}</div>
+            </div>
           </div>
-          <span style="color:var(--muted); font-size:16px;">›</span>
+          <div class="post-body-text">${escapeHtml(post.text)}</div>
+          ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-img">` : ''}
+
+          <div class="post-metrics-bar">
+            <span>👍 ${likesCount} Likes • 👎 ${dislikesCount} Dislikes</span>
+            <span>💬 ${comments.length} Comments • 🔁 ${post.repostsCount || 0} Reposts</span>
+          </div>
+
+          <div class="post-actions-bar">
+            <button class="post-act-btn ${isLiked ? 'active' : ''}" onclick="reactPost('${post.id}', 'like')">👍 Like</button>
+            <button class="post-act-btn ${isDisliked ? 'active' : ''}" onclick="reactPost('${post.id}', 'dislike')">👎 Dislike</button>
+            <button class="post-act-btn" onclick="toggleComments('${post.id}')">💬 Comment</button>
+            <button class="post-act-btn" onclick="reactPost('${post.id}', 'repost')">🔁 Repost</button>
+          </div>
+
+          <div class="post-comments-drawer" id="comments-${post.id}">
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+              <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--line);">
+              <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="submitComment('${post.id}')">Reply</button>
+            </div>
+            <div>
+              ${comments.map(c => `
+                <div class="comment-item">
+                  ${getAvatarHtml(c.email, c.authorName, null, 28)}
+                  <div class="comment-bubble">
+                    <strong>${escapeHtml(c.authorName)}</strong>
+                    <div>${escapeHtml(c.text)}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
         </div>
       `;
     }).join('');
   }
 
-  function openChatRoom(id, title, type) {
-    activeChannelId = id;
-    activeChannelType = type || 'dm';
-    document.getElementById('chat-list-view').style.display = 'none';
-    document.getElementById('chat-room-view').style.display = 'block';
-    document.getElementById('chat-title').innerText = title;
-    document.getElementById('chat-type-label').innerText = type.toUpperCase();
-
-    const isGroup = activeChannelType === 'group';
-    document.getElementById('add-member-btn').style.display = isGroup ? 'inline-block' : 'none';
-    document.getElementById('group-settings-btn').style.display = isGroup ? 'inline-block' : 'none';
-
-    loadMessages();
+  async function reactPost(postId, reactionType) {
+    await apiPost('reactFeedPost', { postId, reactionType, authorName: currentUser.displayName || currentUser.name });
+    loadFeed();
   }
 
-  function backToChatList() {
-    document.getElementById('chat-room-view').style.display = 'none';
-    document.getElementById('chat-list-view').style.display = 'block';
-    loadChats();
+  function toggleComments(postId) {
+    const el = document.getElementById(`comments-${postId}`);
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
   }
 
-  async function loadMessages() {
-    const url = `${SCRIPT_URL}?action=messages&channelId=${activeChannelId}&email=${encodeURIComponent(currentUser.email)}&sessionToken=${encodeURIComponent(currentSessionToken)}`;
-    const msgs = await fetch(url).then(r => r.json());
-    if (Array.isArray(msgs)) {
-      const container = document.getElementById('chat-messages');
-      container.innerHTML = msgs.map(m => {
-        const isMine = currentUser && m.email === currentUser.email;
-        const sender = allTeamProfiles.find(p => p.email === m.email);
-        const avHtml = `<div class="avatar" style="width:30px; height:30px; font-size:12px;">${sender && sender.photoUrl ? `<img src="${sender.photoUrl}">` : (m.name || 'U')[0]}</div>`;
-        return `
-          <div class="msg-row ${isMine ? 'mine' : 'other'}">
-            ${isMine ? avHtml : ''}
-            <div class="msg-bubble">
-              ${!isMine ? `<div style="font-size:11px; font-weight:700; opacity:0.85; margin-bottom:2px;">${escapeHtml(profileNameMap[m.email] || m.name)}</div>` : ''}
-              <div>${escapeHtml(m.text)}</div>
-              <div class="msg-time">${new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-            </div>
-            ${!isMine ? avHtml : ''}
-          </div>
-        `;
-      }).join('');
-      container.scrollTop = container.scrollHeight;
-    }
-  }
-
-  async function sendMessage() {
-    const input = document.getElementById('chat-input');
+  async function submitComment(postId) {
+    const input = document.getElementById(`comment-input-${postId}`);
     const text = input.value.trim();
     if (!text) return;
-    await apiPost('postMessage', { channelId: activeChannelId, name: currentUser.displayName || currentUser.name, text });
-    input.value = '';
-    loadMessages();
-  }
-
-  // ---------- BOTTOM TEAM AVATAR ROW & DETAIL EXPANDER ----------
-  async function loadAllProfiles() {
-    allTeamProfiles = await fetch(`${SCRIPT_URL}?action=profiles`).then(r => r.json());
-    if (Array.isArray(allTeamProfiles)) {
-      profileNameMap = {};
-      allTeamProfiles.forEach(p => { profileNameMap[p.email] = p.displayName || p.name; });
-      renderBottomTeamRow();
-      renderTeamList();
-    }
-  }
-
-  function renderBottomTeamRow() {
-    const container = document.getElementById('bottom-team-row');
-    container.innerHTML = allTeamProfiles.map(p => `
-      <div class="bottom-team-item ${currentSelectedTeamEmail === p.email ? 'active' : ''}" onclick="toggleTeamMemberPopover('${p.email}')">
-        <div class="bottom-team-circle">
-          ${p.photoUrl ? `<img src="${p.photoUrl}">` : (p.displayName || p.name || 'U')[0]}
-        </div>
-        <div class="bottom-team-name">${escapeHtml(p.preferredName || p.name.split(' ')[0])}</div>
-      </div>
-    `).join('');
-  }
-
-  function toggleTeamMemberPopover(email) {
-    const drawer = document.getElementById('team-member-popover');
-    if (currentSelectedTeamEmail === email && drawer.style.display === 'block') {
-      closeTeamPopover();
-      return;
-    }
-    currentSelectedTeamEmail = email;
-    renderBottomTeamRow();
-
-    const p = allTeamProfiles.find(item => item.email === email);
-    if (!p) return;
-
-    document.getElementById('popover-avatar').innerHTML = p.photoUrl ? `<img src="${p.photoUrl}">` : (p.displayName || p.name || 'U')[0];
-    document.getElementById('popover-name').innerText = p.displayName || p.name;
-    document.getElementById('popover-role').innerText = p.currentPosition || 'Team Member';
-    document.getElementById('popover-meta').innerText = `${p.county || 'Liberia'} • ${p.userType || 'Staff'}${p.leadingProject === 'Yes' ? ' • Project Lead: ' + p.projectName : ''}`;
-    document.getElementById('popover-bio').innerText = p.bio || 'No bio provided.';
-
-    document.getElementById('popover-actions').innerHTML = `
-      ${p.email !== currentUser.email ? `<button class="btn" style="width:auto; padding:5px 12px; font-size:12px;" onclick="startDirectMessage('${p.email}')">💬 Direct Message</button>` : ''}
-      ${p.phone ? `<a href="tel:${p.phone}" class="btn secondary" style="width:auto; padding:5px 12px; font-size:12px; text-decoration:none;">📞 Call (${p.phone})</a>` : ''}
-    `;
-
-    drawer.style.display = 'block';
-  }
-
-  function closeTeamPopover() {
-    currentSelectedTeamEmail = null;
-    document.getElementById('team-member-popover').style.display = 'none';
-    renderBottomTeamRow();
-  }
-
-  function renderTeamList() {
-    const container = document.getElementById('team-list');
-    container.innerHTML = allTeamProfiles.map(p => `
-      <div class="feed-post" style="display:flex; gap:14px; align-items:center;">
-        <div class="avatar" style="width:48px; height:48px;">${p.photoUrl ? `<img src="${p.photoUrl}">` : (p.displayName || p.name || 'U')[0]}</div>
-        <div style="flex:1;">
-          <strong style="font-size:15px; color:var(--navy-text);">${escapeHtml(p.displayName || p.name)}</strong>
-          <div style="font-size:13px; color:var(--accent); font-weight:600;">${escapeHtml(p.currentPosition || 'Staff')}</div>
-          <div style="font-size:12px; color:var(--muted); margin-top:2px;">📍 ${escapeHtml(p.county || 'Liberia')} • ✉️ ${escapeHtml(p.email)}</div>
-        </div>
-        ${p.email !== currentUser.email ? `<button class="btn secondary" style="width:auto; padding:5px 12px; font-size:12px;" onclick="startDirectMessage('${p.email}')">Message</button>` : ''}
-      </div>
-    `).join('');
-  }
-
-  async function startDirectMessage(email) {
-    const res = await apiPost('getOrCreateDM', { emailB: email });
-    if (res.success && res.channelId) {
-      openFullChatsTab();
-      openChatRoom(res.channelId, profileNameMap[email] || email, 'dm');
-    }
-  }
-
-  // ---------- FINANCES & EXPORT ----------
-  function formatMoney(val, cur = 'USD') {
-    const num = Number(val) || 0;
-    return cur === 'LRD' ? `L$ ${num.toLocaleString()}` : `$${num.toLocaleString()}`;
-  }
-
-  async function loadFinances() {
-    const data = await fetch(`${SCRIPT_URL}?action=finances&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
-    const isFullAdmin = data.access?.canManageFinances;
-    const isDetailed = data.access?.canViewDetailed;
-
-    document.getElementById('fin-actions-bar').style.display = isFullAdmin ? 'flex' : 'none';
-    const sum = data.summary || {};
-    document.getElementById('dash-org-balance-usd').innerText = formatMoney(sum.operationalBalance?.USD, 'USD');
-    document.getElementById('dash-org-balance-lrd').innerText = formatMoney(sum.operationalBalance?.LRD, 'LRD');
-    document.getElementById('dash-grant-balance-usd').innerText = formatMoney(sum.grantBalance?.USD, 'USD');
-    document.getElementById('dash-grant-balance-lrd').innerText = formatMoney(sum.grantBalance?.LRD, 'LRD');
-    document.getElementById('dash-other-balance-usd').innerText = formatMoney(sum.programBalance?.USD, 'USD');
-    document.getElementById('dash-other-balance-lrd').innerText = formatMoney(sum.programBalance?.LRD, 'LRD');
-    document.getElementById('dash-donation-balance-usd').innerText = formatMoney(sum.donationBalance?.USD, 'USD');
-    document.getElementById('dash-donation-balance-lrd').innerText = formatMoney(sum.donationBalance?.LRD, 'LRD');
-
-    if (isDetailed && data.detail) {
-      document.getElementById('card-initiative-income').style.display = 'block';
-      document.getElementById('card-total-expenses').style.display = 'block';
-      document.getElementById('card-total-balance').style.display = 'block';
-      document.getElementById('fin-initiatives-section').style.display = 'block';
-
-      document.getElementById('dash-initiative-income-usd').innerText = formatMoney(data.detail.initiativesFundsTotal?.USD, 'USD');
-      document.getElementById('dash-initiative-income-lrd').innerText = formatMoney(data.detail.initiativesFundsTotal?.LRD, 'LRD');
-      document.getElementById('dash-total-expenses-usd').innerText = formatMoney(data.detail.totalExpenses?.USD, 'USD');
-      document.getElementById('dash-total-expenses-lrd').innerText = formatMoney(data.detail.totalExpenses?.LRD, 'LRD');
-      document.getElementById('dash-total-balance-usd').innerText = formatMoney(data.detail.totalFinancialBalance?.USD, 'USD');
-      document.getElementById('dash-total-balance-lrd').innerText = formatMoney(data.detail.totalFinancialBalance?.LRD, 'LRD');
-
-      cachedInitiativesList = data.detail.initiatives || [];
-      document.getElementById('initiatives-table-body').innerHTML = cachedInitiativesList.map(i => `
-        <tr>
-          <td><strong>${escapeHtml(i.name)}</strong></td>
-          <td>${i.currency}</td>
-          <td>${i.dateAdded ? new Date(i.dateAdded).toLocaleDateString() : '—'}</td>
-          <td><span class="fin-badge">${i.status}</span></td>
-          <td>${formatMoney(i.amountReceived, i.currency)}</td>
-          <td>${formatMoney(i.totalExpenses, i.currency)}</td>
-          <td><strong>${formatMoney(i.currentBalance, i.currency)}</strong></td>
-          <td>${isFullAdmin ? `<button class="btn danger" style="width:auto; padding:2px 6px; font-size:11px;" onclick="deleteInitiative('${i.id}')">Delete</button>` : '—'}</td>
-        </tr>
-      `).join('');
-    }
-
-    if (isFullAdmin && data.auditTrail) {
-      document.getElementById('fin-ledger-section').style.display = 'block';
-      document.getElementById('ledger-table-body').innerHTML = data.auditTrail.map(r => `
-        <tr>
-          <td>${r.timestamp ? new Date(r.timestamp).toLocaleDateString() : '—'}</td>
-          <td>${escapeHtml(profileNameMap[r.user] || r.user)}</td>
-          <td>${escapeHtml(r.type)}</td>
-          <td>${escapeHtml(r.category)}</td>
-          <td>${escapeHtml(r.currency)}</td>
-          <td><strong>${formatMoney(r.amount, r.currency)}</strong></td>
-          <td>${escapeHtml(r.description || '')}</td>
-          <td>${r.type !== 'BalanceUpdate' ? `<button class="btn danger" style="width:auto; padding:2px 6px; font-size:11px;" onclick="deleteFinancialEntry('${r.id}')">Delete</button>` : '—'}</td>
-        </tr>
-      `).join('');
-    }
-  }
-
-  async function downloadFinancialReport() {
-    const startDate = document.getElementById('report-start-date').value;
-    const endDate = document.getElementById('report-end-date').value;
-    const category = document.getElementById('report-category').value;
-    const currency = document.getElementById('report-currency').value;
-
-    const res = await apiPost('generateFinancialReport', { startDate, endDate, category, currency });
-    if (!res.success || !res.rows || !res.rows.length) {
-      alert('No records found for the selected parameters.');
-      return;
-    }
-
-    const csvRows = [
-      ['Transaction ID', 'Date', 'User', 'Type', 'Category', 'Amount', 'Currency', 'Description']
-    ];
-    res.rows.forEach(r => {
-      csvRows.push([
-        r.id, new Date(r.date).toISOString().split('T')[0], r.user,
-        r.type, r.category, r.amount, r.currency, `"${(r.description || '').replace(/"/g, '""')}"`
-      ]);
-    });
-
-    const csvContent = 'data:text/csv;charset=utf-8,' + csvRows.map(e => e.join(',')).join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `UAF_Financial_Report_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    closeModal('modal-financial-report');
-  }
-
-  // ---------- FEED, DOCS, TASKS ----------
-  async function loadFeed() {
-    const data = await fetch(`${SCRIPT_URL}?action=feedPosts`).then(r => r.json());
-    document.getElementById('feed-container').innerHTML = (Array.isArray(data) ? data : []).map(item => `
-      <div class="feed-post">
-        <div class="feed-header">
-          <div class="avatar">${item.authorName ? item.authorName[0] : 'U'}</div>
-          <div>
-            <strong style="color:var(--navy-text);">${escapeHtml(item.authorName)}</strong>
-            <div style="font-size:11px; color:var(--muted)">${new Date(item.timestamp).toLocaleString()}</div>
-          </div>
-        </div>
-        <div>${escapeHtml(item.text)}</div>
-        ${item.imageUrl ? `<img src="${item.imageUrl}" class="feed-img">` : ''}
-      </div>
-    `).join('');
+    await apiPost('commentFeedPost', { postId, authorName: currentUser.displayName || currentUser.name, text });
+    loadFeed();
   }
 
   async function submitTeamUpdate() {
@@ -1830,128 +1324,263 @@
     loadFeed();
   }
 
-  async function loadDocuments() {
-    const docs = await fetch(`${SCRIPT_URL}?action=documents`).then(r => r.json());
-    document.getElementById('doc-list').innerHTML = (Array.isArray(docs) ? docs : []).map(d => `
-      <div class="feed-post" style="display:flex; justify-content:space-between; align-items:center;">
-        <div><strong>${escapeHtml(d.fileName)}</strong><div style="font-size:11px; color:var(--muted);">Shared by ${escapeHtml(d.email)}</div></div>
-        <a href="${d.fileUrl}" target="_blank" class="btn secondary" style="width:auto; padding:4px 10px; font-size:12px;">Open</a>
+  // ---------- PROGRAMS ----------
+  async function loadPrograms() {
+    document.getElementById('new-program-btn').style.display = canManageFinances() ? 'inline-block' : 'none';
+    const data = await fetch(`${SCRIPT_URL}?action=programs`).then(r => r.json());
+    document.getElementById('programs-container').innerHTML = (Array.isArray(data) ? data : []).map(p => `
+      <div class="program-card">
+        <span style="font-size:11px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 8px; border-radius:999px;">${escapeHtml(p.shortCode || 'CORE')}</span>
+        <h4 style="margin:6px 0; color:var(--navy-text);">${escapeHtml(p.title)}</h4>
+        <p style="font-size:13px; color:var(--ink); margin:6px 0;">${escapeHtml(p.description)}</p>
+        <div style="font-size:12px; color:var(--muted); margin-top:8px;">🎯 Target: ${escapeHtml(p.targetBeneficiaries || 'Community')}</div>
       </div>
     `).join('');
   }
 
-  async function uploadDocument(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const base64 = await fileToBase64(file);
-    const up = await apiPost('uploadFile', { base64Data: base64, fileName: file.name, mimeType: file.type });
-    if (up.success) {
-      await apiPost('addDocument', { fileName: file.name, fileUrl: up.directUrl, mimeType: file.type });
-      loadDocuments();
-    }
+  function openAddProgramModal() { openModal('modal-program'); }
+  async function submitProgram() {
+    const title = document.getElementById('prog-title').value.trim();
+    const shortCode = document.getElementById('prog-code').value.trim();
+    const description = document.getElementById('prog-desc').value.trim();
+    const targetBeneficiaries = document.getElementById('prog-target').value.trim();
+    await apiPost('addProgram', { title, shortCode, description, targetBeneficiaries });
+    closeModal('modal-program');
+    loadPrograms();
   }
 
-  async function loadTasks() {
-    document.getElementById('new-task-btn').style.display = isAuthorizedTaskAdmin() ? 'inline-block' : 'none';
-    allTasks = await fetch(`${SCRIPT_URL}?action=tasks&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
-    if (!Array.isArray(allTasks)) allTasks = [];
-    document.getElementById('tasks-list').innerHTML = allTasks.map(t => `
-      <div class="feed-post">
-        <strong>${escapeHtml(t.name)}</strong> — Due: ${t.deadlineDate} • Assignee: ${escapeHtml(t.assignedTo || 'Unassigned')}
+  // ---------- IMPACT METRICS ----------
+  async function loadImpact() {
+    document.getElementById('new-impact-btn').style.display = isAuthorizedCoordinator() ? 'inline-block' : 'none';
+    const data = await fetch(`${SCRIPT_URL}?action=impact`).then(r => r.json());
+    const entries = Array.isArray(data) ? data : [];
+
+    let totalMen = 0, totalWomen = 0;
+    entries.forEach(e => { totalMen += e.maleReached; totalWomen += e.femaleReached; });
+
+    document.getElementById('impact-metrics-summary').innerHTML = `
+      <div class="fin-card"><div class="fin-label">Total Outreach</div><div class="fin-value">${(totalMen + totalWomen).toLocaleString()}</div></div>
+      <div class="fin-card"><div class="fin-label">Female Beneficiaries</div><div class="fin-value">${totalWomen.toLocaleString()}</div></div>
+      <div class="fin-card"><div class="fin-label">Male Beneficiaries</div><div class="fin-value">${totalMen.toLocaleString()}</div></div>
+    `;
+
+    document.getElementById('impact-list').innerHTML = entries.map(e => `
+      <div class="feed-post-card">
+        <h4 style="margin:0 0 6px 0; color:var(--navy-text);">${escapeHtml(e.initiative)} — 📍 ${escapeHtml(e.location)}</h4>
+        <div style="font-size:13px; color:var(--ink);"><strong>Outreach:</strong> ${e.femaleReached} Females, ${e.maleReached} Males (Avg Age: ${escapeHtml(e.averageAge || 'Youth')})</div>
+        <div style="font-size:12px; color:var(--muted); margin-top:4px;">Method: <strong>${escapeHtml(e.impactMethod)}</strong> • Date: ${e.date || '—'}</div>
       </div>
     `).join('');
   }
 
-  function openTaskModal() {
-    document.getElementById('task-individual-select').innerHTML = allTeamProfiles.map(p => `<option value="${p.email}">${escapeHtml(p.displayName || p.name)}</option>`).join('');
-    openModal('task-modal');
-  }
-  async function submitTask() {
-    const name = document.getElementById('task-name-input').value.trim();
-    const deadlineDate = document.getElementById('task-date-input').value;
-    const assigneeEmail = document.getElementById('task-individual-select').value;
-    await apiPost('createTask', { name, deadlineDate, assigneeEmail, assignedTo: profileNameMap[assigneeEmail] || assigneeEmail });
-    closeModal('task-modal');
-    loadTasks();
-  }
-
-  async function refreshNotifBadge() {
-    if (!currentUser) return;
-    const data = await fetch(`${SCRIPT_URL}?action=notifications&email=${encodeURIComponent(currentUser.email)}&sessionToken=${encodeURIComponent(currentSessionToken)}`).then(r => r.json());
-    const count = Array.isArray(data) ? data.length : 0;
-    const b = document.getElementById('sidebar-notif-badge');
-    if (count > 0) { b.innerText = count; b.style.display = 'inline-block'; } else b.style.display = 'none';
-  }
-
-  async function loadNotifications() {
-    const data = await fetch(`${SCRIPT_URL}?action=notifications&email=${encodeURIComponent(currentUser.email)}&sessionToken=${encodeURIComponent(currentSessionToken)}`).then(r => r.json());
-    document.getElementById('notifications-list').innerHTML = (Array.isArray(data) ? data : []).map(n => `
-      <div class="feed-post" style="cursor:pointer;" onclick="switchTab('${n.targetTab || 'feed'}')">
-        <div>${escapeHtml(n.message)}</div>
-        <div style="font-size:11px; color:var(--muted); margin-top:4px;">${new Date(n.timestamp).toLocaleString()}</div>
-      </div>
-    `).join('');
-  }
-
-  // ---------- UTILS & SETTINGS ----------
-  function loadSettingsForm() {
-    document.getElementById('settings-prefix').value = currentUser.prefix || '';
-    document.getElementById('settings-preferred-name').value = currentUser.preferredName || '';
-    document.getElementById('settings-full-name').value = currentUser.name || '';
-    document.getElementById('settings-bio').value = currentUser.bio || '';
-    document.getElementById('settings-position').value = currentUser.currentPosition || '';
-    document.getElementById('settings-phone').value = currentUser.phone || '';
-    document.getElementById('settings-county').value = currentUser.county || '';
-  }
-
-  async function saveProfileSettings() {
-    const payload = {
-      name: document.getElementById('settings-full-name').value.trim(),
-      bio: document.getElementById('settings-bio').value.trim(),
-      phone: document.getElementById('settings-phone').value.trim(),
-      prefix: document.getElementById('settings-prefix').value,
-      preferredName: document.getElementById('settings-preferred-name').value.trim(),
-      county: document.getElementById('settings-county').value.trim()
-    };
-    const res = await apiPost('updateProfile', payload);
-    if (res.success) {
-      currentUser = { ...currentUser, ...payload, displayName: res.displayName };
-      document.getElementById('user-display').innerText = currentUser.displayName || currentUser.name;
-      alert('Profile saved!');
-      loadAllProfiles();
-    }
-  }
-
-  function applyTheme(theme) {
-    if (theme === 'teal') document.body.removeAttribute('data-theme');
-    else document.body.setAttribute('data-theme', theme);
-  }
-
-  function shareApp() {
-    if (navigator.share) navigator.share({ title: 'UAF Team Network', url: window.location.href }).catch(() => {});
-    else { navigator.clipboard.writeText(window.location.href); alert('App link copied to clipboard!'); }
-  }
-
-  async function requestNotificationPermission() {
-    if ('Notification' in window) {
-      const perm = await Notification.requestPermission();
-      document.getElementById('notif-status').innerText = perm === 'granted' ? 'Enabled on this device' : 'Permission denied';
-    }
-  }
-
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+  function openAddImpactModal() { openModal('modal-impact'); }
+  async function submitImpact() {
+    await apiPost('addImpactEntry', {
+      initiative: document.getElementById('imp-initiative').value.trim(),
+      location: document.getElementById('imp-location').value.trim(),
+      maleReached: document.getElementById('imp-men').value,
+      femaleReached: document.getElementById('imp-women').value,
+      averageAge: document.getElementById('imp-age').value.trim(),
+      impactMethod: document.getElementById('imp-method').value
     });
+    closeModal('modal-impact');
+    loadImpact();
   }
+
+  // ---------- FINANCES ----------
+  function formatMoney(val, cur = 'USD') {
+    const num = Number(val) || 0;
+    return cur === 'LRD' ? `L$ ${num.toLocaleString()}` : `$${num.toLocaleString()}`;
+  }
+
+  async function loadFinances() {
+    const data = await fetch(`${SCRIPT_URL}?action=finances&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+    const isFull = data.access?.canManageFinances;
+    const isDet = data.access?.canViewDetailed;
+
+    document.getElementById('fin-actions-bar').style.display = isFull ? 'flex' : 'none';
+    const sum = data.summary || {};
+    document.getElementById('dash-org-balance-usd').innerText = formatMoney(sum.operationalBalance?.USD, 'USD');
+    document.getElementById('dash-org-balance-lrd').innerText = formatMoney(sum.operationalBalance?.LRD, 'LRD');
+    document.getElementById('dash-grant-balance-usd').innerText = formatMoney(sum.grantBalance?.USD, 'USD');
+    document.getElementById('dash-grant-balance-lrd').innerText = formatMoney(sum.grantBalance?.LRD, 'LRD');
+    document.getElementById('dash-other-balance-usd').innerText = formatMoney(sum.programBalance?.USD, 'USD');
+    document.getElementById('dash-other-balance-lrd').innerText = formatMoney(sum.programBalance?.LRD, 'LRD');
+    document.getElementById('dash-donation-balance-usd').innerText = formatMoney(sum.donationBalance?.USD, 'USD');
+    document.getElementById('dash-donation-balance-lrd').innerText = formatMoney(sum.donationBalance?.LRD, 'LRD');
+
+    if (isDet && data.detail) {
+      document.getElementById('fin-initiatives-section').style.display = 'block';
+      document.getElementById('initiatives-table-body').innerHTML = (data.detail.initiatives || []).map(i => `
+        <tr><td>${escapeHtml(i.name)}</td><td>${i.currency}</td><td>${formatMoney(i.amountReceived, i.currency)}</td><td>${formatMoney(i.totalExpenses, i.currency)}</td><td><strong>${formatMoney(i.currentBalance, i.currency)}</strong></td><td>—</td></tr>
+      `).join('');
+    }
+    if (isFull && data.auditTrail) {
+      document.getElementById('fin-ledger-section').style.display = 'block';
+      document.getElementById('ledger-table-body').innerHTML = data.auditTrail.map(r => `
+        <tr><td>${new Date(r.timestamp).toLocaleDateString()}</td><td>${r.user}</td><td>${r.category}</td><td>${formatMoney(r.amount, r.currency)}</td><td>${escapeHtml(r.description || '')}</td><td>—</td></tr>
+      `).join('');
+    }
+  }
+
+  function openAddIncomeModal() { openModal('modal-add-income'); }
+  async function submitUpdateOrgBalance() {
+    await apiPost('updateOrgBalance', { newBalance: document.getElementById('input-org-balance').value, currency: document.getElementById('input-org-currency').value });
+    closeModal('modal-update-org'); loadFinances();
+  }
+  async function submitIncome() {
+    await apiPost('addFinancialIncome', { source: document.getElementById('income-source-select').value, amount: document.getElementById('income-amount').value, currency: document.getElementById('income-currency').value });
+    closeModal('modal-add-income'); loadFinances();
+  }
+  async function submitExpense() {
+    await apiPost('addExpense', { description: document.getElementById('expense-desc').value, amount: document.getElementById('expense-amount').value, category: document.getElementById('expense-source-select').value, currency: document.getElementById('expense-currency').value });
+    closeModal('modal-add-expense'); loadFinances();
+  }
+  async function downloadFinancialReport() {
+    const res = await apiPost('generateFinancialReport', { startDate: document.getElementById('report-start-date').value, endDate: document.getElementById('report-end-date').value });
+    if (res.rows && res.rows.length) {
+      const csv = 'Date,User,Category,Amount,Currency,Description\n' + res.rows.map(r => `${r.date},${r.user},${r.category},${r.amount},${r.currency},"${r.description}"`).join('\n');
+      const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv); a.download = 'UAF_Report.csv'; a.click();
+      closeModal('modal-financial-report');
+    } else alert('No records found');
+  }
+
+  // ---------- CHATS & CALL DYNAMICS ----------
+  async function checkCallStatus() {
+    const res = await fetch(`${SCRIPT_URL}?action=activeCall`).then(r => r.json());
+    const btn = document.getElementById('call-action-btn');
+    if (res.isLive) {
+      btn.innerText = '🟢 Join Team Call (Live)';
+      btn.style.background = '#2E7D32';
+    } else {
+      btn.innerText = '📞 Call Team';
+      btn.style.background = '#0038A8';
+    }
+  }
+
+  function handleCallAction() {
+    window.open('https://meet.jit.si/uaf-global-team-room', '_blank');
+    apiPost('notifyCall', { name: currentUser.displayName || currentUser.name, channelName: 'Team Room' });
+    checkCallStatus();
+  }
+
+  async function loadChats() {
+    const channels = await fetch(`${SCRIPT_URL}?action=channels&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+    document.getElementById('chats-list').innerHTML = (Array.isArray(channels) ? channels : []).map(c => `
+      <div class="feed-post-card" style="display:flex; align-items:center; gap:12px; cursor:pointer; padding:12px;" onclick="openChatRoom('${c.channelId}', '${escapeHtml(c.name || 'Direct Message')}', '${c.type}')">
+        ${getAvatarHtml(null, c.name, null, 38)}
+        <div style="flex:1;"><strong>${escapeHtml(c.name || 'Direct Message')}</strong><div style="font-size:11px; color:var(--muted);">${c.type.toUpperCase()}</div></div>
+        <span>›</span>
+      </div>
+    `).join('');
+  }
+
+  function openChatRoom(id, title, type) {
+    activeChannelId = id;
+    document.getElementById('chat-list-view').style.display = 'none';
+    document.getElementById('chat-room-view').style.display = 'block';
+    document.getElementById('chat-title').innerText = title;
+    loadMessages();
+  }
+  function backToChatList() {
+    document.getElementById('chat-room-view').style.display = 'none';
+    document.getElementById('chat-list-view').style.display = 'block';
+    loadChats();
+  }
+  async function loadMessages() {
+    const msgs = await fetch(`${SCRIPT_URL}?action=messages&channelId=${activeChannelId}&email=${encodeURIComponent(currentUser.email)}&sessionToken=${encodeURIComponent(currentSessionToken)}`).then(r => r.json());
+    document.getElementById('chat-messages').innerHTML = (Array.isArray(msgs) ? msgs : []).map(m => `
+      <div class="msg-row ${m.email === currentUser.email ? 'mine' : 'other'}">
+        <div class="msg-bubble">
+          <div style="font-size:11px; font-weight:700; opacity:0.8;">${escapeHtml(profileNameMap[m.email] || m.name)}</div>
+          <div>${escapeHtml(m.text)}</div>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('chat-messages').scrollTop = 99999;
+  }
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    if (!input.value.trim()) return;
+    await apiPost('postMessage', { channelId: activeChannelId, name: currentUser.displayName || currentUser.name, text: input.value.trim() });
+    input.value = ''; loadMessages();
+  }
+
+  // ---------- BOTTOM TEAM BAR & DRAWER ----------
+  async function loadAllProfiles() {
+    allTeamProfiles = await fetch(`${SCRIPT_URL}?action=profiles`).then(r => r.json());
+    if (Array.isArray(allTeamProfiles)) {
+      profileNameMap = {};
+      allTeamProfiles.forEach(p => { profileNameMap[p.email] = p.displayName || p.name; });
+      document.getElementById('bottom-team-row').innerHTML = allTeamProfiles.map(p => `
+        <div class="bottom-team-item" onclick="toggleTeamMemberPopover('${p.email}')">
+          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 44)}
+          <div class="bottom-team-name">${escapeHtml(p.preferredName || p.name.split(' ')[0])}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('settings-users-list').innerHTML = allTeamProfiles.map(p => `
+        <div style="display:flex; gap:10px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line);">
+          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 32)}
+          <div><strong>${escapeHtml(p.displayName || p.name)}</strong> — <span style="font-size:12px; color:var(--muted);">${escapeHtml(p.currentPosition || 'Staff')} (${escapeHtml(p.county || 'Liberia')})</span></div>
+        </div>
+      `).join('');
+    }
+  }
+
+  function toggleTeamMemberPopover(email) {
+    const p = allTeamProfiles.find(item => item.email === email);
+    if (!p) return;
+    document.getElementById('popover-avatar').innerHTML = getAvatarHtml(p.email, p.displayName, p.photoUrl, 44);
+    document.getElementById('popover-name').innerText = p.displayName || p.name;
+    document.getElementById('popover-role').innerText = p.currentPosition || 'Team Member';
+    document.getElementById('popover-bio').innerText = p.bio || 'No bio available.';
+    document.getElementById('team-member-popover').style.display = 'block';
+  }
+  function closeTeamPopover() { document.getElementById('team-member-popover').style.display = 'none'; }
+
+  // ---------- CUSTOMIZATION UTILS ----------
+  function applyFontSize(size) { document.documentElement.style.setProperty('--app-font-size', size); }
+  function applyBrightness(val) { document.documentElement.style.setProperty('--app-brightness', val + '%'); }
 
   function escapeHtml(str) {
     if (str == null) return '';
     return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
+
+  // Universal Real-time Search
+  function handleUniversalSearch(q) {
+    q = (q || '').trim().toLowerCase();
+    if (!q) { document.getElementById('tab-search-results').classList.remove('active'); switchTab('feed'); return; }
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-search-results').classList.add('active');
+
+    const mUsers = allTeamProfiles.filter(p => `${p.name} ${p.currentPosition}`.toLowerCase().includes(q));
+    document.getElementById('search-results-container').innerHTML = `
+      <h4>Matching Users (${mUsers.length})</h4>
+      ${mUsers.map(u => `<div>${escapeHtml(u.name)} — ${escapeHtml(u.currentPosition)}</div>`).join('') || '<p>No matches</p>'}
+    `;
+  }
+  function closeSearch() { document.getElementById('global-search').value = ''; switchTab('feed'); }
+
+  async function submitChangePassword() {
+    const res = await apiPost('changePassword', { currentPassword: document.getElementById('change-pass-current').value, newPassword: document.getElementById('change-pass-new').value });
+    if (res.success) { alert('Password updated!'); closeModal('modal-change-password'); }
+    else alert(res.error || 'Failed');
+  }
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    const saved = localStorage.getItem(SESSION_KEY);
+    if (saved) {
+      try {
+        const s = JSON.parse(saved);
+        const res = await apiPost('validateSession', { email: s.email, token: s.token });
+        if (res.success) { currentUser = res.profile; currentSessionToken = s.token; enterApp(); }
+        else document.getElementById('auth-screen').classList.add('visible');
+      } catch (e) { document.getElementById('auth-screen').classList.add('visible'); }
+    } else { document.getElementById('auth-screen').classList.add('visible'); }
+    document.getElementById('session-check').style.display = 'none';
+  });
 </script>
 </body>
 </html>
