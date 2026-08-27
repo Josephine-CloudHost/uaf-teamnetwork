@@ -30,9 +30,20 @@
     --app-brightness: 100%;
   }
 
+  [data-theme="dark"] {
+    --window-bg: #0F172A;
+    --content-bg: #0B1120;
+    --sidebar-bg: #1E293B;
+    --tab-strip-bg: #1E293B;
+    --tab-active-bg: #3B82F6;
+    --tab-text: #94A3B8;
+    --navy-text: #F8FAFC;
+    --ink: #E2E8F0;
+    --line: #334155;
+    --muted: #94A3B8;
+  }
   [data-theme="forest"] { --sidebar-bg: #1B4D33; --tab-active-bg: #2B6645; --tab-text: #16402A; }
   [data-theme="sunset"] { --sidebar-bg: #9C3814; --tab-active-bg: #8C3414; --tab-text: #591F09; }
-  [data-theme="midnight"] { --sidebar-bg: #1C233D; --tab-active-bg: #2B3559; --tab-text: #141A30; }
 
   * { box-sizing: border-box; }
   html, body {
@@ -50,7 +61,7 @@
     display: flex; width: 100vw; height: 100vh; background: var(--window-bg); overflow: hidden; position: relative;
   }
 
-  /* Standalone Fullscreen Auth View */
+  /* Fullscreen Auth Screen */
   #auth-screen {
     position: fixed; inset: 0; z-index: 1000; background: #F4F7FB;
     display: none; align-items: center; justify-content: center; padding: 16px; overflow-y: auto;
@@ -67,7 +78,7 @@
     padding: 16px 0; flex-shrink: 0; gap: 14px; z-index: 100; height: 100vh;
   }
   .sidebar-btn {
-    background: transparent; border: none; color: rgba(255, 255, 255, 0.85); font-size: 20px;
+    background: transparent; border: none; color: rgba(255, 255, 255, 0.85); font-size: 19px;
     cursor: pointer; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center;
     justify-content: center; position: relative; transition: background 0.15s ease;
   }
@@ -82,10 +93,10 @@
     flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; background: var(--window-bg);
   }
 
-  /* Sticky Top Navigation Bar */
+  /* Sticky Top Bar */
   .app-topbar {
     height: 56px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
-    background: #FFF; border-bottom: 1px solid var(--line); flex-shrink: 0; gap: 12px; z-index: 50;
+    background: var(--window-bg); border-bottom: 1px solid var(--line); flex-shrink: 0; gap: 12px; z-index: 50;
   }
   .topbar-brand { font-size: 17.5px; font-weight: 800; color: var(--navy-text); white-space: nowrap; }
   .topbar-search-box {
@@ -106,7 +117,7 @@
   }
   .app-tabstrip button.active { background: var(--tab-active-bg); color: #FFF; font-weight: 700; }
 
-  /* Independent Smooth Content Scroll */
+  /* Independent Content Scroll */
   .app-content-body {
     flex: 1; background: var(--content-bg); padding: 18px 20px 84px;
     overflow-y: auto; overflow-x: hidden; position: relative; -webkit-overflow-scrolling: touch;
@@ -121,9 +132,14 @@
   }
   .uaf-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
+  /* @Mention Highlight Badge */
+  .user-mention {
+    background: #E0E7FF; color: #3730A3; font-weight: 700; border-radius: 4px; padding: 1px 5px; font-size: 12.5px;
+  }
+
   /* LinkedIn-Style Post Cards */
   .feed-post-card {
-    background: #FFF; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px;
+    background: var(--window-bg); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px;
     margin-bottom: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
   }
   .post-author-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -165,13 +181,13 @@
   .fin-quadrant-value { font-size: 19px; font-weight: 800; margin-top: 4px; }
   .fin-quadrant-sub { font-size: 12px; opacity: 0.9; font-weight: 600; }
 
-  /* Programs & Impact */
+  /* Programs, Impact & Contacts */
   .programs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
-  .program-card { background: #FFF; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .program-card { background: var(--window-bg); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
 
-  /* Chat & Voice Recording Area */
+  /* Chat & Voice Notes */
   .chat-app-wrapper {
-    background: #FFF; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--window-bg); border-radius: 12px; border: 1px solid var(--line);
     height: calc(100vh - 200px); display: flex; flex-direction: column;
   }
   .chat-header-bar {
@@ -179,14 +195,10 @@
     display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
   }
   .chat-scrolling-messages {
-    flex: 1; padding: 14px; overflow-y: auto; background: #F4F7FB; display: flex; flex-direction: column; gap: 8px;
+    flex: 1; padding: 14px; overflow-y: auto; background: var(--content-bg); display: flex; flex-direction: column; gap: 8px;
   }
   .chat-fixed-input-bar {
-    padding: 10px 14px; background: #FFF; border-top: 1px solid var(--line); display: flex; gap: 8px; align-items: center; flex-shrink: 0;
-  }
-  .voice-record-panel {
-    display: none; background: #FDE8E8; padding: 8px 12px; border-radius: 8px; width: 100%;
-    align-items: center; justify-content: space-between; font-size: 12.5px; color: #B3261E; font-weight: 600;
+    padding: 10px 14px; background: var(--window-bg); border-top: 1px solid var(--line); display: flex; gap: 8px; align-items: center; flex-shrink: 0;
   }
   .msg-row { display: flex; width: 100%; gap: 6px; }
   .msg-row.mine { justify-content: flex-start; }
@@ -195,22 +207,46 @@
   .msg-row.mine .msg-bubble { background: #FADADD; color: #14213D; }
   .msg-row.other .msg-bubble { background: var(--primary); color: #FFF; }
 
-  /* Pinned Bottom Team Footer & Collapsible Drawer */
+  /* Pinned Bottom Team Bar */
   .app-bottom-team-bar {
     position: absolute; bottom: 0; left: 0; right: 0;
-    background: #FFF; border-top: 1.5px solid var(--line); padding: 6px 16px; z-index: 60;
+    background: var(--window-bg); border-top: 1.5px solid var(--line); padding: 6px 16px; z-index: 60;
   }
   .bottom-team-list { display: flex; align-items: center; gap: 14px; overflow-x: auto; padding-bottom: 2px; }
   .bottom-team-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; flex-shrink: 0; }
   .bottom-team-name { font-size: 10px; color: var(--navy-text); font-weight: 600; margin-top: 2px; max-width: 54px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* Collapsible Member Popover Detail Card */
-  #team-member-popover {
-    display: none; background: #F8FAFC; border-top: 1px solid var(--line); padding: 12px 16px; margin: 6px -16px -6px;
+  /* Collapsible Profile Popover (Design matching media_1787857260963.png) */
+  .uaf-profile-card-modal {
+    width: 100%; max-width: 380px; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25); border: 1px solid var(--line);
+    background: #111827; color: #F9FAFB;
   }
+  .profile-card-header-blue {
+    background: #3B82F6; padding: 18px 20px; display: flex; align-items: center; gap: 14px;
+    position: relative;
+  }
+  .profile-card-header-avatar {
+    width: 64px; height: 64px; border-radius: 50%; border: 3px solid #FFF; overflow: hidden; flex-shrink: 0;
+    background: #1D4ED8; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #fff;
+  }
+  .profile-card-header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-card-header-titles h3 { margin: 0; font-size: 17px; font-weight: 800; color: #FFF; }
+  .profile-card-header-titles div { font-size: 13px; color: rgba(255,255,255,0.9); margin-top: 2px; }
+  .profile-card-body-dark { padding: 18px 20px; background: #111827; }
+  .profile-card-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: #E5E7EB; }
+  .profile-card-bullet-icon { width: 18px; text-align: center; color: #60A5FA; }
+  .profile-card-footer-buttons {
+    display: flex; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #374151;
+  }
+  .profile-card-btn {
+    flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 700; text-align: center;
+    cursor: pointer; border: 1px solid #374151; background: #1F2937; color: #F9FAFB; text-decoration: none;
+  }
+  .profile-card-btn:hover { background: #374151; }
 
   /* Settings Accordion */
-  .settings-list { background: #FFF; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 14px; }
+  .settings-list { background: var(--window-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 14px; }
   .settings-group-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 14px 4px; }
   .settings-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); cursor: pointer; text-decoration: none; color: inherit; }
   .settings-row-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: var(--primary); color: #fff; flex-shrink: 0; }
@@ -222,12 +258,12 @@
   .btn.danger { background: transparent; color: #B3261E; border: 1px solid #B3261E; }
   .field { margin-bottom: 12px; }
   .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; font-weight: 600; }
-  .field input, .field textarea, .field select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; background: #FFF; }
+  .field input, .field textarea, .field select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; background: var(--window-bg); color: var(--ink); }
   .prefix-row { display: flex; gap: 6px; }
   .prefix-row select { width: 80px; flex-shrink: 0; }
   .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
   .modal.open { display: flex; }
-  .modal-card { background: #FFF; padding: 20px; border-radius: 12px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
+  .modal-card { background: var(--window-bg); padding: 20px; border-radius: 12px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
 
   @media (max-width: 800px) { .topbar-search-box { display: none; } }
 </style>
@@ -250,6 +286,15 @@
           <select id="auth-prefix"><option value="">—</option><option value="Mr.">Mr.</option><option value="Mrs.">Mrs.</option><option value="Ms.">Ms.</option><option value="Dr.">Dr.</option></select>
           <input type="text" id="auth-preferred-name" placeholder="Preferred Name">
         </div>
+      </div>
+      <div class="field" id="user-type-field" style="display:none">
+        <label>Membership Type</label>
+        <select id="auth-user-type">
+          <option value="Volunteer">Volunteer</option>
+          <option value="Executive Management Team member">Executive Management Team member</option>
+          <option value="County Level Leader">County Level Leader</option>
+          <option value="Board Member">Board Member</option>
+        </select>
       </div>
       <div class="field" id="phone-field" style="display:none"><label>Phone Number</label><input type="text" id="auth-phone"></div>
       <div class="field"><label>Email Address</label><input type="email" id="auth-email"></div>
@@ -281,6 +326,7 @@
     <button class="sidebar-btn" onclick="openFullChatsTab()" title="Chats">💬<span class="sidebar-badge" id="sidebar-chat-badge" style="display:none"></span></button>
     <button class="sidebar-btn" onclick="switchTab('notifications')" title="Notifications">🔔<span class="sidebar-badge" id="sidebar-notif-badge" style="display:none"></span></button>
     <button class="sidebar-btn" onclick="switchTab('settings')" title="Settings">⚙️</button>
+    <button class="sidebar-btn" onclick="refreshEntireSystem(true)" title="Refresh System" style="margin-top:auto;">🔄</button>
   </aside>
 
   <!-- MAIN VIEW COLUMN -->
@@ -296,7 +342,7 @@
         <span>🔍</span>
         <input type="text" placeholder="Search team, documents, finances..." id="global-search" oninput="handleUniversalSearch(this.value)">
       </div>
-      <div class="topbar-user" onclick="switchTab('settings')">
+      <div class="topbar-user" onclick="openProfileCardModal(currentUser.email)">
         <span id="user-display">User Name</span>
         <div class="uaf-avatar" id="header-avatar" style="width:32px; height:32px; font-size:12px;">U</div>
       </div>
@@ -305,6 +351,7 @@
     <!-- STICKY TABSTRIP -->
     <nav class="app-tabstrip">
       <button class="active" onclick="switchTab('feed')">Main Feed</button>
+      <button onclick="switchTab('contacts')">Contact List</button>
       <button onclick="switchTab('partnerships')">Partnerships</button>
       <button onclick="switchTab('documents')">Documents</button>
       <button onclick="switchTab('tasks')">Tasks</button>
@@ -313,7 +360,7 @@
       <button onclick="switchTab('impact')">Impact</button>
     </nav>
 
-    <!-- FREE CONTENT SCROLLING CANVAS -->
+    <!-- CONTENT SCROLLING CANVAS -->
     <main class="app-content-body" id="main-content-scroll">
 
       <!-- SEARCH RESULTS -->
@@ -331,6 +378,38 @@
           <button class="btn" style="width:auto; padding:8px 16px; font-size:13px;" onclick="openModal('update-modal')">+ Post Update</button>
         </div>
         <div id="feed-container">Loading updates...</div>
+      </div>
+
+      <!-- CONTACT LIST TAB (NEW) -->
+      <div id="tab-contacts" class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="margin:0;">Contact List &amp; Directory</h3>
+            <div style="font-size:11.5px; color:var(--muted);">UAF institutional partners, government contacts, and donors</div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn secondary" id="btn-toggle-mailing" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="toggleMailingBox()">✉️ Send Mailing</button>
+            <button class="btn" id="btn-add-contact" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="openModal('modal-contact')">+ Add Contact</button>
+          </div>
+        </div>
+
+        <!-- Collapsible Broadcast Mailing Box -->
+        <div id="mailing-composer-box" style="display:none; background:var(--window-bg); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:16px;">
+          <h4 style="margin:0 0 10px 0;">Official Communication Dispatcher (info.uaf@gmail.com)</h4>
+          <div class="field">
+            <label>Recipients</label>
+            <select id="mail-recipients-select" multiple style="height:80px;"></select>
+          </div>
+          <div class="field"><label>Subject</label><input type="text" id="mail-subject" placeholder="Official announcement..."></div>
+          <div class="field"><label>Message Content</label><textarea id="mail-body" rows="4" placeholder="Type communication..."></textarea></div>
+          <button class="btn" onclick="submitMailingBroadcast()">Send Official Communication</button>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <input type="text" id="contact-search-input" placeholder="Search contacts by name, institution, telephone..." style="padding:8px 12px; border:1px solid var(--line); border-radius:8px; width:100%;" oninput="filterContactsList(this.value)">
+        </div>
+
+        <div class="programs-grid" id="contacts-container"></div>
       </div>
 
       <!-- PARTNERSHIPS TAB -->
@@ -365,7 +444,7 @@
           <span id="fin-role-badge" style="font-size:11.5px; padding:2px 8px; border-radius:999px; background:#E0E7FF; color:#3730A3; font-weight:700;">General View</span>
         </div>
 
-        <!-- 4-Quadrant Visual Hub (Always visible to all members) -->
+        <!-- 4-Quadrant Visual Hub -->
         <div class="fin-hub-container">
           <div class="fin-hub-grid">
             <div class="fin-hub-center-circle">UAF</div>
@@ -407,8 +486,8 @@
         <!-- Admin Only Management Actions -->
         <div class="fin-actions-bar" id="fin-actions-bar" style="display:none; justify-content:center; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
           <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-update-org')">Update Balance</button>
-          <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-income')">+ Income</button>
-          <button class="btn danger" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-expense')">− Expense</button>
+          <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openAddIncomeModal()">+ Income</button>
+          <button class="btn danger" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openAddExpenseModal()">− Expense</button>
           <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-initiative')">+ Initiative</button>
           <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px; background:#254587; color:#fff;" onclick="openModal('modal-financial-report')">📊 Report</button>
         </div>
@@ -421,7 +500,7 @@
           </div>
         </div>
 
-        <!-- Initiatives Table (Executive Management & Admin) -->
+        <!-- Initiatives Table -->
         <details class="settings-list" id="fin-initiatives-section" style="display:none;">
           <summary class="settings-row"><div class="settings-row-title">Initiatives Funds Breakdown</div><div>›</div></summary>
           <div class="settings-row-expand" style="overflow-x:auto;">
@@ -468,7 +547,7 @@
         <div id="notifications-list"></div>
       </div>
 
-      <!-- CHATS & VOICE NOTES -->
+      <!-- CHATS TAB -->
       <div id="tab-chats" class="panel">
         <div style="background:#0C2340; color:#fff; padding:8px 14px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
           <span>Global Audio Call Room</span>
@@ -494,42 +573,41 @@
               <button class="btn danger" style="width:auto; padding:2px 6px; font-size:11px;" onclick="deleteCurrentChat()">Delete Chat</button>
             </div>
             <div class="chat-scrolling-messages" id="chat-messages"></div>
-            
-            <!-- Voice Recording Panel -->
-            <div class="voice-record-panel" id="voice-record-panel">
-              <span id="voice-record-timer">🔴 Recording: 0:00</span>
-              <div style="display:flex; gap:6px;">
-                <button class="btn secondary" style="width:auto; padding:3px 8px; font-size:11px;" onclick="cancelVoiceRecording()">Cancel</button>
-                <button class="btn" style="width:auto; padding:3px 8px; font-size:11px; background:#B3261E;" onclick="stopAndSendVoiceRecording()">Send Audio Memo</button>
-              </div>
-            </div>
-
             <div class="chat-fixed-input-bar">
-              <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--line);" onkeydown="if(event.key==='Enter') sendMessage();">
-              <button class="btn secondary" id="voice-mic-btn" style="width:auto; padding:6px 10px; font-size:14px;" onclick="startVoiceRecording()" title="Record Audio Note">🎙️</button>
+              <input type="text" id="chat-input" placeholder="Type a message (use @ to mention)..." style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--line);" onkeydown="if(event.key==='Enter') sendMessage();">
               <button class="btn" style="width:auto; padding:8px 16px;" onclick="sendMessage()">Send</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SETTINGS & POLICIES -->
+      <!-- SETTINGS TAB -->
       <div id="tab-settings" class="panel">
         <h3 style="margin-top:0;">Settings &amp; Organizational Handbook</h3>
 
         <div class="settings-list">
           <div class="settings-group-label">Display &amp; Notifications</div>
-          <div class="settings-row" onclick="enableLiveNotifications()">
+          <div class="settings-row" onclick="toggleLiveNotifications()">
             <div class="settings-row-icon">🔔</div>
             <div style="flex:1;">
               <div>Live Push Notifications</div>
-              <div style="font-size:11px; color:var(--muted);" id="fcm-status">Tap to connect Firebase push alerts on this device</div>
+              <div style="font-size:11px; color:var(--muted);" id="fcm-status">Checking notification state...</div>
             </div>
-            <div>›</div>
+            <button class="btn secondary" id="btn-toggle-notif" style="width:auto; padding:4px 10px; font-size:11px;">Enable</button>
+          </div>
+          <div class="settings-row" style="cursor:default;">
+            <div class="settings-row-icon">🎨</div>
+            <div style="flex:1;"><div>Theme Mode</div></div>
+            <select onchange="applyTheme(this.value)" id="theme-select">
+              <option value="teal">UAF Blue/Teal</option>
+              <option value="dark">Dark Theme (Midnight)</option>
+              <option value="forest">Forest Green</option>
+              <option value="sunset">Sunset Warm</option>
+            </select>
           </div>
           <div class="settings-row" style="cursor:default;">
             <div class="settings-row-icon">🔤</div>
-            <div style="flex:1;"><div>Writing &amp; Font Size</div></div>
+            <div style="flex:1;"><div>Writing Scale</div></div>
             <select onchange="applyFontSize(this.value)">
               <option value="13px">Small</option>
               <option value="14px" selected>Medium</option>
@@ -542,32 +620,12 @@
             <div style="flex:1;"><div>Screen Dimming</div></div>
             <input type="range" min="60" max="100" value="100" style="width:100px;" oninput="applyBrightness(this.value)">
           </div>
-          <div class="settings-row" style="cursor:default;">
-            <div class="settings-row-icon">🎨</div>
-            <div style="flex:1;"><div>Theme</div></div>
-            <select onchange="applyTheme(this.value)">
-              <option value="teal">UAF Blue/Teal</option>
-              <option value="forest">Forest Green</option>
-              <option value="sunset">Sunset Warm</option>
-              <option value="midnight">Midnight Dark</option>
-            </select>
-          </div>
-
-          <div class="settings-group-label">Team Directory</div>
-          <details>
-            <summary class="settings-row">
-              <div class="settings-row-icon">👥</div>
-              <div style="flex:1;"><div>Users Directory</div></div>
-              <div>›</div>
-            </summary>
-            <div class="settings-row-expand" id="settings-users-list"></div>
-          </details>
 
           <div class="settings-group-label">Account Settings</div>
           <details>
             <summary class="settings-row">
               <div class="settings-row-icon">👤</div>
-              <div style="flex:1;"><div>Edit Profile</div></div>
+              <div style="flex:1;"><div>Edit Profile Information</div><div style="font-size:11px; color:var(--muted);">Photo, Bio, Positions, Emergency Contact, Address, Membership</div></div>
               <div>›</div>
             </summary>
             <div class="settings-row-expand">
@@ -582,9 +640,21 @@
               <div class="field"><label>Full Name</label><input type="text" id="settings-full-name"></div>
               <div class="field"><label>Bio</label><textarea id="settings-bio" rows="2"></textarea></div>
               <div class="field"><label>Current Position</label><input type="text" id="settings-position"></div>
-              <div class="field"><label>Phone</label><input type="text" id="settings-phone"></div>
+              <div class="field"><label>Past Positions</label><input type="text" id="settings-past-positions"></div>
+              <div class="field"><label>Telephone Number</label><input type="text" id="settings-phone"></div>
+              <div class="field"><label>Emergency Contact</label><input type="text" id="settings-emergency"></div>
+              <div class="field"><label>Current Address</label><input type="text" id="settings-address"></div>
               <div class="field"><label>County</label><input type="text" id="settings-county"></div>
-              <button class="btn" onclick="saveProfileSettings()">Save Profile</button>
+              <div class="field">
+                <label>Membership Type</label>
+                <select id="settings-user-type">
+                  <option value="Volunteer">Volunteer</option>
+                  <option value="Executive Management Team member">Executive Management Team member</option>
+                  <option value="County Level Leader">County Level Leader</option>
+                  <option value="Board Member">Board Member</option>
+                </select>
+              </div>
+              <button class="btn" id="btn-save-profile" onclick="saveProfileSettings()">Save Profile</button>
             </div>
           </details>
 
@@ -629,17 +699,6 @@
             </div>
           </details>
 
-          <details>
-            <summary class="settings-row">
-              <div class="settings-row-icon">🚪</div>
-              <div style="flex:1;"><div>Resignation &amp; Exit Procedure</div></div>
-              <div>›</div>
-            </summary>
-            <div class="settings-row-expand">
-              <p>Formal asset handover and revocation of credentials with ongoing non-disclosure commitments.</p>
-            </div>
-          </details>
-
           <div style="padding:12px;">
             <button class="btn danger" onclick="logoutUser()">Log Out</button>
           </div>
@@ -651,33 +710,148 @@
     <!-- PINNED BOTTOM TEAM FOOTER -->
     <footer class="app-bottom-team-bar">
       <div class="bottom-team-list" id="bottom-team-row"></div>
-      
-      <!-- Collapsible Profile Details Popover -->
-      <div id="team-member-popover">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <div style="display:flex; gap:10px; align-items:center;">
-            <div class="uaf-avatar" id="popover-avatar" style="width:44px; height:44px;">U</div>
-            <div>
-              <strong id="popover-name" style="font-size:14.5px; color:var(--navy-text);">Name</strong>
-              <div id="popover-role" style="font-size:12px; color:var(--accent); font-weight:600;">Position</div>
-              <div id="popover-meta" style="font-size:11px; color:var(--muted);">County</div>
-            </div>
-          </div>
-          <button class="btn secondary" style="width:auto; padding:2px 8px; font-size:11px;" onclick="closeTeamPopover()">✕ Close</button>
-        </div>
-        <div id="popover-bio" style="font-size:12px; margin:8px 0; color:var(--ink);"></div>
-        <div id="popover-actions" style="display:flex; gap:6px; margin-top:6px;"></div>
-      </div>
     </footer>
 
   </div>
 </div>
 
-<!-- MODALS -->
+<!-- ==================== MODALS ==================== -->
+
+<!-- PROFILE CARD POPUP MODAL (Exact match to media_1787857260963.png) -->
+<div class="modal" id="modal-profile-card">
+  <div class="uaf-profile-card-modal">
+    <div class="profile-card-header-blue">
+      <div class="profile-card-header-avatar" id="pcard-avatar">U</div>
+      <div class="profile-card-header-titles">
+        <h3 id="pcard-fullname">Full Name</h3>
+        <div id="pcard-prefname">Preferred Name</div>
+      </div>
+      <button style="position:absolute; top:12px; right:12px; background:none; border:none; color:#FFF; font-size:18px; cursor:pointer;" onclick="closeModal('modal-profile-card')">✕</button>
+    </div>
+    <div class="profile-card-body-dark">
+      <div class="profile-card-row"><span class="profile-card-bullet-icon">✉️</span><span id="pcard-email">email@domain.com</span></div>
+      <div class="profile-card-row"><span class="profile-card-bullet-icon">💼</span><span id="pcard-position">Current Position</span></div>
+      <div class="profile-card-row"><span class="profile-card-bullet-icon">📞</span><span id="pcard-phone">Telephone Number</span></div>
+      <div class="profile-card-row"><span class="profile-card-bullet-icon">🚨</span><span id="pcard-emergency">Emergency Contact</span></div>
+      <div class="profile-card-row"><span class="profile-card-bullet-icon">📍</span><span id="pcard-address">Current Address</span></div>
+      <div class="profile-card-row"><span class="profile-card-bullet-icon">🏷️</span><span id="pcard-usertype">Membership Type</span></div>
+
+      <div class="profile-card-footer-buttons">
+        <button class="profile-card-btn" onclick="openFullSettingsProfile()">Detailed Profile</button>
+        <button class="profile-card-btn" id="pcard-tasks-btn">Assigned Tasks</button>
+        <button class="profile-card-btn" id="pcard-msg-btn" style="background:#2563EB;">💬 Message</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CONTACT MODAL -->
+<div class="modal" id="modal-contact">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Add Contact to Directory</h3>
+    <div class="field"><label>Full Name / Contact Person</label><input type="text" id="con-name"></div>
+    <div class="field">
+      <label>Category</label>
+      <select id="con-category">
+        <option value="Organization">Organization / NGO</option>
+        <option value="Individual">Individual Partner</option>
+        <option value="Government">Government / Ministry</option>
+        <option value="Donor">Donor / Funder</option>
+        <option value="Community Partner">Community Partner</option>
+      </select>
+    </div>
+    <div class="field"><label>Institution / Organization Name</label><input type="text" id="con-institution"></div>
+    <div class="field"><label>Telephone Number</label><input type="text" id="con-phone"></div>
+    <div class="field"><label>Email Address</label><input type="email" id="con-email"></div>
+    <div class="field"><label>Physical Address / County</label><input type="text" id="con-address"></div>
+    <button class="btn" onclick="submitNewContact()">Save Contact</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-contact')">Cancel</button>
+  </div>
+</div>
+
+<!-- FINANCES MODALS -->
+<div class="modal" id="modal-update-org">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Update Operational Balance</h3>
+    <div class="field"><label>New Balance</label><input type="number" step="0.01" id="input-org-balance"></div>
+    <div class="field"><label>Currency</label><select id="input-org-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
+    <div class="field"><label>Reason</label><input type="text" id="input-org-reason"></div>
+    <button class="btn" onclick="submitUpdateOrgBalance()">Save Balance</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-update-org')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-add-income">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Record Financial Income</h3>
+    <div class="field">
+      <label>Apply to Card / Category</label>
+      <select id="income-source-select" onchange="toggleIncomeInitiativeField()">
+        <option value="Operational Account">Operational Account</option>
+        <option value="Grant">Grant Funds</option>
+        <option value="Program Funds">Program Funds</option>
+        <option value="Donation">Donation</option>
+        <option value="Support">Support Funds</option>
+        <option value="Initiative">Specific Initiative</option>
+      </select>
+    </div>
+    <div class="field" id="field-income-init" style="display:none;"><label>Initiative</label><select id="income-init-select"></select></div>
+    <div class="field"><label>Amount</label><input type="number" step="0.01" id="income-amount"></div>
+    <div class="field"><label>Currency</label><select id="income-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
+    <div class="field"><label>Description / Donor Note</label><input type="text" id="income-desc"></div>
+    <button class="btn" onclick="submitFinancialIncome()">Record Income</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-income')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-add-expense">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Record Financial Expense</h3>
+    <div class="field">
+      <label>Deduct from Card / Category</label>
+      <select id="expense-source-select" onchange="toggleExpenseInitiativeField()">
+        <option value="Operational Account">Operational Account</option>
+        <option value="Grant">Grant Funds</option>
+        <option value="Program Funds">Program Funds</option>
+        <option value="Donation">Donations</option>
+        <option value="Support">Support Funds</option>
+        <option value="Initiative">Specific Initiative</option>
+      </select>
+    </div>
+    <div class="field" id="field-expense-init" style="display:none;"><label>Initiative</label><select id="expense-init-select"></select></div>
+    <div class="field"><label>Amount</label><input type="number" step="0.01" id="expense-amount"></div>
+    <div class="field"><label>Currency</label><select id="expense-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
+    <div class="field"><label>Description / Purpose</label><input type="text" id="expense-desc"></div>
+    <button class="btn danger" onclick="submitFinancialExpense()">Record Expense</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-expense')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-add-initiative">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">New Project Initiative</h3>
+    <div class="field"><label>Initiative Name</label><input type="text" id="init-name"></div>
+    <div class="field"><label>Initial Funding Received</label><input type="number" step="0.01" id="init-income"></div>
+    <div class="field"><label>Currency</label><select id="init-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
+    <button class="btn" onclick="submitCreateInitiative()">Create Initiative</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-initiative')">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-financial-report">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Generate Financial Statement</h3>
+    <div class="field"><label>Start Date</label><input type="date" id="report-start-date"></div>
+    <div class="field"><label>End Date</label><input type="date" id="report-end-date"></div>
+    <button class="btn" onclick="downloadFinancialReport()">📥 Download CSV Statement</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-financial-report')">Cancel</button>
+  </div>
+</div>
+
 <div class="modal" id="update-modal">
   <div class="modal-card">
     <h3 style="margin-top:0;">Post Update</h3>
-    <div class="field"><textarea id="post-text" rows="3" placeholder="Share news or announcements..."></textarea></div>
+    <div class="field"><textarea id="post-text" rows="3" placeholder="Share news or tag someone with @..."></textarea></div>
     <div class="field"><label>Attach Photo (Optional)</label><input type="file" id="post-photo" accept="image/*"></div>
     <button class="btn" id="post-submit-btn" onclick="submitTeamUpdate()">Post Update</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('update-modal')">Cancel</button>
@@ -694,27 +868,15 @@
   </div>
 </div>
 
-<div class="modal" id="modal-program">
+<div class="modal" id="task-modal">
   <div class="modal-card">
-    <h3 style="margin-top:0;">Add Core Program</h3>
-    <div class="field"><label>Title</label><input type="text" id="prog-title"></div>
-    <div class="field"><label>Short Code</label><input type="text" id="prog-code"></div>
-    <div class="field"><label>Target Beneficiaries</label><input type="text" id="prog-target"></div>
-    <div class="field"><label>Description</label><textarea id="prog-desc" rows="3"></textarea></div>
-    <button class="btn" onclick="submitProgram()">Save</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-program')">Cancel</button>
-  </div>
-</div>
-
-<div class="modal" id="modal-impact">
-  <div class="modal-card">
-    <h3 style="margin-top:0;">Record Impact Data</h3>
-    <div class="field"><label>Initiative</label><input type="text" id="imp-initiative"></div>
-    <div class="field"><label>Location</label><input type="text" id="imp-location"></div>
-    <div class="field"><label>Men Reached</label><input type="number" id="imp-men" value="0"></div>
-    <div class="field"><label>Women Reached</label><input type="number" id="imp-women" value="0"></div>
-    <button class="btn" onclick="submitImpact()">Record</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-impact')">Cancel</button>
+    <h3 id="task-modal-title" style="margin-top:0;">New Task</h3>
+    <div class="field"><label>Task Name</label><input type="text" id="task-name-input"></div>
+    <div class="field"><label>Description</label><textarea id="task-desc-input" rows="2"></textarea></div>
+    <div class="field"><label>Deadline</label><input type="date" id="task-date-input"></div>
+    <div class="field"><label>Assignee</label><select id="task-individual-select"></select></div>
+    <button class="btn" onclick="submitTask()">Save Task</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('task-modal')">Cancel</button>
   </div>
 </div>
 
@@ -725,64 +887,29 @@
   let activeChannelId = 'team';
   let isSignupMode = false;
   let allTeamProfiles = [];
-  let currentSelectedTeamEmail = null;
-  let mediaRecorder = null;
-  let audioChunks = [];
-  let recordingInterval = null;
-  let recordingSeconds = 0;
-
-  const SESSION_KEY = 'uaf_session';
-  const OUTBOX_KEY = 'uaf_offline_outbox';
+  let allContacts = [];
+  let cachedInitiatives = [];
+  const SESSION_KEY = 'uaf_session_data';
 
   function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('open'); }
   function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('open'); }
 
-  // Offline-First Network Engine
   async function apiPost(action, data = {}) {
     const payload = {
       action, ...data,
       email: data.email || (currentUser ? currentUser.email : undefined),
       sessionToken: data.sessionToken || currentSessionToken || undefined
     };
-
-    if (!navigator.onLine) {
-      queueOfflineAction(payload);
-      setOnlineStatus(false);
-      return { success: true, offlineQueued: true };
-    }
-
     try {
       const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
       const json = await res.json();
       setOnlineStatus(true);
       return json;
     } catch (err) {
-      queueOfflineAction(payload);
       setOnlineStatus(false);
-      return { success: true, offlineQueued: true };
+      return { error: 'Connection failed' };
     }
   }
-
-  function queueOfflineAction(payload) {
-    const q = JSON.parse(localStorage.getItem(OUTBOX_KEY) || '[]');
-    q.push({ ...payload, queuedAt: Date.now() });
-    localStorage.setItem(OUTBOX_KEY, JSON.stringify(q));
-  }
-
-  async function flushOutbox() {
-    if (!navigator.onLine) return;
-    const q = JSON.parse(localStorage.getItem(OUTBOX_KEY) || '[]');
-    if (!q.length) return;
-    localStorage.removeItem(OUTBOX_KEY);
-    for (const item of q) {
-      try { await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(item) }); }
-      catch (e) { queueOfflineAction(item); }
-    }
-    setOnlineStatus(true);
-  }
-
-  window.addEventListener('online', flushOutbox);
-  setInterval(flushOutbox, 20000);
 
   async function cachedFetch(action, cacheKey) {
     try {
@@ -793,18 +920,27 @@
       return data;
     } catch (e) {
       setOnlineStatus(false);
-      const cached = localStorage.getItem('cached_' + cacheKey);
-      return cached ? JSON.parse(cached) : [];
+      const c = localStorage.getItem('cached_' + cacheKey);
+      return c ? JSON.parse(c) : [];
     }
   }
 
   function setOnlineStatus(online) {
     const b = document.getElementById('connection-status-badge');
     if (b) {
-      b.innerText = online ? '🟢 Live' : '📡 Offline (Queue Ready)';
+      b.innerText = online ? '🟢 Live' : '📡 Offline';
       b.style.background = online ? '#D1FAE5' : '#FEF3C7';
       b.style.color = online ? '#065F46' : '#92400E';
     }
+  }
+
+  // @Mention Highlighting Engine
+  function formatMentionsAndText(text) {
+    if (!text) return '';
+    let escaped = escapeHtml(text);
+    return escaped.replace(/@([a-zA-Z0-9_.\-]+)/g, (match, username) => {
+      return `<span class="user-mention">@${username}</span>`;
+    });
   }
 
   function getAvatarHtml(email, name, photoUrl, size = 32) {
@@ -821,6 +957,7 @@
     isSignupMode = !isSignupMode;
     document.getElementById('name-field').style.display = isSignupMode ? 'block' : 'none';
     document.getElementById('prefix-pref-field').style.display = isSignupMode ? 'block' : 'none';
+    document.getElementById('user-type-field').style.display = isSignupMode ? 'block' : 'none';
     document.getElementById('code-field').style.display = isSignupMode ? 'block' : 'none';
     document.getElementById('auth-submit').innerText = isSignupMode ? 'Sign Up' : 'Sign In';
   }
@@ -833,7 +970,8 @@
         email, password, name: document.getElementById('auth-name').value.trim(),
         teamCode: document.getElementById('auth-code').value.trim(),
         prefix: document.getElementById('auth-prefix').value,
-        preferredName: document.getElementById('auth-preferred-name').value.trim()
+        preferredName: document.getElementById('auth-preferred-name').value.trim(),
+        userType: document.getElementById('auth-user-type').value
       });
       if (res.success) {
         document.getElementById('auth-fields-standard').style.display = 'none';
@@ -864,13 +1002,7 @@
       currentSessionToken = res.sessionToken;
       localStorage.setItem(SESSION_KEY, JSON.stringify({ email, token: res.sessionToken, profile: res.profile }));
       enterApp();
-    } else alert(res.error || 'Verification failed');
-  }
-
-  async function resendVerificationCode() {
-    const email = document.getElementById('verify-target-email').innerText;
-    await apiPost('resendVerification', { email });
-    alert('A new 6-digit code was sent.');
+    } else alert(res.error);
   }
 
   function enterApp() {
@@ -883,9 +1015,11 @@
 
     loadAllProfiles();
     loadFeed();
+    loadContacts();
     loadPrograms();
     loadImpact();
     loadPartnerships();
+    updateLiveNotificationUI();
   }
 
   async function logoutUser() {
@@ -906,6 +1040,7 @@
     if (sIdx != null) document.querySelectorAll('.app-sidebar .sidebar-btn')[sIdx]?.classList.add('active');
 
     if (tabName === 'feed') loadFeed();
+    if (tabName === 'contacts') loadContacts();
     if (tabName === 'finances') loadFinances();
     if (tabName === 'programs') loadPrograms();
     if (tabName === 'impact') loadImpact();
@@ -916,15 +1051,131 @@
 
   function openFullChatsTab() { switchTab('chats'); backToChatList(); loadChats(); }
 
-  // ---------- POST UPDATES (FIXED) ----------
+  // ---------- REFRESH ENTIRE SYSTEM ----------
+  async function refreshEntireSystem(notify = false) {
+    await Promise.all([
+      loadAllProfiles(),
+      loadFeed(),
+      loadContacts(),
+      loadFinances(),
+      loadPrograms(),
+      loadImpact(),
+      loadPartnerships(),
+      loadTasks(),
+      loadDocuments()
+    ]);
+    if (notify) alert('🔄 UAF System refreshed with latest server data!');
+  }
+
+  // ---------- POPUP PROFILE CARD (EXACT MATCH TO ATTACHED IMAGE) ----------
+  function openProfileCardModal(email) {
+    const p = allTeamProfiles.find(item => item.email.toLowerCase() === email.toLowerCase()) || currentUser;
+    if (!p) return;
+
+    document.getElementById('pcard-avatar').innerHTML = p.photoUrl ? `<img src="${p.photoUrl}">` : (p.displayName || p.name || 'U')[0];
+    document.getElementById('pcard-fullname').innerText = p.name || p.displayName;
+    document.getElementById('pcard-prefname').innerText = p.preferredName || p.displayName || '—';
+    document.getElementById('pcard-email').innerText = p.email;
+    document.getElementById('pcard-position').innerText = p.currentPosition || 'Staff';
+    document.getElementById('pcard-phone').innerText = p.phone || 'No phone provided';
+    document.getElementById('pcard-emergency').innerText = p.emergencyContact || 'None listed';
+    document.getElementById('pcard-address').innerText = p.currentAddress || p.county || 'Liberia';
+    document.getElementById('pcard-usertype').innerText = p.userType || 'Volunteer';
+
+    document.getElementById('pcard-tasks-btn').onclick = () => {
+      closeModal('modal-profile-card');
+      switchTab('tasks');
+    };
+    document.getElementById('pcard-msg-btn').onclick = () => {
+      closeModal('modal-profile-card');
+      startDirectMessage(p.email);
+    };
+
+    openModal('modal-profile-card');
+  }
+
+  function openFullSettingsProfile() {
+    closeModal('modal-profile-card');
+    switchTab('settings');
+  }
+
+  // ---------- CONTACTS DIRECTORY & BROADCAST MAILING ----------
+  async function loadContacts() {
+    allContacts = await cachedFetch('contacts', 'contacts');
+    const isExec = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
+    document.getElementById('btn-toggle-mailing').style.display = isExec ? 'inline-block' : 'none';
+    document.getElementById('btn-add-contact').style.display = isExec ? 'inline-block' : 'none';
+
+    const select = document.getElementById('mail-recipients-select');
+    select.innerHTML = `<option value="ALL">All Contacts &amp; Partners</option>` + allContacts.map(c => `<option value="${c.email}">${escapeHtml(c.name)} (${escapeHtml(c.institution || c.email)})</option>`).join('');
+
+    renderContactsList(allContacts);
+  }
+
+  function renderContactsList(list) {
+    const container = document.getElementById('contacts-container');
+    container.innerHTML = list.map(c => `
+      <div class="program-card">
+        <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${escapeHtml(c.category)}</span>
+        <h4 style="margin:4px 0 2px 0; color:var(--navy-text);">${escapeHtml(c.name)}</h4>
+        <div style="font-size:12.5px; color:var(--muted); margin-bottom:6px;">🏢 ${escapeHtml(c.institution || 'Individual')}</div>
+        <div style="font-size:12px; color:var(--ink);">📞 ${escapeHtml(c.phone || '—')} • ✉️ ${escapeHtml(c.email || '—')}</div>
+        <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">📍 ${escapeHtml(c.address || 'Liberia')}</div>
+      </div>
+    `).join('');
+  }
+
+  function filterContactsList(q) {
+    q = (q || '').toLowerCase().trim();
+    const filtered = allContacts.filter(c => `${c.name} ${c.institution} ${c.phone} ${c.email} ${c.category}`.toLowerCase().includes(q));
+    renderContactsList(filtered);
+  }
+
+  function toggleMailingBox() {
+    const box = document.getElementById('mailing-composer-box');
+    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+  }
+
+  async function submitNewContact() {
+    const name = document.getElementById('con-name').value.trim();
+    const category = document.getElementById('con-category').value;
+    const institution = document.getElementById('con-institution').value.trim();
+    const phone = document.getElementById('con-phone').value.trim();
+    const contactEmail = document.getElementById('con-email').value.trim();
+    const address = document.getElementById('con-address').value.trim();
+    if (!name) return;
+
+    await apiPost('addContact', { name, category, institution, phone, contactEmail, address });
+    closeModal('modal-contact');
+    loadContacts();
+  }
+
+  async function submitMailingBroadcast() {
+    const select = document.getElementById('mail-recipients-select');
+    const selectedOptions = Array.from(select.selectedOptions).map(o => o.value);
+    const subject = document.getElementById('mail-subject').value.trim();
+    const messageBody = document.getElementById('mail-body').value.trim();
+    if (!subject || !messageBody) { alert('Subject and content required'); return; }
+
+    let recipientEmails = [];
+    if (selectedOptions.includes('ALL')) {
+      recipientEmails = allContacts.map(c => c.email).filter(Boolean);
+    } else {
+      recipientEmails = selectedOptions.filter(Boolean);
+    }
+
+    const res = await apiPost('sendContactEmail', { recipientEmails, subject, messageBody });
+    if (res.success) {
+      alert(`✅ Official mailing sent to ${res.count} recipient(s)!`);
+      toggleMailingBox();
+    } else alert(res.error || 'Failed to dispatch email');
+  }
+
+  // ---------- FEED WITH @MENTIONS ----------
   async function submitTeamUpdate() {
     const text = document.getElementById('post-text').value.trim();
     const photoFile = document.getElementById('post-photo').files[0];
-    if (!text && !photoFile) { alert('Please enter text or select a photo.'); return; }
-
-    const submitBtn = document.getElementById('post-submit-btn');
-    submitBtn.disabled = true;
-    submitBtn.innerText = 'Posting...';
+    if (!text && !photoFile) return;
 
     let imageUrl = '';
     if (photoFile) {
@@ -935,14 +1186,10 @@
 
     await apiPost('createTeamUpdate', {
       authorName: currentUser.displayName || currentUser.name,
-      text: text || 'Photo update',
-      imageUrl
+      text, imageUrl
     });
-
     document.getElementById('post-text').value = '';
     document.getElementById('post-photo').value = '';
-    submitBtn.disabled = false;
-    submitBtn.innerText = 'Post Update';
     closeModal('update-modal');
     loadFeed();
   }
@@ -953,7 +1200,7 @@
     if (!Array.isArray(data)) return;
 
     container.innerHTML = data.map(post => {
-      const isAuthor = currentUser && (post.authorEmail === currentUser.email || (currentUser.authorizedRole === 'Executive Director'));
+      const isAuthor = currentUser && (post.authorEmail === currentUser.email || currentUser.isSuperAdmin);
       const isLiked = post.likes && post.likes.includes(currentUser.email);
       const isDisliked = post.dislikes && post.dislikes.includes(currentUser.email);
 
@@ -969,7 +1216,7 @@
             </div>
             ${isAuthor ? `<button class="btn danger" style="width:auto; padding:2px 8px; font-size:11px;" onclick="deleteFeedPost('${post.id}')">Delete</button>` : ''}
           </div>
-          <div class="post-body-text">${escapeHtml(post.text)}</div>
+          <div class="post-body-text">${formatMentionsAndText(post.text)}</div>
           ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-img">` : ''}
 
           <div class="post-metrics-bar">
@@ -986,13 +1233,13 @@
 
           <div class="post-comments-drawer" id="comments-${post.id}">
             <div style="display:flex; gap:6px; margin-bottom:8px;">
-              <input type="text" id="comment-input-${post.id}" placeholder="Write comment..." style="flex:1; padding:6px; border-radius:6px; border:1px solid var(--line);">
+              <input type="text" id="comment-input-${post.id}" placeholder="Write comment with @..." style="flex:1; padding:6px; border-radius:6px; border:1px solid var(--line);">
               <button class="btn" style="width:auto; padding:4px 10px; font-size:11px;" onclick="submitComment('${post.id}')">Reply</button>
             </div>
             ${(post.comments || []).map(c => `
               <div class="comment-item">
                 ${getAvatarHtml(c.email, c.authorName, null, 24)}
-                <div class="comment-bubble"><strong>${escapeHtml(c.authorName)}</strong>: ${escapeHtml(c.text)}</div>
+                <div class="comment-bubble"><strong>${escapeHtml(c.authorName)}</strong>: ${formatMentionsAndText(c.text)}</div>
               </div>
             `).join('')}
           </div>
@@ -1018,77 +1265,17 @@
     loadFeed();
   }
 
-  // ---------- BOTTOM TEAM BAR & COLLAPSIBLE DRAWER (FIXED) ----------
-  async function loadAllProfiles() {
-    allTeamProfiles = await cachedFetch('profiles', 'profiles');
-    if (Array.isArray(allTeamProfiles)) {
-      document.getElementById('bottom-team-row').innerHTML = allTeamProfiles.map(p => `
-        <div class="bottom-team-item" onclick="toggleTeamMemberPopover('${p.email}')">
-          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 38)}
-          <div class="bottom-team-name">${escapeHtml(p.preferredName || p.name.split(' ')[0])}</div>
-        </div>
-      `).join('');
-
-      document.getElementById('settings-users-list').innerHTML = allTeamProfiles.map(p => `
-        <div style="display:flex; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line);">
-          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 28)}
-          <div><strong>${escapeHtml(p.displayName || p.name)}</strong> — <span style="color:var(--muted);">${escapeHtml(p.currentPosition || 'Staff')}</span></div>
-        </div>
-      `).join('');
-    }
-  }
-
-  function toggleTeamMemberPopover(email) {
-    const drawer = document.getElementById('team-member-popover');
-    if (currentSelectedTeamEmail === email && drawer.style.display === 'block') {
-      closeTeamPopover();
-      return;
-    }
-    currentSelectedTeamEmail = email;
-
-    const p = allTeamProfiles.find(item => item.email === email);
-    if (!p) return;
-
-    document.getElementById('popover-avatar').innerHTML = getAvatarHtml(p.email, p.displayName, p.photoUrl, 44);
-    document.getElementById('popover-name').innerText = p.displayName || p.name;
-    document.getElementById('popover-role').innerText = p.currentPosition || 'Team Member';
-    document.getElementById('popover-meta').innerText = `${p.county || 'Liberia'} • ${p.userType || 'Staff'}`;
-    document.getElementById('popover-bio').innerText = p.bio || 'No bio available.';
-
-    document.getElementById('popover-actions').innerHTML = `
-      ${p.email !== currentUser.email ? `<button class="btn" style="width:auto; padding:4px 10px; font-size:11px;" onclick="startDirectMessage('${p.email}')">💬 Message</button>` : ''}
-      ${p.phone ? `<a href="tel:${p.phone}" class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px; text-decoration:none;">📞 Call (${p.phone})</a>` : ''}
-    `;
-
-    drawer.style.display = 'block';
-  }
-
-  function closeTeamPopover() {
-    currentSelectedTeamEmail = null;
-    document.getElementById('team-member-popover').style.display = 'none';
-  }
-
-  async function startDirectMessage(email) {
-    if (email === currentUser.email) return;
-    const res = await apiPost('getOrCreateDM', { emailB: email });
-    if (res.success && res.channelId) {
-      openFullChatsTab();
-      openChatRoom(res.channelId, email);
-    }
-  }
-
-  // ---------- FINANCES (3-TIER RESTORED) ----------
+  // ---------- FINANCES (FIXED BUTTONS & CARD OPTIONS) ----------
   function formatMoney(val, cur = 'USD') { const n = Number(val) || 0; return cur === 'LRD' ? `L$ ${n.toLocaleString()}` : `$${n.toLocaleString()}`; }
 
   async function loadFinances() {
     const data = await cachedFetch('finances', 'finances');
-    const isFull = data.access?.canManageFinances;
-    const isDet = data.access?.canViewDetailed;
+    const isFull = data.access?.isFullAdmin;
+    const isDet = data.access?.isDetailed;
 
-    document.getElementById('fin-role-badge').innerText = isFull ? 'Admin Access' : (isDet ? 'Executive Management View' : 'General View');
+    document.getElementById('fin-role-badge').innerText = isFull ? 'Admin Access' : (isDet ? 'Executive Management' : 'General View');
     document.getElementById('fin-actions-bar').style.display = isFull ? 'flex' : 'none';
 
-    // 4 Public Cards (Always rendered for everyone)
     const sum = data.summary || {};
     document.getElementById('dash-org-balance-usd').innerText = formatMoney(sum.operationalBalance?.USD, 'USD');
     document.getElementById('dash-org-balance-lrd').innerText = formatMoney(sum.operationalBalance?.LRD, 'LRD');
@@ -1099,7 +1286,6 @@
     document.getElementById('dash-donation-balance-usd').innerText = formatMoney(sum.donationBalance?.USD, 'USD');
     document.getElementById('dash-donation-balance-lrd').innerText = formatMoney(sum.donationBalance?.LRD, 'LRD');
 
-    // Tier 2 & 3: Detailed & Admin Views
     if (isDet && data.detail) {
       document.getElementById('fin-detailed-cards').style.display = 'block';
       document.getElementById('dash-total-balance-usd').innerText = formatMoney(data.detail.totalFinancialBalance?.USD, 'USD');
@@ -1108,7 +1294,8 @@
       document.getElementById('dash-total-expenses-lrd').innerText = formatMoney(data.detail.totalExpenses?.LRD, 'LRD');
 
       document.getElementById('fin-initiatives-section').style.display = 'block';
-      document.getElementById('initiatives-table-body').innerHTML = (data.detail.initiatives || []).map(i => `
+      cachedInitiatives = data.detail.initiatives || [];
+      document.getElementById('initiatives-table-body').innerHTML = cachedInitiatives.map(i => `
         <tr><td>${escapeHtml(i.name)}</td><td>${i.currency}</td><td>${formatMoney(i.amountReceived, i.currency)}</td><td>${formatMoney(i.totalExpenses, i.currency)}</td><td><strong>${formatMoney(i.currentBalance, i.currency)}</strong></td></tr>
       `).join('');
     }
@@ -1121,140 +1308,174 @@
     }
   }
 
-  // ---------- VOICE MESSAGING (RESTORED) ----------
-  async function startVoiceRecording() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
+  function openAddIncomeModal() {
+    const sel = document.getElementById('income-init-select');
+    sel.innerHTML = cachedInitiatives.map(i => `<option value="${i.id}">${escapeHtml(i.name)}</option>`).join('');
+    openModal('modal-add-income');
+  }
+  function toggleIncomeInitiativeField() {
+    const v = document.getElementById('income-source-select').value;
+    document.getElementById('field-income-init').style.display = v === 'Initiative' ? 'block' : 'none';
+  }
+  function openAddExpenseModal() {
+    const sel = document.getElementById('expense-init-select');
+    sel.innerHTML = cachedInitiatives.map(i => `<option value="${i.id}">${escapeHtml(i.name)}</option>`).join('');
+    openModal('modal-add-expense');
+  }
+  function toggleExpenseInitiativeField() {
+    const v = document.getElementById('expense-source-select').value;
+    document.getElementById('field-expense-init').style.display = v === 'Initiative' ? 'block' : 'none';
+  }
 
-      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-      mediaRecorder.start();
+  async function submitUpdateOrgBalance() {
+    await apiPost('updateOrgBalance', {
+      newBalance: document.getElementById('input-org-balance').value,
+      currency: document.getElementById('input-org-currency').value,
+      reason: document.getElementById('input-org-reason').value
+    });
+    closeModal('modal-update-org'); loadFinances();
+  }
+  async function submitFinancialIncome() {
+    await apiPost('addFinancialIncome', {
+      source: document.getElementById('income-source-select').value,
+      amount: document.getElementById('income-amount').value,
+      currency: document.getElementById('income-currency').value,
+      description: document.getElementById('income-desc').value,
+      initiativeId: document.getElementById('income-init-select').value
+    });
+    closeModal('modal-add-income'); loadFinances();
+  }
+  async function submitFinancialExpense() {
+    await apiPost('addExpense', {
+      category: document.getElementById('expense-source-select').value,
+      amount: document.getElementById('expense-amount').value,
+      currency: document.getElementById('expense-currency').value,
+      description: document.getElementById('expense-desc').value,
+      initiativeId: document.getElementById('expense-init-select').value
+    });
+    closeModal('modal-add-expense'); loadFinances();
+  }
+  async function submitCreateInitiative() {
+    await apiPost('addInitiative', {
+      name: document.getElementById('init-name').value.trim(),
+      amountReceived: document.getElementById('init-income').value,
+      currency: document.getElementById('init-currency').value
+    });
+    closeModal('modal-add-initiative'); loadFinances();
+  }
+  async function downloadFinancialReport() {
+    const res = await apiPost('generateFinancialReport', { startDate: document.getElementById('report-start-date').value, endDate: document.getElementById('report-end-date').value });
+    if (res.rows && res.rows.length) {
+      const csv = 'Date,User,Category,Amount,Currency,Description\n' + res.rows.map(r => `${r.date},${r.user},${r.category},${r.amount},${r.currency},"${r.description}"`).join('\n');
+      const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv); a.download = 'UAF_Statement.csv'; a.click();
+      closeModal('modal-financial-report');
+    } else alert('No records found');
+  }
 
-      recordingSeconds = 0;
-      document.getElementById('voice-record-panel').style.display = 'flex';
-      document.getElementById('voice-mic-btn').style.display = 'none';
+  // ---------- BOTTOM TEAM BAR ----------
+  async function loadAllProfiles() {
+    allTeamProfiles = await cachedFetch('profiles', 'profiles');
+    if (Array.isArray(allTeamProfiles)) {
+      document.getElementById('bottom-team-row').innerHTML = allTeamProfiles.map(p => `
+        <div class="bottom-team-item" onclick="openProfileCardModal('${p.email}')">
+          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 38)}
+          <div class="bottom-team-name">${escapeHtml(p.preferredName || p.name.split(' ')[0])}</div>
+        </div>
+      `).join('');
 
-      recordingInterval = setInterval(() => {
-        recordingSeconds++;
-        const mins = Math.floor(recordingSeconds / 60);
-        const secs = recordingSeconds % 60;
-        document.getElementById('voice-record-timer').innerText = `🔴 Recording: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-      }, 1000);
-    } catch (e) {
-      alert('Microphone access denied or not available.');
+      const taskSel = document.getElementById('task-individual-select');
+      if (taskSel) taskSel.innerHTML = allTeamProfiles.map(p => `<option value="${p.email}">${escapeHtml(p.displayName || p.name)}</option>`).join('');
     }
   }
 
-  function cancelVoiceRecording() {
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-    clearInterval(recordingInterval);
-    document.getElementById('voice-record-panel').style.display = 'none';
-    document.getElementById('voice-mic-btn').style.display = 'inline-block';
-  }
+  // ---------- SETTINGS, PROFILE SAVE & LIVE NOTIFICATIONS ----------
+  async function saveProfileSettings() {
+    const btn = document.getElementById('btn-save-profile');
+    btn.innerText = 'Saving...';
+    btn.disabled = true;
 
-  async function stopAndSendVoiceRecording() {
-    if (!mediaRecorder) return;
-    mediaRecorder.onstop = async () => {
-      clearInterval(recordingInterval);
-      document.getElementById('voice-record-panel').style.display = 'none';
-      document.getElementById('voice-mic-btn').style.display = 'inline-block';
+    let photoUrl = currentUser.photoUrl;
+    const photoFile = document.getElementById('settings-photo').files[0];
+    if (photoFile) {
+      const base64 = await fileToBase64(photoFile);
+      const up = await apiPost('uploadFile', { base64Data: base64, fileName: photoFile.name, mimeType: photoFile.type });
+      if (up.directUrl) photoUrl = up.directUrl;
+    }
 
-      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64 = reader.result.split(',')[1];
-        const up = await apiPost('uploadFile', { base64Data: base64, fileName: `voice_${Date.now()}.webm`, mimeType: 'audio/webm' });
-        if (up.directUrl) {
-          await apiPost('postMessage', {
-            channelId: activeChannelId,
-            name: currentUser.displayName || currentUser.name,
-            text: '🎤 Voice message',
-            type: 'voice',
-            link: up.directUrl
-          });
-          loadMessages();
-        }
-      };
-      reader.readAsDataURL(audioBlob);
+    const payload = {
+      name: document.getElementById('settings-full-name').value.trim(),
+      bio: document.getElementById('settings-bio').value.trim(),
+      phone: document.getElementById('settings-phone').value.trim(),
+      prefix: document.getElementById('settings-prefix').value,
+      preferredName: document.getElementById('settings-preferred-name').value.trim(),
+      currentPosition: document.getElementById('settings-position').value.trim(),
+      pastPositions: document.getElementById('settings-past-positions').value.trim(),
+      emergencyContact: document.getElementById('settings-emergency').value.trim(),
+      currentAddress: document.getElementById('settings-address').value.trim(),
+      county: document.getElementById('settings-county').value.trim(),
+      userType: document.getElementById('settings-user-type').value,
+      photoUrl
     };
-    mediaRecorder.stop();
+
+    const res = await apiPost('updateProfile', payload);
+    btn.innerText = 'Save Profile';
+    btn.disabled = false;
+
+    if (res.success && res.profile) {
+      currentUser = res.profile;
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ email: currentUser.email, token: currentSessionToken, profile: currentUser }));
+      document.getElementById('user-display').innerText = currentUser.displayName;
+      const av = document.getElementById('header-avatar');
+      av.innerHTML = currentUser.photoUrl ? `<img src="${currentUser.photoUrl}">` : (currentUser.displayName || 'U')[0];
+      alert('✅ Profile updated successfully!');
+      loadAllProfiles();
+    } else alert(res.error || 'Failed to save profile');
   }
 
-  // ---------- CHATS & MESSAGES ----------
-  async function loadChats() {
-    const channels = await cachedFetch('channels', 'channels');
-    document.getElementById('chats-list').innerHTML = (Array.isArray(channels) ? channels : []).map(c => `
-      <div class="feed-post-card" style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px;" onclick="openChatRoom('${c.channelId}', '${escapeHtml(c.name || 'Direct Message')}')">
-        ${getAvatarHtml(null, c.name, null, 32)}
-        <div style="flex:1;"><strong>${escapeHtml(c.name || 'Direct Message')}</strong></div>
-        <span>›</span>
-      </div>
-    `).join('');
-  }
-  function openChatRoom(id, title) {
-    activeChannelId = id;
-    document.getElementById('chat-list-view').style.display = 'none';
-    document.getElementById('chat-room-view').style.display = 'block';
-    document.getElementById('chat-title').innerText = title;
-    loadMessages();
-  }
-  function backToChatList() { document.getElementById('chat-room-view').style.display = 'none'; document.getElementById('chat-list-view').style.display = 'block'; loadChats(); }
-  
-  async function loadMessages() {
-    const msgs = await cachedFetch(`messages&channelId=${activeChannelId}`, `msgs_${activeChannelId}`);
-    document.getElementById('chat-messages').innerHTML = (Array.isArray(msgs) ? msgs : []).map(m => {
-      const isMine = m.email === currentUser.email;
-      const isVoice = m.type === 'voice' && m.link;
-
-      return `
-        <div class="msg-row ${isMine ? 'mine' : 'other'}">
-          <div class="msg-bubble">
-            <div style="font-size:10.5px; font-weight:700; opacity:0.8;">${escapeHtml(m.name)}</div>
-            ${isVoice ? `<audio controls src="${m.link}" style="max-width:200px; height:32px; margin-top:4px;"></audio>` : `<div>${escapeHtml(m.text)}</div>`}
-          </div>
-        </div>
-      `;
-    }).join('');
-    document.getElementById('chat-messages').scrollTop = 99999;
+  function toggleLiveNotifications() {
+    const isEnabled = localStorage.getItem('uaf_live_notifications_enabled') === 'true';
+    if (isEnabled) {
+      localStorage.setItem('uaf_live_notifications_enabled', 'false');
+      updateLiveNotificationUI();
+    } else {
+      if ('Notification' in window) {
+        Notification.requestPermission().then(async perm => {
+          if (perm === 'granted') {
+            const token = 'fcm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            await apiPost('saveFcmToken', { token });
+            localStorage.setItem('uaf_live_notifications_enabled', 'true');
+            updateLiveNotificationUI();
+          } else alert('Notification permission denied by browser.');
+        });
+      }
+    }
   }
 
-  async function sendMessage() {
-    const input = document.getElementById('chat-input');
-    if (!input.value.trim()) return;
-    await apiPost('postMessage', { channelId: activeChannelId, name: currentUser.displayName || currentUser.name, text: input.value.trim() });
-    input.value = ''; loadMessages();
-  }
-  async function deleteCurrentChat() {
-    if (!confirm('Delete chat?')) return;
-    await apiPost('deleteChat', { channelId: activeChannelId });
-    backToChatList();
+  function updateLiveNotificationUI() {
+    const isEnabled = localStorage.getItem('uaf_live_notifications_enabled') === 'true';
+    const status = document.getElementById('fcm-status');
+    const btn = document.getElementById('btn-toggle-notif');
+    if (status && btn) {
+      status.innerText = isEnabled ? '🟢 Live device push notifications active' : '⚪ Live notifications disabled';
+      btn.innerText = isEnabled ? 'Disable' : 'Enable';
+    }
   }
 
-  // ---------- PROGRAMS & IMPACT ----------
-  async function loadPrograms() {
-    const data = await cachedFetch('programs', 'programs');
-    document.getElementById('programs-container').innerHTML = (Array.isArray(data) ? data : []).map(p => `
-      <div class="program-card">
-        <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${escapeHtml(p.shortCode || 'CORE')}</span>
-        <h4 style="margin:4px 0 6px; color:var(--navy-text);">${escapeHtml(p.title)}</h4>
-        <p style="font-size:12.5px; margin:4px 0;">${escapeHtml(p.description)}</p>
-        <div style="font-size:11px; color:var(--muted);">Target: <strong>${escapeHtml(p.targetBeneficiaries || 'Community')}</strong></div>
-      </div>
-    `).join('');
-  }
-
-  // ---------- SETTINGS & UTILS ----------
   function applyFontSize(s) { document.documentElement.style.setProperty('--app-font-size', s); }
   function applyBrightness(v) { document.documentElement.style.setProperty('--app-brightness', v + '%'); }
-  function applyTheme(t) { if (t === 'teal') document.body.removeAttribute('data-theme'); else document.body.setAttribute('data-theme', t); }
+  function applyTheme(t) {
+    if (t === 'dark') document.body.setAttribute('data-theme', 'dark');
+    else if (t === 'teal') document.body.removeAttribute('data-theme');
+    else document.body.setAttribute('data-theme', t);
+    localStorage.setItem('uaf_theme', t);
+  }
 
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+      const r = new FileReader();
+      r.onload = () => resolve(r.result.split(',')[1]);
+      r.onerror = reject;
+      r.readAsDataURL(file);
     });
   }
 
@@ -1264,6 +1485,13 @@
   }
 
   window.addEventListener('DOMContentLoaded', async () => {
+    const savedTheme = localStorage.getItem('uaf_theme');
+    if (savedTheme) {
+      applyTheme(savedTheme);
+      const sel = document.getElementById('theme-select');
+      if (sel) sel.value = savedTheme;
+    }
+
     const saved = localStorage.getItem(SESSION_KEY);
     if (saved) {
       try {
@@ -1272,7 +1500,7 @@
         currentSessionToken = s.token;
         enterApp();
         apiPost('validateSession', { email: s.email, token: s.token }).then(res => {
-          if (res.success) currentUser = res.profile;
+          if (res.success && res.profile) currentUser = res.profile;
         });
       } catch (e) { document.getElementById('auth-screen').classList.add('visible'); }
     } else { document.getElementById('auth-screen').classList.add('visible'); }
