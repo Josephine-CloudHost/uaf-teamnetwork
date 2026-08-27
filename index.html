@@ -36,121 +36,95 @@
 
   * { box-sizing: border-box; }
   html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: var(--outer-bg);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    color: var(--ink);
-    font-size: var(--app-font-size);
-    filter: brightness(var(--app-brightness));
+    margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+    background: var(--outer-bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink); font-size: var(--app-font-size); filter: brightness(var(--app-brightness));
   }
 
   #session-check {
-    position: fixed; inset: 0; background: #0C2340;
-    display: flex; align-items: center; justify-content: center;
+    position: fixed; inset: 0; background: #0C2340; display: flex; align-items: center; justify-content: center;
     z-index: 9999; color: #FFF; font-size: 15px; font-weight: 600;
   }
 
-  /* Main Container Frame */
   .app-frame {
-    display: flex;
-    width: 100vw;
-    height: 100vh;
-    background: var(--window-bg);
-    overflow: hidden;
-    position: relative;
+    display: flex; width: 100vw; height: 100vh; background: var(--window-bg); overflow: hidden; position: relative;
   }
 
   /* Standalone Fullscreen Auth View */
   #auth-screen {
-    position: fixed; inset: 0; z-index: 1000;
-    background: #F4F7FB;
-    display: none; align-items: center; justify-content: center;
-    padding: 16px; overflow-y: auto;
+    position: fixed; inset: 0; z-index: 1000; background: #F4F7FB;
+    display: none; align-items: center; justify-content: center; padding: 16px; overflow-y: auto;
   }
   #auth-screen.visible { display: flex; }
   .auth-card {
-    background: #FFF; border-radius: 12px; padding: 32px 28px;
-    width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    border: 1px solid var(--line);
+    background: #FFF; border-radius: 12px; padding: 32px 28px; width: 100%; max-width: 420px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid var(--line);
   }
 
-  /* Fixed Static Left Sidebar */
+  /* Fixed Left Sidebar */
   .app-sidebar {
-    width: 52px;
-    background: var(--sidebar-bg);
-    display: flex; flex-direction: column; align-items: center;
-    padding: 16px 0; flex-shrink: 0; gap: 14px; z-index: 100;
-    height: 100vh;
+    width: 52px; background: var(--sidebar-bg); display: flex; flex-direction: column; align-items: center;
+    padding: 16px 0; flex-shrink: 0; gap: 14px; z-index: 100; height: 100vh;
   }
   .sidebar-btn {
-    background: transparent; border: none; color: rgba(255, 255, 255, 0.85);
-    font-size: 20px; cursor: pointer; width: 38px; height: 38px;
-    border-radius: 10px; display: flex; align-items: center; justify-content: center;
-    position: relative; transition: background 0.15s ease;
+    background: transparent; border: none; color: rgba(255, 255, 255, 0.85); font-size: 20px;
+    cursor: pointer; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; position: relative; transition: background 0.15s ease;
   }
   .sidebar-btn:hover, .sidebar-btn.active { color: #FFF; background: rgba(255, 255, 255, 0.25); }
   .sidebar-badge {
-    position: absolute; top: 2px; right: 2px; background: var(--accent);
-    color: #fff; font-size: 9px; font-weight: 700; border-radius: 999px; padding: 1px 4px;
+    position: absolute; top: 2px; right: 2px; background: var(--accent); color: #fff;
+    font-size: 9px; font-weight: 700; border-radius: 999px; padding: 1px 4px;
   }
 
-  /* Main Workspace Area */
+  /* Main Workspace */
   .app-main-column {
-    flex: 1; display: flex; flex-direction: column;
-    height: 100vh; overflow: hidden; position: relative; background: var(--window-bg);
+    flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; background: var(--window-bg);
   }
 
-  /* Sticky Top Bar */
+  /* Sticky Top Navigation Bar */
   .app-topbar {
-    height: 56px; padding: 0 18px; display: flex;
-    align-items: center; justify-content: space-between;
-    background: #FFF; border-bottom: 1px solid var(--line);
-    flex-shrink: 0; gap: 12px; z-index: 50;
+    height: 56px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between;
+    background: #FFF; border-bottom: 1px solid var(--line); flex-shrink: 0; gap: 12px; z-index: 50;
   }
   .topbar-brand { font-size: 17.5px; font-weight: 800; color: var(--navy-text); white-space: nowrap; }
   .topbar-search-box {
-    display: flex; align-items: center; gap: 6px; background: #F8FAFC;
-    border: 1px solid #CBD5E1; border-radius: 999px; padding: 5px 12px;
-    width: 100%; max-width: 320px;
+    display: flex; align-items: center; gap: 6px; background: #F8FAFC; border: 1px solid #CBD5E1;
+    border-radius: 999px; padding: 5px 12px; width: 100%; max-width: 320px;
   }
   .topbar-search-box input { border: none; outline: none; font-size: 13px; width: 100%; background: transparent; }
   .topbar-user { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: var(--navy-text); cursor: pointer; white-space: nowrap; }
 
   /* Sticky Upper Tabstrip */
   .app-tabstrip {
-    background: var(--tab-strip-bg); display: flex; align-items: center;
-    padding: 0 14px; gap: 2px; overflow-x: auto; border-bottom: 1px solid var(--line); flex-shrink: 0; z-index: 40;
+    background: var(--tab-strip-bg); display: flex; align-items: center; padding: 0 14px; gap: 2px;
+    overflow-x: auto; border-bottom: 1px solid var(--line); flex-shrink: 0; z-index: 40;
   }
   .app-tabstrip button {
-    background: none; border: none; color: var(--tab-text); padding: 10px 14px;
-    font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; border-radius: 6px 6px 0 0;
+    background: none; border: none; color: var(--tab-text); padding: 10px 14px; font-size: 12.5px;
+    font-weight: 600; cursor: pointer; white-space: nowrap; border-radius: 6px 6px 0 0;
   }
   .app-tabstrip button.active { background: var(--tab-active-bg); color: #FFF; font-weight: 700; }
 
-  /* Smooth Scrolling Center Canvas */
+  /* Independent Smooth Content Scroll */
   .app-content-body {
-    flex: 1; background: var(--content-bg); padding: 18px 20px 75px;
+    flex: 1; background: var(--content-bg); padding: 18px 20px 84px;
     overflow-y: auto; overflow-x: hidden; position: relative; -webkit-overflow-scrolling: touch;
   }
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* Universal User Avatar */
+  /* Universal Profile Avatar */
   .uaf-avatar {
-    border-radius: 50%; background: var(--primary); color: #FFF;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; overflow: hidden; flex-shrink: 0; border: 2px solid var(--team-ring);
+    border-radius: 50%; background: var(--primary); color: #FFF; display: flex; align-items: center;
+    justify-content: center; font-weight: 700; overflow: hidden; flex-shrink: 0; border: 2px solid var(--team-ring);
   }
   .uaf-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
   /* LinkedIn-Style Post Cards */
   .feed-post-card {
-    background: #FFF; border: 1px solid var(--line); border-radius: 12px;
-    padding: 16px 18px; margin-bottom: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    background: #FFF; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px;
+    margin-bottom: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
   }
   .post-author-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .post-author-info { display: flex; align-items: center; gap: 10px; }
@@ -159,14 +133,13 @@
   .post-body-text { font-size: 14px; line-height: 1.5; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
   .post-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: 8px; margin-top: 10px; }
   .post-metrics-bar {
-    display: flex; justify-content: space-between; padding: 10px 2px 6px;
-    font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--line); margin-top: 8px;
+    display: flex; justify-content: space-between; padding: 10px 2px 6px; font-size: 12px;
+    color: var(--muted); border-bottom: 1px solid var(--line); margin-top: 8px;
   }
   .post-actions-bar { display: flex; gap: 4px; padding-top: 6px; }
   .post-act-btn {
-    flex: 1; background: none; border: none; padding: 7px 4px; border-radius: 6px;
-    font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 5px;
+    flex: 1; background: none; border: none; padding: 7px 4px; border-radius: 6px; font-size: 12.5px;
+    font-weight: 600; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
   }
   .post-act-btn:hover { background: #F1F5F9; color: var(--navy-text); }
   .post-act-btn.active { color: var(--primary); font-weight: 700; }
@@ -174,17 +147,16 @@
   .comment-item { display: flex; gap: 8px; margin-bottom: 8px; font-size: 12.5px; }
   .comment-bubble { background: #F1F5F9; border-radius: 8px; padding: 6px 10px; flex: 1; }
 
-  /* 4-Quadrant Finances Layout (Matching Reference Image) */
+  /* 4-Quadrant Finances Layout */
   .fin-hub-container { display: flex; justify-content: center; align-items: center; margin: 12px 0 20px; }
   .fin-hub-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-    width: 100%; max-width: 520px; position: relative;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 520px; position: relative;
   }
   .fin-hub-center-circle {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 58px; height: 58px; background: #FFF; border: 3.5px solid #2F4888;
-    border-radius: 50%; z-index: 5; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: var(--primary);
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 58px; height: 58px;
+    background: #FFF; border: 3.5px solid #2F4888; border-radius: 50%; z-index: 5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 12px; color: var(--primary);
   }
   .fin-quadrant { min-height: 120px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }
   .fin-quadrant.orange { background: #FF6600; color: #FFF; border-radius: 24px 6px 24px 6px; }
@@ -193,45 +165,49 @@
   .fin-quadrant-value { font-size: 19px; font-weight: 800; margin-top: 4px; }
   .fin-quadrant-sub { font-size: 12px; opacity: 0.9; font-weight: 600; }
 
-  /* Programs & Impact Grids */
+  /* Programs & Impact */
   .programs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
   .program-card { background: #FFF; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
 
-  /* WhatsApp Style Chatroom Area */
+  /* Chat & Voice Recording Area */
   .chat-app-wrapper {
     background: #FFF; border-radius: 12px; border: 1px solid var(--line);
-    height: calc(100vh - 190px); display: flex; flex-direction: column;
+    height: calc(100vh - 200px); display: flex; flex-direction: column;
   }
   .chat-header-bar {
     background: #F8FAFC; padding: 10px 14px; border-bottom: 1px solid var(--line);
     display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
   }
   .chat-scrolling-messages {
-    flex: 1; padding: 14px; overflow-y: auto;
-    background: #F4F7FB; display: flex; flex-direction: column; gap: 8px;
+    flex: 1; padding: 14px; overflow-y: auto; background: #F4F7FB; display: flex; flex-direction: column; gap: 8px;
   }
   .chat-fixed-input-bar {
-    padding: 10px 14px; background: #FFF; border-top: 1px solid var(--line);
-    display: flex; gap: 8px; align-items: center; flex-shrink: 0;
+    padding: 10px 14px; background: #FFF; border-top: 1px solid var(--line); display: flex; gap: 8px; align-items: center; flex-shrink: 0;
+  }
+  .voice-record-panel {
+    display: none; background: #FDE8E8; padding: 8px 12px; border-radius: 8px; width: 100%;
+    align-items: center; justify-content: space-between; font-size: 12.5px; color: #B3261E; font-weight: 600;
   }
   .msg-row { display: flex; width: 100%; gap: 6px; }
   .msg-row.mine { justify-content: flex-start; }
   .msg-row.other { justify-content: flex-end; }
-  .msg-bubble {
-    max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.45; word-break: break-word;
-  }
+  .msg-bubble { max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.45; word-break: break-word; }
   .msg-row.mine .msg-bubble { background: #FADADD; color: #14213D; }
   .msg-row.other .msg-bubble { background: var(--primary); color: #FFF; }
 
-  /* Pinned Bottom Team Footer */
+  /* Pinned Bottom Team Footer & Collapsible Drawer */
   .app-bottom-team-bar {
     position: absolute; bottom: 0; left: 0; right: 0;
-    background: #FFF; border-top: 1.5px solid var(--line); padding: 6px 16px;
-    z-index: 60;
+    background: #FFF; border-top: 1.5px solid var(--line); padding: 6px 16px; z-index: 60;
   }
   .bottom-team-list { display: flex; align-items: center; gap: 14px; overflow-x: auto; padding-bottom: 2px; }
   .bottom-team-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; flex-shrink: 0; }
   .bottom-team-name { font-size: 10px; color: var(--navy-text); font-weight: 600; margin-top: 2px; max-width: 54px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Collapsible Member Popover Detail Card */
+  #team-member-popover {
+    display: none; background: #F8FAFC; border-top: 1px solid var(--line); padding: 12px 16px; margin: 6px -16px -6px;
+  }
 
   /* Settings Accordion */
   .settings-list { background: #FFF; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 14px; }
@@ -253,16 +229,14 @@
   .modal.open { display: flex; }
   .modal-card { background: #FFF; padding: 20px; border-radius: 12px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
 
-  @media (max-width: 800px) {
-    .topbar-search-box { display: none; }
-  }
+  @media (max-width: 800px) { .topbar-search-box { display: none; } }
 </style>
 </head>
 <body>
 
 <div id="session-check">Loading UAF Team Network…</div>
 
-<!-- FULLSCREEN AUTH VIEW -->
+<!-- FULLSCREEN AUTH SCREEN -->
 <div id="auth-screen">
   <div class="auth-card">
     <h2 style="margin-top:0; color:var(--navy-text);" id="auth-title">UAF Team Network</h2>
@@ -293,14 +267,15 @@
       <p style="font-size:12.5px; color:var(--muted);">Enter 6-digit verification code sent to <strong id="verify-target-email"></strong>.</p>
       <div class="field"><input type="text" id="auth-verify-code" maxlength="6" style="text-align:center; letter-spacing:4px; font-size:18px;"></div>
       <button class="btn" onclick="submitEmailVerification()">Verify</button>
+      <button class="btn secondary" style="margin-top:6px;" onclick="resendVerificationCode()">Resend Code</button>
     </div>
   </div>
 </div>
 
-<!-- MAIN FRAME -->
+<!-- MAIN APP FRAME -->
 <div class="app-frame" id="app-screen" style="display:none;">
 
-  <!-- STATIC LEFT SIDEBAR -->
+  <!-- FIXED LEFT SIDEBAR -->
   <aside class="app-sidebar">
     <button class="sidebar-btn active" onclick="switchTab('feed')" title="Feed">🏠</button>
     <button class="sidebar-btn" onclick="openFullChatsTab()" title="Chats">💬<span class="sidebar-badge" id="sidebar-chat-badge" style="display:none"></span></button>
@@ -308,10 +283,10 @@
     <button class="sidebar-btn" onclick="switchTab('settings')" title="Settings">⚙️</button>
   </aside>
 
-  <!-- MAIN COLUMN -->
+  <!-- MAIN VIEW COLUMN -->
   <div class="app-main-column">
 
-    <!-- STICKY TOP NAVIGATION BAR -->
+    <!-- STICKY TOPBAR -->
     <header class="app-topbar">
       <div style="display:flex; align-items:center; gap:8px;">
         <div class="topbar-brand">UAF Team Network</div>
@@ -327,7 +302,7 @@
       </div>
     </header>
 
-    <!-- STICKY UPPER TABSTRIP -->
+    <!-- STICKY TABSTRIP -->
     <nav class="app-tabstrip">
       <button class="active" onclick="switchTab('feed')">Main Feed</button>
       <button onclick="switchTab('partnerships')">Partnerships</button>
@@ -338,7 +313,7 @@
       <button onclick="switchTab('impact')">Impact</button>
     </nav>
 
-    <!-- SCROLLABLE FREE CONTENT AREA -->
+    <!-- FREE CONTENT SCROLLING CANVAS -->
     <main class="app-content-body" id="main-content-scroll">
 
       <!-- SEARCH RESULTS -->
@@ -383,10 +358,14 @@
         <div id="tasks-list"></div>
       </div>
 
-      <!-- UAF FINANCES (4-Quadrant) -->
+      <!-- UAF FINANCES (3-Tier & 4-Quadrant Hub) -->
       <div id="tab-finances" class="panel">
-        <h3 style="margin-top:0;">UAF Finances</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h3 style="margin:0;">UAF Finances</h3>
+          <span id="fin-role-badge" style="font-size:11.5px; padding:2px 8px; border-radius:999px; background:#E0E7FF; color:#3730A3; font-weight:700;">General View</span>
+        </div>
 
+        <!-- 4-Quadrant Visual Hub (Always visible to all members) -->
         <div class="fin-hub-container">
           <div class="fin-hub-grid">
             <div class="fin-hub-center-circle">UAF</div>
@@ -425,15 +404,47 @@
           </div>
         </div>
 
-        <div class="fin-actions-bar" id="fin-actions-bar" style="display:none; justify-content:center; gap:8px; margin-bottom:14px;">
+        <!-- Admin Only Management Actions -->
+        <div class="fin-actions-bar" id="fin-actions-bar" style="display:none; justify-content:center; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
           <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-update-org')">Update Balance</button>
           <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-income')">+ Income</button>
           <button class="btn danger" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-expense')">− Expense</button>
+          <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-initiative')">+ Initiative</button>
           <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px; background:#254587; color:#fff;" onclick="openModal('modal-financial-report')">📊 Report</button>
         </div>
+
+        <!-- Detailed Summary for Executive Management & Admin -->
+        <div id="fin-detailed-cards" style="display:none; margin-bottom:16px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px;">
+            <div class="program-card"><div style="font-size:11px; color:var(--muted); font-weight:700;">TOTAL FINANCIAL BALANCE</div><div style="font-size:18px; font-weight:800;" id="dash-total-balance-usd">$0.00</div><div style="font-size:12px;" id="dash-total-balance-lrd">L$ 0.00</div></div>
+            <div class="program-card"><div style="font-size:11px; color:var(--muted); font-weight:700;">TOTAL EXPENSES</div><div style="font-size:18px; font-weight:800;" id="dash-total-expenses-usd">$0.00</div><div style="font-size:12px;" id="dash-total-expenses-lrd">L$ 0.00</div></div>
+          </div>
+        </div>
+
+        <!-- Initiatives Table (Executive Management & Admin) -->
+        <details class="settings-list" id="fin-initiatives-section" style="display:none;">
+          <summary class="settings-row"><div class="settings-row-title">Initiatives Funds Breakdown</div><div>›</div></summary>
+          <div class="settings-row-expand" style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+              <thead><tr style="text-align:left; color:var(--muted);"><th>Name</th><th>Currency</th><th>Received</th><th>Expenses</th><th>Balance</th></tr></thead>
+              <tbody id="initiatives-table-body"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <!-- Transaction Ledger (Admin Only) -->
+        <details class="settings-list" id="fin-ledger-section" style="display:none;">
+          <summary class="settings-row"><div class="settings-row-title">Audited Transaction Ledger</div><div>›</div></summary>
+          <div class="settings-row-expand" style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+              <thead><tr style="text-align:left; color:var(--muted);"><th>Date</th><th>User</th><th>Category</th><th>Amount</th><th>Description</th></tr></thead>
+              <tbody id="ledger-table-body"></tbody>
+            </table>
+          </div>
+        </details>
       </div>
 
-      <!-- UAF PROGRAMS TAB (All 5 Preloaded) -->
+      <!-- UAF PROGRAMS TAB -->
       <div id="tab-programs" class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <h3 style="margin:0;">UAF Core Programs</h3>
@@ -457,7 +468,7 @@
         <div id="notifications-list"></div>
       </div>
 
-      <!-- CHATS TAB -->
+      <!-- CHATS & VOICE NOTES -->
       <div id="tab-chats" class="panel">
         <div style="background:#0C2340; color:#fff; padding:8px 14px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
           <span>Global Audio Call Room</span>
@@ -483,15 +494,26 @@
               <button class="btn danger" style="width:auto; padding:2px 6px; font-size:11px;" onclick="deleteCurrentChat()">Delete Chat</button>
             </div>
             <div class="chat-scrolling-messages" id="chat-messages"></div>
+            
+            <!-- Voice Recording Panel -->
+            <div class="voice-record-panel" id="voice-record-panel">
+              <span id="voice-record-timer">🔴 Recording: 0:00</span>
+              <div style="display:flex; gap:6px;">
+                <button class="btn secondary" style="width:auto; padding:3px 8px; font-size:11px;" onclick="cancelVoiceRecording()">Cancel</button>
+                <button class="btn" style="width:auto; padding:3px 8px; font-size:11px; background:#B3261E;" onclick="stopAndSendVoiceRecording()">Send Audio Memo</button>
+              </div>
+            </div>
+
             <div class="chat-fixed-input-bar">
               <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--line);" onkeydown="if(event.key==='Enter') sendMessage();">
+              <button class="btn secondary" id="voice-mic-btn" style="width:auto; padding:6px 10px; font-size:14px;" onclick="startVoiceRecording()" title="Record Audio Note">🎙️</button>
               <button class="btn" style="width:auto; padding:8px 16px;" onclick="sendMessage()">Send</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SETTINGS TAB -->
+      <!-- SETTINGS & POLICIES -->
       <div id="tab-settings" class="panel">
         <h3 style="margin-top:0;">Settings &amp; Organizational Handbook</h3>
 
@@ -501,7 +523,7 @@
             <div class="settings-row-icon">🔔</div>
             <div style="flex:1;">
               <div>Live Push Notifications</div>
-              <div style="font-size:11px; color:var(--muted);" id="fcm-status">Tap to enable device push alerts via Firebase</div>
+              <div style="font-size:11px; color:var(--muted);" id="fcm-status">Tap to connect Firebase push alerts on this device</div>
             </div>
             <div>›</div>
           </div>
@@ -549,7 +571,7 @@
               <div>›</div>
             </summary>
             <div class="settings-row-expand">
-              <div class="field"><label>Profile Picture</label><input type="file" id="settings-photo" accept="image/*" onchange="previewSettingsPhoto(event)"></div>
+              <div class="field"><label>Profile Picture</label><input type="file" id="settings-photo" accept="image/*"></div>
               <div class="field">
                 <label>Prefix &amp; Preferred Name</label>
                 <div class="prefix-row">
@@ -592,18 +614,29 @@
               <div>›</div>
             </summary>
             <div class="settings-row-expand">
-              <p>Highest standards of integrity, respect, safeguarding of youth and vulnerable beneficiaries.</p>
+              <p>Highest standards of integrity, professional respect, financial accountability, and safeguarding of youth and vulnerable community members.</p>
             </div>
           </details>
 
           <details>
             <summary class="settings-row">
               <div class="settings-row-icon">🛡️</div>
-              <div style="flex:1;"><div>Confidentiality &amp; Legal Policy</div></div>
+              <div style="flex:1;"><div>Confidentiality &amp; Non-Misuse Policy</div></div>
               <div>›</div>
             </summary>
             <div class="settings-row-expand">
-              <p>Proprietary beneficiary and financial records are protected under Cyber &amp; Data Protection laws.</p>
+              <p>Proprietary beneficiary and organizational records are confidential under applicable Cyber and Data Protection legislation.</p>
+            </div>
+          </details>
+
+          <details>
+            <summary class="settings-row">
+              <div class="settings-row-icon">🚪</div>
+              <div style="flex:1;"><div>Resignation &amp; Exit Procedure</div></div>
+              <div>›</div>
+            </summary>
+            <div class="settings-row-expand">
+              <p>Formal asset handover and revocation of credentials with ongoing non-disclosure commitments.</p>
             </div>
           </details>
 
@@ -618,6 +651,23 @@
     <!-- PINNED BOTTOM TEAM FOOTER -->
     <footer class="app-bottom-team-bar">
       <div class="bottom-team-list" id="bottom-team-row"></div>
+      
+      <!-- Collapsible Profile Details Popover -->
+      <div id="team-member-popover">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div class="uaf-avatar" id="popover-avatar" style="width:44px; height:44px;">U</div>
+            <div>
+              <strong id="popover-name" style="font-size:14.5px; color:var(--navy-text);">Name</strong>
+              <div id="popover-role" style="font-size:12px; color:var(--accent); font-weight:600;">Position</div>
+              <div id="popover-meta" style="font-size:11px; color:var(--muted);">County</div>
+            </div>
+          </div>
+          <button class="btn secondary" style="width:auto; padding:2px 8px; font-size:11px;" onclick="closeTeamPopover()">✕ Close</button>
+        </div>
+        <div id="popover-bio" style="font-size:12px; margin:8px 0; color:var(--ink);"></div>
+        <div id="popover-actions" style="display:flex; gap:6px; margin-top:6px;"></div>
+      </div>
     </footer>
 
   </div>
@@ -627,9 +677,9 @@
 <div class="modal" id="update-modal">
   <div class="modal-card">
     <h3 style="margin-top:0;">Post Update</h3>
-    <div class="field"><textarea id="post-text" rows="3" placeholder="Share news..."></textarea></div>
-    <div class="field"><label>Attach Image</label><input type="file" id="post-photo" accept="image/*"></div>
-    <button class="btn" onclick="submitTeamUpdate()">Post</button>
+    <div class="field"><textarea id="post-text" rows="3" placeholder="Share news or announcements..."></textarea></div>
+    <div class="field"><label>Attach Photo (Optional)</label><input type="file" id="post-photo" accept="image/*"></div>
+    <button class="btn" id="post-submit-btn" onclick="submitTeamUpdate()">Post Update</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('update-modal')">Cancel</button>
   </div>
 </div>
@@ -675,13 +725,19 @@
   let activeChannelId = 'team';
   let isSignupMode = false;
   let allTeamProfiles = [];
+  let currentSelectedTeamEmail = null;
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let recordingInterval = null;
+  let recordingSeconds = 0;
+
   const SESSION_KEY = 'uaf_session';
   const OUTBOX_KEY = 'uaf_offline_outbox';
 
   function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('open'); }
   function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('open'); }
 
-  // Offline Outbox Background Sync Engine
+  // Offline-First Network Engine
   async function apiPost(action, data = {}) {
     const payload = {
       action, ...data,
@@ -717,14 +773,10 @@
     if (!navigator.onLine) return;
     const q = JSON.parse(localStorage.getItem(OUTBOX_KEY) || '[]');
     if (!q.length) return;
-
     localStorage.removeItem(OUTBOX_KEY);
     for (const item of q) {
-      try {
-        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(item) });
-      } catch (e) {
-        queueOfflineAction(item);
-      }
+      try { await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(item) }); }
+      catch (e) { queueOfflineAction(item); }
     }
     setOnlineStatus(true);
   }
@@ -763,6 +815,7 @@
     return `<div class="uaf-avatar" style="width:${size}px; height:${size}px; font-size:${size*0.4}px;">${letter}</div>`;
   }
 
+  // ---------- AUTH ----------
   function toggleAuthMode(e) {
     if (e) e.preventDefault();
     isSignupMode = !isSignupMode;
@@ -794,8 +847,30 @@
         currentSessionToken = res.sessionToken;
         localStorage.setItem(SESSION_KEY, JSON.stringify({ email, token: res.sessionToken, profile: res.profile }));
         enterApp();
-      } else alert(res.error);
+      } else if (res.needsVerification) {
+        document.getElementById('auth-fields-standard').style.display = 'none';
+        document.getElementById('auth-fields-verify').style.display = 'block';
+        document.getElementById('verify-target-email').innerText = email;
+      } else alert(res.error || 'Invalid credentials');
     }
+  }
+
+  async function submitEmailVerification() {
+    const email = document.getElementById('verify-target-email').innerText;
+    const code = document.getElementById('auth-verify-code').value.trim();
+    const res = await apiPost('verifyEmail', { email, code });
+    if (res.success) {
+      currentUser = res.profile;
+      currentSessionToken = res.sessionToken;
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ email, token: res.sessionToken, profile: res.profile }));
+      enterApp();
+    } else alert(res.error || 'Verification failed');
+  }
+
+  async function resendVerificationCode() {
+    const email = document.getElementById('verify-target-email').innerText;
+    await apiPost('resendVerification', { email });
+    alert('A new 6-digit code was sent.');
   }
 
   function enterApp() {
@@ -841,7 +916,37 @@
 
   function openFullChatsTab() { switchTab('chats'); backToChatList(); loadChats(); }
 
-  // ---------- FEED ----------
+  // ---------- POST UPDATES (FIXED) ----------
+  async function submitTeamUpdate() {
+    const text = document.getElementById('post-text').value.trim();
+    const photoFile = document.getElementById('post-photo').files[0];
+    if (!text && !photoFile) { alert('Please enter text or select a photo.'); return; }
+
+    const submitBtn = document.getElementById('post-submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Posting...';
+
+    let imageUrl = '';
+    if (photoFile) {
+      const base64 = await fileToBase64(photoFile);
+      const up = await apiPost('uploadFile', { base64Data: base64, fileName: photoFile.name, mimeType: photoFile.type });
+      if (up.directUrl) imageUrl = up.directUrl;
+    }
+
+    await apiPost('createTeamUpdate', {
+      authorName: currentUser.displayName || currentUser.name,
+      text: text || 'Photo update',
+      imageUrl
+    });
+
+    document.getElementById('post-text').value = '';
+    document.getElementById('post-photo').value = '';
+    submitBtn.disabled = false;
+    submitBtn.innerText = 'Post Update';
+    closeModal('update-modal');
+    loadFeed();
+  }
+
   async function loadFeed() {
     const data = await cachedFetch('feedPosts', 'feed');
     const container = document.getElementById('feed-container');
@@ -913,23 +1018,77 @@
     loadFeed();
   }
 
-  // ---------- PROGRAMS ----------
-  async function loadPrograms() {
-    const data = await cachedFetch('programs', 'programs');
-    document.getElementById('programs-container').innerHTML = (Array.isArray(data) ? data : []).map(p => `
-      <div class="program-card">
-        <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${escapeHtml(p.shortCode || 'CORE')}</span>
-        <h4 style="margin:4px 0 6px; color:var(--navy-text);">${escapeHtml(p.title)}</h4>
-        <p style="font-size:12.5px; margin:4px 0;">${escapeHtml(p.description)}</p>
-        <div style="font-size:11px; color:var(--muted);">Target: <strong>${escapeHtml(p.targetBeneficiaries || 'Community')}</strong></div>
-      </div>
-    `).join('');
+  // ---------- BOTTOM TEAM BAR & COLLAPSIBLE DRAWER (FIXED) ----------
+  async function loadAllProfiles() {
+    allTeamProfiles = await cachedFetch('profiles', 'profiles');
+    if (Array.isArray(allTeamProfiles)) {
+      document.getElementById('bottom-team-row').innerHTML = allTeamProfiles.map(p => `
+        <div class="bottom-team-item" onclick="toggleTeamMemberPopover('${p.email}')">
+          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 38)}
+          <div class="bottom-team-name">${escapeHtml(p.preferredName || p.name.split(' ')[0])}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('settings-users-list').innerHTML = allTeamProfiles.map(p => `
+        <div style="display:flex; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line);">
+          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 28)}
+          <div><strong>${escapeHtml(p.displayName || p.name)}</strong> — <span style="color:var(--muted);">${escapeHtml(p.currentPosition || 'Staff')}</span></div>
+        </div>
+      `).join('');
+    }
   }
 
-  // ---------- FINANCES ----------
+  function toggleTeamMemberPopover(email) {
+    const drawer = document.getElementById('team-member-popover');
+    if (currentSelectedTeamEmail === email && drawer.style.display === 'block') {
+      closeTeamPopover();
+      return;
+    }
+    currentSelectedTeamEmail = email;
+
+    const p = allTeamProfiles.find(item => item.email === email);
+    if (!p) return;
+
+    document.getElementById('popover-avatar').innerHTML = getAvatarHtml(p.email, p.displayName, p.photoUrl, 44);
+    document.getElementById('popover-name').innerText = p.displayName || p.name;
+    document.getElementById('popover-role').innerText = p.currentPosition || 'Team Member';
+    document.getElementById('popover-meta').innerText = `${p.county || 'Liberia'} • ${p.userType || 'Staff'}`;
+    document.getElementById('popover-bio').innerText = p.bio || 'No bio available.';
+
+    document.getElementById('popover-actions').innerHTML = `
+      ${p.email !== currentUser.email ? `<button class="btn" style="width:auto; padding:4px 10px; font-size:11px;" onclick="startDirectMessage('${p.email}')">💬 Message</button>` : ''}
+      ${p.phone ? `<a href="tel:${p.phone}" class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px; text-decoration:none;">📞 Call (${p.phone})</a>` : ''}
+    `;
+
+    drawer.style.display = 'block';
+  }
+
+  function closeTeamPopover() {
+    currentSelectedTeamEmail = null;
+    document.getElementById('team-member-popover').style.display = 'none';
+  }
+
+  async function startDirectMessage(email) {
+    if (email === currentUser.email) return;
+    const res = await apiPost('getOrCreateDM', { emailB: email });
+    if (res.success && res.channelId) {
+      openFullChatsTab();
+      openChatRoom(res.channelId, email);
+    }
+  }
+
+  // ---------- FINANCES (3-TIER RESTORED) ----------
   function formatMoney(val, cur = 'USD') { const n = Number(val) || 0; return cur === 'LRD' ? `L$ ${n.toLocaleString()}` : `$${n.toLocaleString()}`; }
+
   async function loadFinances() {
     const data = await cachedFetch('finances', 'finances');
+    const isFull = data.access?.canManageFinances;
+    const isDet = data.access?.canViewDetailed;
+
+    document.getElementById('fin-role-badge').innerText = isFull ? 'Admin Access' : (isDet ? 'Executive Management View' : 'General View');
+    document.getElementById('fin-actions-bar').style.display = isFull ? 'flex' : 'none';
+
+    // 4 Public Cards (Always rendered for everyone)
     const sum = data.summary || {};
     document.getElementById('dash-org-balance-usd').innerText = formatMoney(sum.operationalBalance?.USD, 'USD');
     document.getElementById('dash-org-balance-lrd').innerText = formatMoney(sum.operationalBalance?.LRD, 'LRD');
@@ -939,10 +1098,90 @@
     document.getElementById('dash-other-balance-lrd').innerText = formatMoney(sum.programBalance?.LRD, 'LRD');
     document.getElementById('dash-donation-balance-usd').innerText = formatMoney(sum.donationBalance?.USD, 'USD');
     document.getElementById('dash-donation-balance-lrd').innerText = formatMoney(sum.donationBalance?.LRD, 'LRD');
-    if (data.access?.canManageFinances) document.getElementById('fin-actions-bar').style.display = 'flex';
+
+    // Tier 2 & 3: Detailed & Admin Views
+    if (isDet && data.detail) {
+      document.getElementById('fin-detailed-cards').style.display = 'block';
+      document.getElementById('dash-total-balance-usd').innerText = formatMoney(data.detail.totalFinancialBalance?.USD, 'USD');
+      document.getElementById('dash-total-balance-lrd').innerText = formatMoney(data.detail.totalFinancialBalance?.LRD, 'LRD');
+      document.getElementById('dash-total-expenses-usd').innerText = formatMoney(data.detail.totalExpenses?.USD, 'USD');
+      document.getElementById('dash-total-expenses-lrd').innerText = formatMoney(data.detail.totalExpenses?.LRD, 'LRD');
+
+      document.getElementById('fin-initiatives-section').style.display = 'block';
+      document.getElementById('initiatives-table-body').innerHTML = (data.detail.initiatives || []).map(i => `
+        <tr><td>${escapeHtml(i.name)}</td><td>${i.currency}</td><td>${formatMoney(i.amountReceived, i.currency)}</td><td>${formatMoney(i.totalExpenses, i.currency)}</td><td><strong>${formatMoney(i.currentBalance, i.currency)}</strong></td></tr>
+      `).join('');
+    }
+
+    if (isFull && data.auditTrail) {
+      document.getElementById('fin-ledger-section').style.display = 'block';
+      document.getElementById('ledger-table-body').innerHTML = data.auditTrail.map(r => `
+        <tr><td>${new Date(r.timestamp).toLocaleDateString()}</td><td>${r.user}</td><td>${r.category}</td><td>${formatMoney(r.amount, r.currency)}</td><td>${escapeHtml(r.description || '')}</td></tr>
+      `).join('');
+    }
   }
 
-  // ---------- CHATS ----------
+  // ---------- VOICE MESSAGING (RESTORED) ----------
+  async function startVoiceRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.start();
+
+      recordingSeconds = 0;
+      document.getElementById('voice-record-panel').style.display = 'flex';
+      document.getElementById('voice-mic-btn').style.display = 'none';
+
+      recordingInterval = setInterval(() => {
+        recordingSeconds++;
+        const mins = Math.floor(recordingSeconds / 60);
+        const secs = recordingSeconds % 60;
+        document.getElementById('voice-record-timer').innerText = `🔴 Recording: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+      }, 1000);
+    } catch (e) {
+      alert('Microphone access denied or not available.');
+    }
+  }
+
+  function cancelVoiceRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    clearInterval(recordingInterval);
+    document.getElementById('voice-record-panel').style.display = 'none';
+    document.getElementById('voice-mic-btn').style.display = 'inline-block';
+  }
+
+  async function stopAndSendVoiceRecording() {
+    if (!mediaRecorder) return;
+    mediaRecorder.onstop = async () => {
+      clearInterval(recordingInterval);
+      document.getElementById('voice-record-panel').style.display = 'none';
+      document.getElementById('voice-mic-btn').style.display = 'inline-block';
+
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result.split(',')[1];
+        const up = await apiPost('uploadFile', { base64Data: base64, fileName: `voice_${Date.now()}.webm`, mimeType: 'audio/webm' });
+        if (up.directUrl) {
+          await apiPost('postMessage', {
+            channelId: activeChannelId,
+            name: currentUser.displayName || currentUser.name,
+            text: '🎤 Voice message',
+            type: 'voice',
+            link: up.directUrl
+          });
+          loadMessages();
+        }
+      };
+      reader.readAsDataURL(audioBlob);
+    };
+    mediaRecorder.stop();
+  }
+
+  // ---------- CHATS & MESSAGES ----------
   async function loadChats() {
     const channels = await cachedFetch('channels', 'channels');
     document.getElementById('chats-list').innerHTML = (Array.isArray(channels) ? channels : []).map(c => `
@@ -961,21 +1200,25 @@
     loadMessages();
   }
   function backToChatList() { document.getElementById('chat-room-view').style.display = 'none'; document.getElementById('chat-list-view').style.display = 'block'; loadChats(); }
+  
   async function loadMessages() {
     const msgs = await cachedFetch(`messages&channelId=${activeChannelId}`, `msgs_${activeChannelId}`);
     document.getElementById('chat-messages').innerHTML = (Array.isArray(msgs) ? msgs : []).map(m => {
       const isMine = m.email === currentUser.email;
+      const isVoice = m.type === 'voice' && m.link;
+
       return `
         <div class="msg-row ${isMine ? 'mine' : 'other'}">
           <div class="msg-bubble">
             <div style="font-size:10.5px; font-weight:700; opacity:0.8;">${escapeHtml(m.name)}</div>
-            <div>${escapeHtml(m.text)}</div>
+            ${isVoice ? `<audio controls src="${m.link}" style="max-width:200px; height:32px; margin-top:4px;"></audio>` : `<div>${escapeHtml(m.text)}</div>`}
           </div>
         </div>
       `;
     }).join('');
     document.getElementById('chat-messages').scrollTop = 99999;
   }
+
   async function sendMessage() {
     const input = document.getElementById('chat-input');
     if (!input.value.trim()) return;
@@ -988,68 +1231,31 @@
     backToChatList();
   }
 
-  // ---------- PROFILES ----------
-  async function loadAllProfiles() {
-    allTeamProfiles = await cachedFetch('profiles', 'profiles');
-    if (Array.isArray(allTeamProfiles)) {
-      document.getElementById('bottom-team-row').innerHTML = allTeamProfiles.map(p => `
-        <div class="bottom-team-item" onclick="startDirectMessage('${p.email}')">
-          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 38)}
-          <div class="bottom-team-name">${escapeHtml(p.preferredName || p.name.split(' ')[0])}</div>
-        </div>
-      `).join('');
-      document.getElementById('settings-users-list').innerHTML = allTeamProfiles.map(p => `
-        <div style="display:flex; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line);">
-          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 28)}
-          <div><strong>${escapeHtml(p.displayName || p.name)}</strong> — <span style="color:var(--muted);">${escapeHtml(p.currentPosition || 'Staff')}</span></div>
-        </div>
-      `).join('');
-    }
+  // ---------- PROGRAMS & IMPACT ----------
+  async function loadPrograms() {
+    const data = await cachedFetch('programs', 'programs');
+    document.getElementById('programs-container').innerHTML = (Array.isArray(data) ? data : []).map(p => `
+      <div class="program-card">
+        <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${escapeHtml(p.shortCode || 'CORE')}</span>
+        <h4 style="margin:4px 0 6px; color:var(--navy-text);">${escapeHtml(p.title)}</h4>
+        <p style="font-size:12.5px; margin:4px 0;">${escapeHtml(p.description)}</p>
+        <div style="font-size:11px; color:var(--muted);">Target: <strong>${escapeHtml(p.targetBeneficiaries || 'Community')}</strong></div>
+      </div>
+    `).join('');
   }
 
-  async function startDirectMessage(email) {
-    if (email === currentUser.email) return;
-    const res = await apiPost('getOrCreateDM', { emailB: email });
-    if (res.success && res.channelId) {
-      openFullChatsTab();
-      openChatRoom(res.channelId, email);
-    }
-  }
-
-  // ---------- SETTINGS UTILS & FCM ----------
+  // ---------- SETTINGS & UTILS ----------
   function applyFontSize(s) { document.documentElement.style.setProperty('--app-font-size', s); }
   function applyBrightness(v) { document.documentElement.style.setProperty('--app-brightness', v + '%'); }
   function applyTheme(t) { if (t === 'teal') document.body.removeAttribute('data-theme'); else document.body.setAttribute('data-theme', t); }
 
-  async function enableLiveNotifications() {
-    if ('Notification' in window) {
-      const perm = await Notification.requestPermission();
-      if (perm === 'granted') {
-        const mockToken = 'fcm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        await apiPost('saveFcmToken', { token: mockToken });
-        document.getElementById('fcm-status').innerText = '✅ Live notifications enabled and synced!';
-      } else {
-        document.getElementById('fcm-status').innerText = '⚠️ Permission denied';
-      }
-    }
-  }
-
-  async function saveProfileSettings() {
-    const payload = {
-      name: document.getElementById('settings-full-name').value.trim(),
-      bio: document.getElementById('settings-bio').value.trim(),
-      phone: document.getElementById('settings-phone').value.trim(),
-      prefix: document.getElementById('settings-prefix').value,
-      preferredName: document.getElementById('settings-preferred-name').value.trim(),
-      currentPosition: document.getElementById('settings-position').value.trim(),
-      county: document.getElementById('settings-county').value.trim()
-    };
-    const res = await apiPost('updateProfile', payload);
-    if (res.success) {
-      currentUser = { ...currentUser, ...payload, displayName: res.displayName };
-      document.getElementById('user-display').innerText = currentUser.displayName;
-      alert('Profile saved!');
-    }
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
   function escapeHtml(str) {
