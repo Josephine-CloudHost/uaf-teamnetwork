@@ -426,7 +426,7 @@
         <div class="contacts-table-wrap">
           <table class="contacts-table">
             <thead>
-              <tr>
+               <tr>
                 <th>S.No</th>
                 <th>Name</th>
                 <th>Institution</th>
@@ -435,6 +435,7 @@
                 <th>Email</th>
                 <th>Address</th>
                 <th>Active</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="contacts-table-body"></tbody>
@@ -794,7 +795,36 @@
         <option value="Community Partner">Community Partner</option>
       </select>
     </div>
-       
+
+    <!-- EDIT CONTACT MODAL (Admin/Executive Director only) -->
+<div class="modal" id="modal-edit-contact">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Edit Contact</h3>
+    <input type="hidden" id="edit-con-id">
+    <div class="field"><label>Full Name / Contact Person</label><input type="text" id="edit-con-name"></div>
+    <div class="field">
+      <label>Category</label>
+      <select id="edit-con-category">
+        <option value="Team Member">Team Member</option>
+        <option value="Organization">Organization / INGO</option>
+        <option value="Supporter">Supporter</option>
+        <option value="Government">Government / Ministry</option>
+        <option value="School">School</option>
+        <option value="Donor">Donor / Funder</option>
+        <option value="Beneficiary">Beneficiary</option>
+        <option value="Individual">Individual</option>
+        <option value="Community Partner">Community Partner</option>
+      </select>
+    </div>
+    <div class="field"><label>Institution / Organization Name</label><input type="text" id="edit-con-institution"></div>
+    <div class="field"><label>Telephone Number</label><input type="text" id="edit-con-phone"></div>
+    <div class="field"><label>Email Address</label><input type="email" id="edit-con-email"></div>
+    <div class="field"><label>Physical Address / County</label><input type="text" id="edit-con-address"></div>
+    <button class="btn" onclick="submitEditContact()">Save Changes</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-edit-contact')">Cancel</button>
+  </div>
+</div>
+    
     <div class="field"><label>Institution / Organization Name</label><input type="text" id="con-institution"></div>
     <div class="field"><label>Telephone Number</label><input type="text" id="con-phone"></div>
     <div class="field"><label>Email Address</label><input type="email" id="con-email"></div>
@@ -1197,9 +1227,10 @@
     renderContactsList(allContacts);
   }
 
-  function renderContactsList(list) {
+ function renderContactsList(list) {
   const tbody = document.getElementById('contacts-table-body');
   const canManage = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
+  const canEdit = currentUser && currentUser.isSuperAdmin;
   tbody.innerHTML = list.map((c, idx) => `
     <tr>
       <td>${idx + 1}</td>
@@ -1215,6 +1246,9 @@
           <span class="contact-toggle-slider"></span>
         </label>
         <span class="contact-status-label" style="color:${c.active ? '#16A34A' : '#94A3B8'}">${c.active ? 'On' : 'Off'}</span>
+      </td>
+      <td>
+        ${canEdit ? `<button class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px;" onclick="openEditContactModal('${c.id}')">Edit</button>` : '—'}
       </td>
     </tr>
   `).join('');
@@ -1252,6 +1286,39 @@ async function toggleContactStatus(contactId, active) {
     loadContacts();
   }
 
+    function openEditContactModal(contactId) {
+    const c = allContacts.find(x => x.id === contactId);
+    if (!c) return;
+    document.getElementById('edit-con-id').value = c.id;
+    document.getElementById('edit-con-name').value = c.name || '';
+    document.getElementById('edit-con-category').value = c.category || 'Individual';
+    document.getElementById('edit-con-institution').value = c.institution || '';
+    document.getElementById('edit-con-phone').value = c.phone || '';
+    document.getElementById('edit-con-email').value = c.email || '';
+    document.getElementById('edit-con-address').value = c.address || '';
+    openModal('modal-edit-contact');
+  }
+
+  async function submitEditContact() {
+    const contactId = document.getElementById('edit-con-id').value;
+    const name = document.getElementById('edit-con-name').value.trim();
+    if (!name) { alert('Name is required'); return; }
+
+    const res = await apiPost('updateContact', {
+      contactId,
+      name,
+      category: document.getElementById('edit-con-category').value,
+      institution: document.getElementById('edit-con-institution').value.trim(),
+      phone: document.getElementById('edit-con-phone').value.trim(),
+      contactEmail: document.getElementById('edit-con-email').value.trim(),
+      address: document.getElementById('edit-con-address').value.trim()
+    });
+
+    if (res.error) { alert(res.error); return; }
+    closeModal('modal-edit-contact');
+    loadContacts();
+  }
+  
   async function submitMailingBroadcast() {
     const select = document.getElementById('mail-recipients-select');
     const selectedOptions = Array.from(select.selectedOptions).map(o => o.value);
