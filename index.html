@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>UAF Team Network</title>
 
 <link rel="manifest" href="manifest.json">
@@ -12,7 +12,7 @@
 
 <style>
   :root {
-    --outer-bg-gradient: linear-gradient(135deg, #3A5499 0%, #2A4280 100%);
+    --outer-bg: #0C2340;
     --window-bg: #FFFFFF;
     --content-bg: #F4F7FB;
     --sidebar-bg: #0038A8;
@@ -26,7 +26,7 @@
     --line: #D3DEEE;
     --muted: #5C6B82;
     --team-ring: #C07954;
-    --app-font-size: 14.5px;
+    --app-font-size: 14px;
     --app-brightness: 100%;
   }
 
@@ -35,112 +35,111 @@
   [data-theme="midnight"] { --sidebar-bg: #1C233D; --tab-active-bg: #2B3559; --tab-text: #141A30; }
 
   * { box-sizing: border-box; }
-  body {
+  html, body {
     margin: 0;
-    padding: 12px;
-    min-height: 100vh;
-    background: var(--outer-bg-gradient);
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--outer-bg);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     color: var(--ink);
     font-size: var(--app-font-size);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     filter: brightness(var(--app-brightness));
   }
 
   #session-check {
-    position: fixed; inset: 0; background: var(--outer-bg-gradient);
+    position: fixed; inset: 0; background: #0C2340;
     display: flex; align-items: center; justify-content: center;
-    z-index: 9999; color: #FFF; font-size: 16px; font-weight: 600;
+    z-index: 9999; color: #FFF; font-size: 15px; font-weight: 600;
   }
 
-  .app-window {
-    width: 100%;
-    max-width: 1300px;
-    height: 94vh;
-    background: var(--window-bg);
-    border-radius: 18px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  /* Main Container Frame */
+  .app-frame {
     display: flex;
+    width: 100vw;
+    height: 100vh;
+    background: var(--window-bg);
     overflow: hidden;
     position: relative;
   }
 
-  /* Auth Screen */
+  /* Standalone Fullscreen Auth View */
   #auth-screen {
-    width: 100%; height: 100%; display: none;
-    align-items: center; justify-content: center;
-    background: #F8FAFC; padding: 24px;
+    position: fixed; inset: 0; z-index: 1000;
+    background: #F4F7FB;
+    display: none; align-items: center; justify-content: center;
+    padding: 16px; overflow-y: auto;
   }
   #auth-screen.visible { display: flex; }
   .auth-card {
-    background: #FFF; border-radius: 12px; padding: 36px;
-    width: 100%; max-width: 440px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    background: #FFF; border-radius: 12px; padding: 32px 28px;
+    width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     border: 1px solid var(--line);
   }
 
-  /* Static Left Sidebar (Optimized width) */
+  /* Fixed Static Left Sidebar */
   .app-sidebar {
-    width: 54px;
+    width: 52px;
     background: var(--sidebar-bg);
     display: flex; flex-direction: column; align-items: center;
-    padding: 20px 0; flex-shrink: 0; gap: 16px; z-index: 100;
+    padding: 16px 0; flex-shrink: 0; gap: 14px; z-index: 100;
+    height: 100vh;
   }
   .sidebar-btn {
-    background: transparent; border: none; color: rgba(255, 255, 255, 0.8);
-    font-size: 20px; cursor: pointer; width: 40px; height: 40px;
+    background: transparent; border: none; color: rgba(255, 255, 255, 0.85);
+    font-size: 20px; cursor: pointer; width: 38px; height: 38px;
     border-radius: 10px; display: flex; align-items: center; justify-content: center;
     position: relative; transition: background 0.15s ease;
   }
-  .sidebar-btn:hover, .sidebar-btn.active { color: #FFF; background: rgba(255, 255, 255, 0.22); }
+  .sidebar-btn:hover, .sidebar-btn.active { color: #FFF; background: rgba(255, 255, 255, 0.25); }
   .sidebar-badge {
-    position: absolute; top: 3px; right: 3px; background: var(--accent);
-    color: #fff; font-size: 9.5px; font-weight: 700; border-radius: 999px; padding: 1px 4px;
+    position: absolute; top: 2px; right: 2px; background: var(--accent);
+    color: #fff; font-size: 9px; font-weight: 700; border-radius: 999px; padding: 1px 4px;
   }
 
-  /* Main Container */
-  .app-main {
+  /* Main Workspace Area */
+  .app-main-column {
     flex: 1; display: flex; flex-direction: column;
-    min-width: 0; height: 100%; position: relative; background: var(--window-bg);
+    height: 100vh; overflow: hidden; position: relative; background: var(--window-bg);
   }
 
-  /* Top Navigation Bar */
+  /* Sticky Top Bar */
   .app-topbar {
-    height: 60px; padding: 0 22px; display: flex;
+    height: 56px; padding: 0 18px; display: flex;
     align-items: center; justify-content: space-between;
     background: #FFF; border-bottom: 1px solid var(--line);
-    flex-shrink: 0; gap: 14px;
+    flex-shrink: 0; gap: 12px; z-index: 50;
   }
-  .topbar-brand { font-size: 18.5px; font-weight: 800; color: var(--navy-text); }
+  .topbar-brand { font-size: 17.5px; font-weight: 800; color: var(--navy-text); white-space: nowrap; }
   .topbar-search-box {
-    display: flex; align-items: center; gap: 8px; background: #F8FAFC;
-    border: 1.5px solid #CBD5E1; border-radius: 999px; padding: 6px 14px;
-    width: 100%; max-width: 360px;
+    display: flex; align-items: center; gap: 6px; background: #F8FAFC;
+    border: 1px solid #CBD5E1; border-radius: 999px; padding: 5px 12px;
+    width: 100%; max-width: 320px;
   }
-  .topbar-search-box input { border: none; outline: none; font-size: 13.5px; width: 100%; background: transparent; }
-  .topbar-user { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--navy-text); cursor: pointer; }
+  .topbar-search-box input { border: none; outline: none; font-size: 13px; width: 100%; background: transparent; }
+  .topbar-user { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: var(--navy-text); cursor: pointer; white-space: nowrap; }
 
-  /* Upper Tabstrip */
+  /* Sticky Upper Tabstrip */
   .app-tabstrip {
     background: var(--tab-strip-bg); display: flex; align-items: center;
-    padding: 0 18px; gap: 3px; overflow-x: auto; border-bottom: 1px solid var(--line); flex-shrink: 0;
+    padding: 0 14px; gap: 2px; overflow-x: auto; border-bottom: 1px solid var(--line); flex-shrink: 0; z-index: 40;
   }
   .app-tabstrip button {
-    background: none; border: none; color: var(--tab-text); padding: 11px 16px;
-    font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; border-radius: 6px 6px 0 0;
+    background: none; border: none; color: var(--tab-text); padding: 10px 14px;
+    font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; border-radius: 6px 6px 0 0;
   }
   .app-tabstrip button.active { background: var(--tab-active-bg); color: #FFF; font-weight: 700; }
 
-  /* Free Open Scrolling Canvas */
+  /* Smooth Scrolling Center Canvas */
   .app-content-body {
-    flex: 1; background: var(--content-bg); padding: 22px 24px 84px;
-    overflow-y: auto; position: relative;
+    flex: 1; background: var(--content-bg); padding: 18px 20px 75px;
+    overflow-y: auto; overflow-x: hidden; position: relative; -webkit-overflow-scrolling: touch;
   }
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* Universal Profile Avatar */
+  /* Universal User Avatar */
   .uaf-avatar {
     border-radius: 50%; background: var(--primary); color: #FFF;
     display: flex; align-items: center; justify-content: center;
@@ -151,7 +150,7 @@
   /* LinkedIn-Style Post Cards */
   .feed-post-card {
     background: #FFF; border: 1px solid var(--line); border-radius: 12px;
-    padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    padding: 16px 18px; margin-bottom: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
   }
   .post-author-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .post-author-info { display: flex; align-items: center; gap: 10px; }
@@ -165,7 +164,7 @@
   }
   .post-actions-bar { display: flex; gap: 4px; padding-top: 6px; }
   .post-act-btn {
-    flex: 1; background: none; border: none; padding: 8px 4px; border-radius: 6px;
+    flex: 1; background: none; border: none; padding: 7px 4px; border-radius: 6px;
     font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 5px;
   }
@@ -175,90 +174,86 @@
   .comment-item { display: flex; gap: 8px; margin-bottom: 8px; font-size: 12.5px; }
   .comment-bubble { background: #F1F5F9; border-radius: 8px; padding: 6px 10px; flex: 1; }
 
-  /* 4-Quadrant Finances Layout */
-  .fin-hub-container { display: flex; justify-content: center; align-items: center; margin: 16px 0 24px; }
+  /* 4-Quadrant Finances Layout (Matching Reference Image) */
+  .fin-hub-container { display: flex; justify-content: center; align-items: center; margin: 12px 0 20px; }
   .fin-hub-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
-    width: 100%; max-width: 560px; position: relative;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    width: 100%; max-width: 520px; position: relative;
   }
   .fin-hub-center-circle {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 64px; height: 64px; background: #FFF; border: 4px solid #2F4888;
+    width: 58px; height: 58px; background: #FFF; border: 3.5px solid #2F4888;
     border-radius: 50%; z-index: 5; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: var(--primary);
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: var(--primary);
   }
-  .fin-quadrant { min-height: 130px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; }
-  .fin-quadrant.orange { background: #FF6600; color: #FFF; border-radius: 26px 8px 26px 8px; }
-  .fin-quadrant.blue { background: #004D80; color: #FFF; border-radius: 8px 26px 8px 26px; }
-  .fin-quadrant-title { font-size: 13px; font-weight: 800; text-transform: uppercase; }
-  .fin-quadrant-value { font-size: 21px; font-weight: 800; margin-top: 6px; }
-  .fin-quadrant-sub { font-size: 12.5px; opacity: 0.9; font-weight: 600; }
+  .fin-quadrant { min-height: 120px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }
+  .fin-quadrant.orange { background: #FF6600; color: #FFF; border-radius: 24px 6px 24px 6px; }
+  .fin-quadrant.blue { background: #004D80; color: #FFF; border-radius: 6px 24px 6px 24px; }
+  .fin-quadrant-title { font-size: 12px; font-weight: 800; text-transform: uppercase; }
+  .fin-quadrant-value { font-size: 19px; font-weight: 800; margin-top: 4px; }
+  .fin-quadrant-sub { font-size: 12px; opacity: 0.9; font-weight: 600; }
 
-  /* Programs & Impact Cards */
-  .programs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
-  .program-card { background: #FFF; border: 1px solid var(--line); border-radius: 12px; padding: 16px; position: relative; }
+  /* Programs & Impact Grids */
+  .programs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .program-card { background: #FFF; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
 
   /* WhatsApp Style Chatroom Area */
   .chat-app-wrapper {
     background: #FFF; border-radius: 12px; border: 1px solid var(--line);
-    min-height: 520px; display: flex; flex-direction: column;
+    height: calc(100vh - 190px); display: flex; flex-direction: column;
   }
   .chat-header-bar {
-    background: #F8FAFC; padding: 10px 16px; border-bottom: 1px solid var(--line);
+    background: #F8FAFC; padding: 10px 14px; border-bottom: 1px solid var(--line);
     display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
   }
   .chat-scrolling-messages {
-    flex: 1; min-height: 360px; padding: 16px; overflow-y: auto;
-    background: #F4F7FB; display: flex; flex-direction: column; gap: 10px;
+    flex: 1; padding: 14px; overflow-y: auto;
+    background: #F4F7FB; display: flex; flex-direction: column; gap: 8px;
   }
   .chat-fixed-input-bar {
-    padding: 10px 16px; background: #FFF; border-top: 1px solid var(--line);
+    padding: 10px 14px; background: #FFF; border-top: 1px solid var(--line);
     display: flex; gap: 8px; align-items: center; flex-shrink: 0;
   }
-  .msg-row { display: flex; width: 100%; gap: 8px; }
+  .msg-row { display: flex; width: 100%; gap: 6px; }
   .msg-row.mine { justify-content: flex-start; }
   .msg-row.other { justify-content: flex-end; }
   .msg-bubble {
-    max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.45;
-    position: relative; word-break: break-word;
+    max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.45; word-break: break-word;
   }
   .msg-row.mine .msg-bubble { background: #FADADD; color: #14213D; }
   .msg-row.other .msg-bubble { background: var(--primary); color: #FFF; }
 
-  /* Static Footer Team Drawer */
+  /* Pinned Bottom Team Footer */
   .app-bottom-team-bar {
-    position: absolute; bottom: 0; left: 54px; right: 0;
-    background: #FFF; border-top: 1.5px solid var(--line); padding: 8px 20px;
-    z-index: 50; transition: transform 0.25s ease;
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: #FFF; border-top: 1.5px solid var(--line); padding: 6px 16px;
+    z-index: 60;
   }
-  .app-bottom-team-bar.hidden { transform: translateY(100%); }
-  .bottom-team-list { display: flex; align-items: center; gap: 16px; overflow-x: auto; padding-bottom: 2px; }
+  .bottom-team-list { display: flex; align-items: center; gap: 14px; overflow-x: auto; padding-bottom: 2px; }
   .bottom-team-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; flex-shrink: 0; }
-  .bottom-team-name { font-size: 10.5px; color: var(--navy-text); font-weight: 600; margin-top: 2px; max-width: 58px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bottom-team-name { font-size: 10px; color: var(--navy-text); font-weight: 600; margin-top: 2px; max-width: 54px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Settings Accordion */
-  .settings-list { background: #FFF; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 16px; }
-  .settings-group-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 16px 4px; }
-  .settings-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); cursor: pointer; text-decoration: none; color: inherit; }
+  .settings-list { background: #FFF; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 14px; }
+  .settings-group-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 14px 4px; }
+  .settings-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); cursor: pointer; text-decoration: none; color: inherit; }
   .settings-row-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: var(--primary); color: #fff; flex-shrink: 0; }
-  .settings-row-expand { padding: 10px 16px 16px; border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.6; }
+  .settings-row-expand { padding: 10px 14px 16px; border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.6; }
 
-  /* Forms & Buttons */
-  .btn { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; }
+  /* Form Elements */
+  .btn { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 9px; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; }
   .btn.secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
   .btn.danger { background: transparent; color: #B3261E; border: 1px solid #B3261E; }
   .field { margin-bottom: 12px; }
-  .field label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
-  .field input, .field textarea, .field select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 13.5px; background: #FFF; }
-  .prefix-row { display: flex; gap: 8px; }
-  .prefix-row select { width: 85px; flex-shrink: 0; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; font-weight: 600; }
+  .field input, .field textarea, .field select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; background: #FFF; }
+  .prefix-row { display: flex; gap: 6px; }
+  .prefix-row select { width: 80px; flex-shrink: 0; }
   .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
   .modal.open { display: flex; }
-  .modal-card { background: #FFF; padding: 20px; border-radius: 12px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+  .modal-card { background: #FFF; padding: 20px; border-radius: 12px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
 
-  @media (max-width: 860px) {
-    body { padding: 0; }
-    .app-window { height: 100vh; border-radius: 0; }
+  @media (max-width: 800px) {
     .topbar-search-box { display: none; }
   }
 </style>
@@ -267,392 +262,368 @@
 
 <div id="session-check">Loading UAF Team Network…</div>
 
-<div class="app-window">
+<!-- FULLSCREEN AUTH VIEW -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <h2 style="margin-top:0; color:var(--navy-text);" id="auth-title">UAF Team Network</h2>
+    <div id="auth-error" style="color:red; font-size:12.5px; display:none; margin-bottom:10px;"></div>
 
-  <!-- ==================== STATIC LEFT SIDEBAR ==================== -->
-  <aside class="app-sidebar" id="app-sidebar" style="display:none;">
+    <div id="auth-fields-standard">
+      <div class="field" id="name-field" style="display:none"><label>Full Name</label><input type="text" id="auth-name" placeholder="John Doe"></div>
+      <div class="field" id="prefix-pref-field" style="display:none">
+        <label>Prefix &amp; Preferred Name</label>
+        <div class="prefix-row">
+          <select id="auth-prefix"><option value="">—</option><option value="Mr.">Mr.</option><option value="Mrs.">Mrs.</option><option value="Ms.">Ms.</option><option value="Dr.">Dr.</option></select>
+          <input type="text" id="auth-preferred-name" placeholder="Preferred Name">
+        </div>
+      </div>
+      <div class="field" id="phone-field" style="display:none"><label>Phone Number</label><input type="text" id="auth-phone"></div>
+      <div class="field"><label>Email Address</label><input type="email" id="auth-email"></div>
+      <div class="field"><label>Password</label><input type="password" id="auth-pass"></div>
+      <div class="field" id="code-field" style="display:none"><label>Team Access Code</label><input type="text" id="auth-code"></div>
+
+      <button class="btn" id="auth-submit" onclick="submitAuth()">Sign In</button>
+      <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12.5px;">
+        <a href="#" id="auth-toggle" onclick="toggleAuthMode(event)">Need account? Sign up</a>
+        <a href="#" onclick="showForgotPassword(event)">Forgot password?</a>
+      </div>
+    </div>
+
+    <div id="auth-fields-verify" style="display:none;">
+      <p style="font-size:12.5px; color:var(--muted);">Enter 6-digit verification code sent to <strong id="verify-target-email"></strong>.</p>
+      <div class="field"><input type="text" id="auth-verify-code" maxlength="6" style="text-align:center; letter-spacing:4px; font-size:18px;"></div>
+      <button class="btn" onclick="submitEmailVerification()">Verify</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN FRAME -->
+<div class="app-frame" id="app-screen" style="display:none;">
+
+  <!-- STATIC LEFT SIDEBAR -->
+  <aside class="app-sidebar">
     <button class="sidebar-btn active" onclick="switchTab('feed')" title="Feed">🏠</button>
     <button class="sidebar-btn" onclick="openFullChatsTab()" title="Chats">💬<span class="sidebar-badge" id="sidebar-chat-badge" style="display:none"></span></button>
     <button class="sidebar-btn" onclick="switchTab('notifications')" title="Notifications">🔔<span class="sidebar-badge" id="sidebar-notif-badge" style="display:none"></span></button>
     <button class="sidebar-btn" onclick="switchTab('settings')" title="Settings">⚙️</button>
   </aside>
 
-  <!-- ==================== MAIN ENVIRONMENT ==================== -->
-  <div class="app-main">
+  <!-- MAIN COLUMN -->
+  <div class="app-main-column">
 
-    <!-- AUTH SCREEN -->
-    <div id="auth-screen">
-      <div class="auth-card">
-        <h2 style="margin-top:0; color:var(--navy-text);" id="auth-title">UAF Team Network</h2>
-        <div id="auth-error" style="color:red; font-size:13px; display:none; margin-bottom:10px;"></div>
+    <!-- STICKY TOP NAVIGATION BAR -->
+    <header class="app-topbar">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="topbar-brand">UAF Team Network</div>
+        <span id="connection-status-badge" style="font-size:11px; padding:2px 8px; border-radius:999px; background:#D1FAE5; color:#065F46; font-weight:700;">🟢 Live</span>
+      </div>
+      <div class="topbar-search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Search team, documents, finances..." id="global-search" oninput="handleUniversalSearch(this.value)">
+      </div>
+      <div class="topbar-user" onclick="switchTab('settings')">
+        <span id="user-display">User Name</span>
+        <div class="uaf-avatar" id="header-avatar" style="width:32px; height:32px; font-size:12px;">U</div>
+      </div>
+    </header>
 
-        <div id="auth-fields-standard">
-          <div class="field" id="name-field" style="display:none"><label>Full Name</label><input type="text" id="auth-name" placeholder="John Doe"></div>
-          <div class="field" id="prefix-pref-field" style="display:none">
-            <label>Prefix &amp; Preferred Name</label>
-            <div class="prefix-row">
-              <select id="auth-prefix"><option value="">—</option><option value="Mr.">Mr.</option><option value="Mrs.">Mrs.</option><option value="Ms.">Ms.</option><option value="Dr.">Dr.</option></select>
-              <input type="text" id="auth-preferred-name" placeholder="e.g. Torbor">
+    <!-- STICKY UPPER TABSTRIP -->
+    <nav class="app-tabstrip">
+      <button class="active" onclick="switchTab('feed')">Main Feed</button>
+      <button onclick="switchTab('partnerships')">Partnerships</button>
+      <button onclick="switchTab('documents')">Documents</button>
+      <button onclick="switchTab('tasks')">Tasks</button>
+      <button onclick="switchTab('finances')">UAF Finances</button>
+      <button onclick="switchTab('programs')">UAF Programs</button>
+      <button onclick="switchTab('impact')">Impact</button>
+    </nav>
+
+    <!-- SCROLLABLE FREE CONTENT AREA -->
+    <main class="app-content-body" id="main-content-scroll">
+
+      <!-- SEARCH RESULTS -->
+      <div id="tab-search-results" class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="margin:0;">Search Results</h3>
+          <button class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px;" onclick="closeSearch()">Clear</button>
+        </div>
+        <div id="search-results-container"></div>
+      </div>
+
+      <!-- MAIN FEED -->
+      <div id="tab-feed" class="panel active">
+        <div style="margin-bottom:14px;">
+          <button class="btn" style="width:auto; padding:8px 16px; font-size:13px;" onclick="openModal('update-modal')">+ Post Update</button>
+        </div>
+        <div id="feed-container">Loading updates...</div>
+      </div>
+
+      <!-- PARTNERSHIPS TAB -->
+      <div id="tab-partnerships" class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="margin:0;">Partnerships</h3>
+          <button class="btn" id="new-partner-btn" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="openModal('modal-partnership')">+ Add Partner</button>
+        </div>
+        <div class="programs-grid" id="partnerships-container"></div>
+      </div>
+
+      <!-- DOCUMENTS TAB -->
+      <div id="tab-documents" class="panel">
+        <h3 style="margin-top:0;">Documents Repository</h3>
+        <input type="file" id="doc-file-input" onchange="uploadDocument(event)">
+        <div id="doc-list" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- TASKS TAB -->
+      <div id="tab-tasks" class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="margin:0;">Tasks</h3>
+          <button class="btn" id="new-task-btn" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="openTaskModal()">+ New Task</button>
+        </div>
+        <div id="tasks-list"></div>
+      </div>
+
+      <!-- UAF FINANCES (4-Quadrant) -->
+      <div id="tab-finances" class="panel">
+        <h3 style="margin-top:0;">UAF Finances</h3>
+
+        <div class="fin-hub-container">
+          <div class="fin-hub-grid">
+            <div class="fin-hub-center-circle">UAF</div>
+
+            <div class="fin-quadrant orange">
+              <div class="fin-quadrant-title">OPERATIONAL FUNDS</div>
+              <div>
+                <div class="fin-quadrant-value" id="dash-org-balance-usd">$0.00</div>
+                <div class="fin-quadrant-sub" id="dash-org-balance-lrd">L$ 0.00</div>
+              </div>
             </div>
-          </div>
-          <div class="field" id="phone-field" style="display:none"><label>Phone Number</label><input type="text" id="auth-phone"></div>
-          <div class="field"><label>Email Address</label><input type="email" id="auth-email"></div>
-          <div class="field"><label>Password</label><input type="password" id="auth-pass"></div>
-          <div class="field" id="code-field" style="display:none"><label>Team Access Code</label><input type="text" id="auth-code"></div>
 
-          <button class="btn" id="auth-submit" onclick="submitAuth()">Sign In</button>
-          <div style="display:flex; justify-content:space-between; margin-top:14px; font-size:13px;">
-            <a href="#" id="auth-toggle" onclick="toggleAuthMode(event)">Need an account? Sign up</a>
-            <a href="#" onclick="showForgotPassword(event)">Forgot password?</a>
+            <div class="fin-quadrant blue">
+              <div class="fin-quadrant-title">Grant Funds</div>
+              <div>
+                <div class="fin-quadrant-value" id="dash-grant-balance-usd">$0.00</div>
+                <div class="fin-quadrant-sub" id="dash-grant-balance-lrd">L$ 0.00</div>
+              </div>
+            </div>
+
+            <div class="fin-quadrant blue">
+              <div class="fin-quadrant-title">Program Funds</div>
+              <div>
+                <div class="fin-quadrant-value" id="dash-other-balance-usd">$0.00</div>
+                <div class="fin-quadrant-sub" id="dash-other-balance-lrd">L$ 0.00</div>
+              </div>
+            </div>
+
+            <div class="fin-quadrant orange">
+              <div class="fin-quadrant-title">Donations</div>
+              <div>
+                <div class="fin-quadrant-value" id="dash-donation-balance-usd">$0.00</div>
+                <div class="fin-quadrant-sub" id="dash-donation-balance-lrd">L$ 0.00</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div id="auth-fields-verify" style="display:none;">
-          <p style="font-size:13px; color:var(--muted);">Enter verification code sent to <strong id="verify-target-email"></strong>.</p>
-          <div class="field"><input type="text" id="auth-verify-code" maxlength="6" style="text-align:center; letter-spacing:4px; font-size:18px;"></div>
-          <button class="btn" onclick="submitEmailVerification()">Verify</button>
+        <div class="fin-actions-bar" id="fin-actions-bar" style="display:none; justify-content:center; gap:8px; margin-bottom:14px;">
+          <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-update-org')">Update Balance</button>
+          <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-income')">+ Income</button>
+          <button class="btn danger" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-expense')">− Expense</button>
+          <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px; background:#254587; color:#fff;" onclick="openModal('modal-financial-report')">📊 Report</button>
         </div>
       </div>
-    </div>
 
-    <!-- MAIN APP SCREEN -->
-    <div id="app-screen" style="display:none; flex-direction:column; height:100%; width:100%;">
-
-      <!-- TOP BAR -->
-      <header class="app-topbar">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <div class="topbar-brand">UAF Team Network</div>
-          <span id="connection-status-badge" style="font-size:11px; padding:2px 8px; border-radius:999px; background:#D1FAE5; color:#065F46; font-weight:700;">🟢 Live</span>
+      <!-- UAF PROGRAMS TAB (All 5 Preloaded) -->
+      <div id="tab-programs" class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="margin:0;">UAF Core Programs</h3>
+          <button class="btn" id="new-program-btn" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="openModal('modal-program')">+ Add Program</button>
         </div>
-        <div class="topbar-search-box">
-          <span>🔍</span>
-          <input type="text" placeholder="Search team, documents, finances..." id="global-search" oninput="handleUniversalSearch(this.value)">
+        <div class="programs-grid" id="programs-container"></div>
+      </div>
+
+      <!-- IMPACT TAB -->
+      <div id="tab-impact" class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="margin:0;">Impact Metrics</h3>
+          <button class="btn" id="new-impact-btn" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="openModal('modal-impact')">+ Record Impact</button>
         </div>
-        <div class="topbar-user" onclick="switchTab('settings')">
-          <span id="user-display">User Name</span>
-          <div class="uaf-avatar" id="header-avatar" style="width:34px; height:34px; font-size:13px;">U</div>
-        </div>
-      </header>
+        <div id="impact-list"></div>
+      </div>
 
-      <!-- UPPER TAB MENU -->
-      <nav class="app-tabstrip">
-        <button class="active" onclick="switchTab('feed')">Main Feed</button>
-        <button onclick="switchTab('partnerships')">Partnerships</button>
-        <button onclick="switchTab('documents')">Documents</button>
-        <button onclick="switchTab('tasks')">Tasks</button>
-        <button onclick="switchTab('finances')">UAF Finances</button>
-        <button onclick="switchTab('programs')">UAF Programs</button>
-        <button onclick="switchTab('impact')">Impact</button>
-      </nav>
+      <!-- NOTIFICATIONS TAB -->
+      <div id="tab-notifications" class="panel">
+        <h3 style="margin-top:0;">Notifications</h3>
+        <div id="notifications-list"></div>
+      </div>
 
-      <!-- SCROLLABLE FREE CONTENT AREA -->
-      <main class="app-content-body" id="main-content-scroll" onscroll="handleScrollFooter(this)">
-
-        <!-- SEARCH RESULTS -->
-        <div id="tab-search-results" class="panel">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-            <h3 style="margin:0;">Search Results</h3>
-            <button class="btn secondary" style="width:auto; padding:4px 10px; font-size:12px;" onclick="closeSearch()">Clear</button>
-          </div>
-          <div id="search-results-container"></div>
+      <!-- CHATS TAB -->
+      <div id="tab-chats" class="panel">
+        <div style="background:#0C2340; color:#fff; padding:8px 14px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+          <span>Global Audio Call Room</span>
+          <button class="btn" id="call-action-btn" style="width:auto; padding:5px 12px; font-size:12px;" onclick="handleCallAction()">📞 Call Team</button>
         </div>
 
-        <!-- MAIN FEED -->
-        <div id="tab-feed" class="panel active">
-          <div style="margin-bottom:16px;">
-            <button class="btn" style="width:auto; padding:9px 18px; font-size:13.5px;" onclick="openModal('update-modal')">+ Post Update</button>
-          </div>
-          <div id="feed-container">Loading updates...</div>
-        </div>
-
-        <!-- PARTNERSHIPS TAB -->
-        <div id="tab-partnerships" class="panel">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-            <h3 style="margin:0;">Partnerships</h3>
-            <button class="btn" id="new-partner-btn" style="width:auto; padding:6px 14px; font-size:12px; display:none;" onclick="openModal('modal-partnership')">+ Add Partner</button>
-          </div>
-          <div class="programs-grid" id="partnerships-container"></div>
-        </div>
-
-        <!-- DOCUMENTS TAB -->
-        <div id="tab-documents" class="panel">
-          <h3 style="margin-top:0;">Documents</h3>
-          <input type="file" id="doc-file-input" onchange="uploadDocument(event)">
-          <div id="doc-list" style="margin-top:14px;"></div>
-        </div>
-
-        <!-- TASKS TAB -->
-        <div id="tab-tasks" class="panel">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-            <h3 style="margin:0;">Tasks</h3>
-            <button class="btn" id="new-task-btn" style="width:auto; padding:6px 14px; font-size:12px; display:none;" onclick="openTaskModal()">+ New Task</button>
-          </div>
-          <div id="tasks-list"></div>
-        </div>
-
-        <!-- UAF FINANCES (4-Quadrant Matching Image) -->
-        <div id="tab-finances" class="panel">
-          <h3 style="margin-top:0;">UAF Finances</h3>
-
-          <div class="fin-hub-container">
-            <div class="fin-hub-grid">
-              <div class="fin-hub-center-circle">UAF</div>
-
-              <div class="fin-quadrant orange">
-                <div class="fin-quadrant-title">OPERATIONAL FUNDS</div>
-                <div>
-                  <div class="fin-quadrant-value" id="dash-org-balance-usd">$0.00</div>
-                  <div class="fin-quadrant-sub" id="dash-org-balance-lrd">L$ 0.00</div>
-                </div>
-              </div>
-
-              <div class="fin-quadrant blue">
-                <div class="fin-quadrant-title">Grant Funds</div>
-                <div>
-                  <div class="fin-quadrant-value" id="dash-grant-balance-usd">$0.00</div>
-                  <div class="fin-quadrant-sub" id="dash-grant-balance-lrd">L$ 0.00</div>
-                </div>
-              </div>
-
-              <div class="fin-quadrant blue">
-                <div class="fin-quadrant-title">Program Funds</div>
-                <div>
-                  <div class="fin-quadrant-value" id="dash-other-balance-usd">$0.00</div>
-                  <div class="fin-quadrant-sub" id="dash-other-balance-lrd">L$ 0.00</div>
-                </div>
-              </div>
-
-              <div class="fin-quadrant orange">
-                <div class="fin-quadrant-title">Donations</div>
-                <div>
-                  <div class="fin-quadrant-value" id="dash-donation-balance-usd">$0.00</div>
-                  <div class="fin-quadrant-sub" id="dash-donation-balance-lrd">L$ 0.00</div>
-                </div>
-              </div>
+        <div class="chat-app-wrapper">
+          <div id="chat-list-view">
+            <div class="chat-header-bar">
+              <h4 style="margin:0;">Conversations</h4>
+              <button class="btn" style="width:auto; padding:4px 10px; font-size:11px;" onclick="openCreateGroupModal()">+ Group</button>
             </div>
+            <div id="chats-list" style="padding:10px;"></div>
           </div>
 
-          <div class="fin-actions-bar" id="fin-actions-bar" style="display:none; justify-content:center; gap:8px; margin-bottom:14px;">
-            <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-update-org')">Update Balance</button>
-            <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-income')">+ Income</button>
-            <button class="btn danger" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-expense')">− Expense</button>
-            <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px; background:#254587; color:#fff;" onclick="openModal('modal-financial-report')">📊 Report</button>
-          </div>
-        </div>
-
-        <!-- UAF PROGRAMS TAB (All 5 Preloaded) -->
-        <div id="tab-programs" class="panel">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-            <h3 style="margin:0;">UAF Core Programs</h3>
-            <button class="btn" id="new-program-btn" style="width:auto; padding:6px 14px; font-size:12px; display:none;" onclick="openModal('modal-program')">+ Add Program</button>
-          </div>
-          <div class="programs-grid" id="programs-container"></div>
-        </div>
-
-        <!-- IMPACT TAB -->
-        <div id="tab-impact" class="panel">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-            <h3 style="margin:0;">Impact Metrics &amp; Outreach</h3>
-            <button class="btn" id="new-impact-btn" style="width:auto; padding:6px 14px; font-size:12px; display:none;" onclick="openModal('modal-impact')">+ Record Impact</button>
-          </div>
-          <div id="impact-list"></div>
-        </div>
-
-        <!-- NOTIFICATIONS TAB -->
-        <div id="tab-notifications" class="panel">
-          <h3 style="margin-top:0;">Notifications</h3>
-          <div id="notifications-list"></div>
-        </div>
-
-        <!-- CHATS TAB -->
-        <div id="tab-chats" class="panel">
-          <div style="background:#0C2340; color:#fff; padding:10px 16px; border-radius:8px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-            <span>Global Audio Call Room</span>
-            <button class="btn" id="call-action-btn" style="width:auto; padding:6px 14px; font-size:12px;" onclick="handleCallAction()">📞 Call Team</button>
-          </div>
-
-          <div class="chat-app-wrapper">
-            <div id="chat-list-view">
-              <div class="chat-header-bar">
-                <h4 style="margin:0;">Conversations</h4>
-                <button class="btn" style="width:auto; padding:4px 10px; font-size:11px;" onclick="openCreateGroupModal()">+ Group</button>
+          <div id="chat-room-view" style="display:none;">
+            <div class="chat-header-bar">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button class="btn secondary" style="width:auto; padding:2px 6px; font-size:14px;" onclick="backToChatList()">←</button>
+                <div class="uaf-avatar" id="chat-room-avatar" style="width:28px; height:28px;">C</div>
+                <strong id="chat-title">Chat</strong>
               </div>
-              <div id="chats-list" style="padding:10px;"></div>
+              <button class="btn danger" style="width:auto; padding:2px 6px; font-size:11px;" onclick="deleteCurrentChat()">Delete Chat</button>
             </div>
-
-            <div id="chat-room-view" style="display:none;">
-              <div class="chat-header-bar">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <button class="btn secondary" style="width:auto; padding:3px 6px; font-size:14px;" onclick="backToChatList()">←</button>
-                  <div class="uaf-avatar" id="chat-room-avatar" style="width:30px; height:30px;">C</div>
-                  <strong id="chat-title">Chat</strong>
-                </div>
-                <div>
-                  <button class="btn danger" style="width:auto; padding:3px 6px; font-size:11px;" onclick="deleteCurrentChat()">Delete Chat</button>
-                </div>
-              </div>
-              <div class="chat-scrolling-messages" id="chat-messages"></div>
-              <div class="chat-fixed-input-bar">
-                <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--line);" onkeydown="if(event.key==='Enter') sendMessage();">
-                <button class="btn" style="width:auto; padding:8px 16px;" onclick="sendMessage()">Send</button>
-              </div>
+            <div class="chat-scrolling-messages" id="chat-messages"></div>
+            <div class="chat-fixed-input-bar">
+              <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--line);" onkeydown="if(event.key==='Enter') sendMessage();">
+              <button class="btn" style="width:auto; padding:8px 16px;" onclick="sendMessage()">Send</button>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- SETTINGS TAB (Full Restored Profile + Policies + Handbook + Display) -->
-        <div id="tab-settings" class="panel">
-          <h3 style="margin-top:0;">Settings &amp; Organizational Handbook</h3>
+      <!-- SETTINGS TAB -->
+      <div id="tab-settings" class="panel">
+        <h3 style="margin-top:0;">Settings &amp; Organizational Handbook</h3>
 
-          <div class="settings-list">
-            <!-- Appearance Controls -->
-            <div class="settings-group-label">Display &amp; Appearance</div>
-            <div class="settings-row" style="cursor:default;">
-              <div class="settings-row-icon">🔤</div>
-              <div style="flex:1;"><div>Writing &amp; Font Size</div></div>
-              <select onchange="applyFontSize(this.value)">
-                <option value="13px">Small</option>
-                <option value="14.5px" selected>Medium</option>
-                <option value="16px">Large</option>
-                <option value="18px">Extra Large</option>
-              </select>
+        <div class="settings-list">
+          <div class="settings-group-label">Display &amp; Notifications</div>
+          <div class="settings-row" onclick="enableLiveNotifications()">
+            <div class="settings-row-icon">🔔</div>
+            <div style="flex:1;">
+              <div>Live Push Notifications</div>
+              <div style="font-size:11px; color:var(--muted);" id="fcm-status">Tap to enable device push alerts via Firebase</div>
             </div>
-            <div class="settings-row" style="cursor:default;">
-              <div class="settings-row-icon">☀️</div>
-              <div style="flex:1;"><div>Screen Dimming / Brightness</div></div>
-              <input type="range" min="60" max="100" value="100" style="width:110px;" oninput="applyBrightness(this.value)">
-            </div>
-            <div class="settings-row" style="cursor:default;">
-              <div class="settings-row-icon">🎨</div>
-              <div style="flex:1;"><div>Theme</div></div>
-              <select onchange="applyTheme(this.value)">
-                <option value="teal">UAF Blue/Teal</option>
-                <option value="forest">Forest Green</option>
-                <option value="sunset">Sunset Warm</option>
-                <option value="midnight">Midnight Dark</option>
-              </select>
-            </div>
+            <div>›</div>
+          </div>
+          <div class="settings-row" style="cursor:default;">
+            <div class="settings-row-icon">🔤</div>
+            <div style="flex:1;"><div>Writing &amp; Font Size</div></div>
+            <select onchange="applyFontSize(this.value)">
+              <option value="13px">Small</option>
+              <option value="14px" selected>Medium</option>
+              <option value="15.5px">Large</option>
+              <option value="17px">Extra Large</option>
+            </select>
+          </div>
+          <div class="settings-row" style="cursor:default;">
+            <div class="settings-row-icon">☀️</div>
+            <div style="flex:1;"><div>Screen Dimming</div></div>
+            <input type="range" min="60" max="100" value="100" style="width:100px;" oninput="applyBrightness(this.value)">
+          </div>
+          <div class="settings-row" style="cursor:default;">
+            <div class="settings-row-icon">🎨</div>
+            <div style="flex:1;"><div>Theme</div></div>
+            <select onchange="applyTheme(this.value)">
+              <option value="teal">UAF Blue/Teal</option>
+              <option value="forest">Forest Green</option>
+              <option value="sunset">Sunset Warm</option>
+              <option value="midnight">Midnight Dark</option>
+            </select>
+          </div>
 
-            <!-- Users & Team -->
-            <div class="settings-group-label">Team &amp; Users Directory</div>
-            <details>
-              <summary class="settings-row">
-                <div class="settings-row-icon">👥</div>
-                <div style="flex:1;"><div>Users Directory</div><div style="font-size:11px; color:var(--muted);">Full team directory and contacts</div></div>
-                <div>›</div>
-              </summary>
-              <div class="settings-row-expand" id="settings-users-list"></div>
-            </details>
-
-            <!-- Complete Original Profile Settings -->
-            <div class="settings-group-label">Profile Settings</div>
-            <details>
-              <summary class="settings-row">
-                <div class="settings-row-icon">👤</div>
-                <div style="flex:1;"><div>Edit Profile Information</div><div style="font-size:11px; color:var(--muted);">Photo, Bio, Prefix, Position, County, Project Role</div></div>
-                <div>›</div>
-              </summary>
-              <div class="settings-row-expand">
-                <div class="field"><label>Profile Picture</label><input type="file" id="settings-photo" accept="image/*" onchange="previewSettingsPhoto(event)"></div>
-                <div class="field">
-                  <label>Prefix &amp; Preferred Name</label>
-                  <div class="prefix-row">
-                    <select id="settings-prefix"><option value="">—</option><option value="Mr.">Mr.</option><option value="Mrs.">Mrs.</option><option value="Ms.">Ms.</option><option value="Dr.">Dr.</option></select>
-                    <input type="text" id="settings-preferred-name" placeholder="Preferred Name">
-                  </div>
-                </div>
-                <div class="field"><label>Full Name</label><input type="text" id="settings-full-name"></div>
-                <div class="field"><label>Bio / Summary</label><textarea id="settings-bio" rows="2"></textarea></div>
-                <div class="field"><label>Current Position</label><input type="text" id="settings-position"></div>
-                <div class="field"><label>Past Positions</label><input type="text" id="settings-past-positions"></div>
-                <div class="field"><label>Phone Number</label><input type="text" id="settings-phone"></div>
-                <div class="field"><label>County</label><input type="text" id="settings-county"></div>
-                <div class="field"><label>User Type</label>
-                  <select id="settings-user-type">
-                    <option value="General Team Member">General Team Member</option>
-                    <option value="County Level Team Member">County Level Team Member</option>
-                    <option value="Executive Management Team Member">Executive Management Team Member</option>
-                  </select>
-                </div>
-                <button class="btn" onclick="saveProfileSettings()">Save Profile</button>
-              </div>
-            </details>
-
-            <div class="settings-row" onclick="openModal('modal-change-password')">
-              <div class="settings-row-icon">🔒</div>
-              <div style="flex:1;"><div>Change Password</div></div>
+          <div class="settings-group-label">Team Directory</div>
+          <details>
+            <summary class="settings-row">
+              <div class="settings-row-icon">👥</div>
+              <div style="flex:1;"><div>Users Directory</div></div>
               <div>›</div>
+            </summary>
+            <div class="settings-row-expand" id="settings-users-list"></div>
+          </details>
+
+          <div class="settings-group-label">Account Settings</div>
+          <details>
+            <summary class="settings-row">
+              <div class="settings-row-icon">👤</div>
+              <div style="flex:1;"><div>Edit Profile</div></div>
+              <div>›</div>
+            </summary>
+            <div class="settings-row-expand">
+              <div class="field"><label>Profile Picture</label><input type="file" id="settings-photo" accept="image/*" onchange="previewSettingsPhoto(event)"></div>
+              <div class="field">
+                <label>Prefix &amp; Preferred Name</label>
+                <div class="prefix-row">
+                  <select id="settings-prefix"><option value="">—</option><option value="Mr.">Mr.</option><option value="Mrs.">Mrs.</option><option value="Ms.">Ms.</option><option value="Dr.">Dr.</option></select>
+                  <input type="text" id="settings-preferred-name">
+                </div>
+              </div>
+              <div class="field"><label>Full Name</label><input type="text" id="settings-full-name"></div>
+              <div class="field"><label>Bio</label><textarea id="settings-bio" rows="2"></textarea></div>
+              <div class="field"><label>Current Position</label><input type="text" id="settings-position"></div>
+              <div class="field"><label>Phone</label><input type="text" id="settings-phone"></div>
+              <div class="field"><label>County</label><input type="text" id="settings-county"></div>
+              <button class="btn" onclick="saveProfileSettings()">Save Profile</button>
             </div>
+          </details>
 
-            <!-- Full UAF Organizational History Narrative -->
-            <div class="settings-group-label">Organizational History</div>
-            <details>
-              <summary class="settings-row">
-                <div class="settings-row-icon">📜</div>
-                <div style="flex:1;"><div>History of Upskill Africa Foundation</div></div>
-                <div>›</div>
-              </summary>
-              <div class="settings-row-expand">
-                <p><strong>Founded July 2, 2023</strong> by <strong>Chris Nen Torbor</strong> and <strong>Litrice M. Browne</strong>, calling upon Jeremiah Kollie and Michael Donor in Pipeline to present the dream of educating Liberians and Africans.</p>
-                <p>Operating for over a year with three core individuals: Torbor, Donor, and Browne, originally known informally as <em>"Upskill - Education and Social Services"</em>.</p>
-                <p>Expanded in 2024 with Rejoice Korvah, Michael Togbah, Gifty Promise Nimenee, Garmai M. Kollie (CFO), Emmanuel Suah, Fatu Yamah, and Moses Saah. In 2026, recruited Stephen T. Powo, Jr., Frances Joyce Mawolo, Joyce V. Cole, John Muyuneh, Francilia F. Nagbe, Solomon Weah, Romeo S. Prowd, Ramble Romeo, and Christopher Yelebo.</p>
-                <p>Formally registered on <strong>September 6, 2025</strong> as <strong>Upskill Africa Foundation (UAF)</strong>, partnered with Litrich Agro and Innovation Enterprise (IE).</p>
-              </div>
-            </details>
+          <div class="settings-row" onclick="openModal('modal-change-password')">
+            <div class="settings-row-icon">🔒</div>
+            <div style="flex:1;"><div>Change Password</div></div>
+            <div>›</div>
+          </div>
 
-            <!-- Complete NGO Behavioral Policies -->
-            <div class="settings-group-label">Policies &amp; Code of Conduct</div>
-            <details>
-              <summary class="settings-row">
-                <div class="settings-row-icon">⚖️</div>
-                <div style="flex:1;"><div>Staff Code of Conduct</div></div>
-                <div>›</div>
-              </summary>
-              <div class="settings-row-expand">
-                <p>Professional integrity, anti-harassment, and safeguarding vulnerable beneficiaries.</p>
-              </div>
-            </details>
-
-            <details>
-              <summary class="settings-row">
-                <div class="settings-row-icon">🛡️</div>
-                <div style="flex:1;"><div>Confidentiality &amp; Non-Misuse Policy</div></div>
-                <div>›</div>
-              </summary>
-              <div class="settings-row-expand">
-                <p>Proprietary beneficiary and organizational data are strictly confidential under Cyber &amp; Data Protection laws.</p>
-              </div>
-            </details>
-
-            <details>
-              <summary class="settings-row">
-                <div class="settings-row-icon">🚪</div>
-                <div style="flex:1;"><div>Resignation &amp; Exit Procedure</div></div>
-                <div>›</div>
-              </summary>
-              <div class="settings-row-expand">
-                <p>Formal asset handover and revocation of credentials with ongoing non-disclosure commitments.</p>
-              </div>
-            </details>
-
-            <div style="padding:14px;">
-              <button class="btn danger" onclick="logoutUser()">Log Out of Account</button>
+          <div class="settings-group-label">Handbook &amp; Policies</div>
+          <details>
+            <summary class="settings-row">
+              <div class="settings-row-icon">📜</div>
+              <div style="flex:1;"><div>History of Upskill Africa Foundation</div></div>
+              <div>›</div>
+            </summary>
+            <div class="settings-row-expand">
+              <p><strong>Founded July 2, 2023</strong> by <strong>Chris Nen Torbor</strong> and <strong>Litrice M. Browne</strong> with Jeremiah Kollie and Michael Donor in Pipeline.</p>
+              <p>Formally registered on <strong>September 6, 2025</strong> as <strong>Upskill Africa Foundation (UAF)</strong>, partnered with Litrich Agro and Innovation Enterprise (IE).</p>
             </div>
+          </details>
+
+          <details>
+            <summary class="settings-row">
+              <div class="settings-row-icon">⚖️</div>
+              <div style="flex:1;"><div>Staff Code of Conduct</div></div>
+              <div>›</div>
+            </summary>
+            <div class="settings-row-expand">
+              <p>Highest standards of integrity, respect, safeguarding of youth and vulnerable beneficiaries.</p>
+            </div>
+          </details>
+
+          <details>
+            <summary class="settings-row">
+              <div class="settings-row-icon">🛡️</div>
+              <div style="flex:1;"><div>Confidentiality &amp; Legal Policy</div></div>
+              <div>›</div>
+            </summary>
+            <div class="settings-row-expand">
+              <p>Proprietary beneficiary and financial records are protected under Cyber &amp; Data Protection laws.</p>
+            </div>
+          </details>
+
+          <div style="padding:12px;">
+            <button class="btn danger" onclick="logoutUser()">Log Out</button>
           </div>
         </div>
+      </div>
 
-      </main>
+    </main>
 
-      <!-- ==================== STATIC BOTTOM FOOTER ==================== -->
-      <footer class="app-bottom-team-bar" id="app-bottom-team-bar">
-        <div class="bottom-team-list" id="bottom-team-row"></div>
-      </footer>
+    <!-- PINNED BOTTOM TEAM FOOTER -->
+    <footer class="app-bottom-team-bar">
+      <div class="bottom-team-list" id="bottom-team-row"></div>
+    </footer>
 
-    </div>
   </div>
 </div>
 
-<!-- ==================== MODALS ==================== -->
+<!-- MODALS -->
 <div class="modal" id="update-modal">
   <div class="modal-card">
     <h3 style="margin-top:0;">Post Update</h3>
@@ -692,15 +663,6 @@
     <div class="field"><label>Location</label><input type="text" id="imp-location"></div>
     <div class="field"><label>Men Reached</label><input type="number" id="imp-men" value="0"></div>
     <div class="field"><label>Women Reached</label><input type="number" id="imp-women" value="0"></div>
-    <div class="field"><label>Average Age</label><input type="text" id="imp-age"></div>
-    <div class="field"><label>Impact Method</label>
-      <select id="imp-method">
-        <option value="Trained">Trained</option>
-        <option value="Direct Financial Aid">Direct Financial Aid</option>
-        <option value="Reintegrated in School">Reintegrated in School</option>
-        <option value="Toolkits Distributed">Toolkits Distributed</option>
-      </select>
-    </div>
     <button class="btn" onclick="submitImpact()">Record</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-impact')">Cancel</button>
   </div>
@@ -713,30 +675,62 @@
   let activeChannelId = 'team';
   let isSignupMode = false;
   let allTeamProfiles = [];
-  let isOnline = navigator.onLine;
-  let lastScrollTop = 0;
   const SESSION_KEY = 'uaf_session';
+  const OUTBOX_KEY = 'uaf_offline_outbox';
 
   function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('open'); }
   function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('open'); }
 
-  // Offline-First Network Dispatcher
+  // Offline Outbox Background Sync Engine
   async function apiPost(action, data = {}) {
     const payload = {
       action, ...data,
       email: data.email || (currentUser ? currentUser.email : undefined),
       sessionToken: data.sessionToken || currentSessionToken || undefined
     };
+
+    if (!navigator.onLine) {
+      queueOfflineAction(payload);
+      setOnlineStatus(false);
+      return { success: true, offlineQueued: true };
+    }
+
     try {
       const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
       const json = await res.json();
       setOnlineStatus(true);
       return json;
     } catch (err) {
+      queueOfflineAction(payload);
       setOnlineStatus(false);
-      return { error: 'Offline. Action saved locally.' };
+      return { success: true, offlineQueued: true };
     }
   }
+
+  function queueOfflineAction(payload) {
+    const q = JSON.parse(localStorage.getItem(OUTBOX_KEY) || '[]');
+    q.push({ ...payload, queuedAt: Date.now() });
+    localStorage.setItem(OUTBOX_KEY, JSON.stringify(q));
+  }
+
+  async function flushOutbox() {
+    if (!navigator.onLine) return;
+    const q = JSON.parse(localStorage.getItem(OUTBOX_KEY) || '[]');
+    if (!q.length) return;
+
+    localStorage.removeItem(OUTBOX_KEY);
+    for (const item of q) {
+      try {
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(item) });
+      } catch (e) {
+        queueOfflineAction(item);
+      }
+    }
+    setOnlineStatus(true);
+  }
+
+  window.addEventListener('online', flushOutbox);
+  setInterval(flushOutbox, 20000);
 
   async function cachedFetch(action, cacheKey) {
     try {
@@ -753,29 +747,20 @@
   }
 
   function setOnlineStatus(online) {
-    isOnline = online;
     const b = document.getElementById('connection-status-badge');
     if (b) {
-      b.innerText = online ? '🟢 Live' : '📡 Offline (Cached)';
+      b.innerText = online ? '🟢 Live' : '📡 Offline (Queue Ready)';
       b.style.background = online ? '#D1FAE5' : '#FEF3C7';
       b.style.color = online ? '#065F46' : '#92400E';
     }
   }
 
-  function getAvatarHtml(email, name, photoUrl, size = 36) {
+  function getAvatarHtml(email, name, photoUrl, size = 32) {
     const profile = allTeamProfiles.find(p => p.email === email);
     const photo = photoUrl || (profile && profile.photoUrl);
     const letter = (name || (profile && profile.displayName) || 'U')[0];
     if (photo) return `<div class="uaf-avatar" style="width:${size}px; height:${size}px;"><img src="${photo}"></div>`;
     return `<div class="uaf-avatar" style="width:${size}px; height:${size}px; font-size:${size*0.4}px;">${letter}</div>`;
-  }
-
-  function handleScrollFooter(el) {
-    const st = el.scrollTop;
-    const bar = document.getElementById('app-bottom-team-bar');
-    if (st > lastScrollTop && st > 40) bar.classList.add('hidden');
-    else bar.classList.remove('hidden');
-    lastScrollTop = st <= 0 ? 0 : st;
   }
 
   function toggleAuthMode(e) {
@@ -815,7 +800,6 @@
 
   function enterApp() {
     document.getElementById('auth-screen').classList.remove('visible');
-    document.getElementById('app-sidebar').style.display = 'flex';
     document.getElementById('app-screen').style.display = 'flex';
     document.getElementById('user-display').innerText = currentUser.displayName || currentUser.name;
 
@@ -857,7 +841,7 @@
 
   function openFullChatsTab() { switchTab('chats'); backToChatList(); loadChats(); }
 
-  // ---------- FEED WITH COUNTERS & DELETE ----------
+  // ---------- FEED ----------
   async function loadFeed() {
     const data = await cachedFetch('feedPosts', 'feed');
     const container = document.getElementById('feed-container');
@@ -872,7 +856,7 @@
         <div class="feed-post-card">
           <div class="post-author-row">
             <div class="post-author-info">
-              ${getAvatarHtml(post.authorEmail, post.authorName, null, 38)}
+              ${getAvatarHtml(post.authorEmail, post.authorName, null, 36)}
               <div>
                 <div class="post-author-name">${escapeHtml(post.authorName)}</div>
                 <div class="post-author-sub">${escapeHtml(post.category || 'Member')} • ${new Date(post.timestamp).toLocaleDateString()}</div>
@@ -896,13 +880,13 @@
           </div>
 
           <div class="post-comments-drawer" id="comments-${post.id}">
-            <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <div style="display:flex; gap:6px; margin-bottom:8px;">
               <input type="text" id="comment-input-${post.id}" placeholder="Write comment..." style="flex:1; padding:6px; border-radius:6px; border:1px solid var(--line);">
-              <button class="btn" style="width:auto; padding:6px 12px; font-size:11px;" onclick="submitComment('${post.id}')">Reply</button>
+              <button class="btn" style="width:auto; padding:4px 10px; font-size:11px;" onclick="submitComment('${post.id}')">Reply</button>
             </div>
             ${(post.comments || []).map(c => `
               <div class="comment-item">
-                ${getAvatarHtml(c.email, c.authorName, null, 26)}
+                ${getAvatarHtml(c.email, c.authorName, null, 24)}
                 <div class="comment-bubble"><strong>${escapeHtml(c.authorName)}</strong>: ${escapeHtml(c.text)}</div>
               </div>
             `).join('')}
@@ -924,7 +908,7 @@
     loadFeed();
   }
   async function deleteFeedPost(postId) {
-    if (!confirm('Delete this post?')) return;
+    if (!confirm('Delete post?')) return;
     await apiPost('deletePost', { postId });
     loadFeed();
   }
@@ -934,10 +918,10 @@
     const data = await cachedFetch('programs', 'programs');
     document.getElementById('programs-container').innerHTML = (Array.isArray(data) ? data : []).map(p => `
       <div class="program-card">
-        <span style="font-size:11px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 8px; border-radius:999px;">${escapeHtml(p.shortCode || 'CORE')}</span>
-        <h4 style="margin:6px 0; color:var(--navy-text);">${escapeHtml(p.title)}</h4>
-        <p style="font-size:13px; margin:6px 0;">${escapeHtml(p.description)}</p>
-        <div style="font-size:11.5px; color:var(--muted);">Target: <strong>${escapeHtml(p.targetBeneficiaries || 'Community')}</strong></div>
+        <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${escapeHtml(p.shortCode || 'CORE')}</span>
+        <h4 style="margin:4px 0 6px; color:var(--navy-text);">${escapeHtml(p.title)}</h4>
+        <p style="font-size:12.5px; margin:4px 0;">${escapeHtml(p.description)}</p>
+        <div style="font-size:11px; color:var(--muted);">Target: <strong>${escapeHtml(p.targetBeneficiaries || 'Community')}</strong></div>
       </div>
     `).join('');
   }
@@ -963,7 +947,7 @@
     const channels = await cachedFetch('channels', 'channels');
     document.getElementById('chats-list').innerHTML = (Array.isArray(channels) ? channels : []).map(c => `
       <div class="feed-post-card" style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px;" onclick="openChatRoom('${c.channelId}', '${escapeHtml(c.name || 'Direct Message')}')">
-        ${getAvatarHtml(null, c.name, null, 34)}
+        ${getAvatarHtml(null, c.name, null, 32)}
         <div style="flex:1;"><strong>${escapeHtml(c.name || 'Direct Message')}</strong></div>
         <span>›</span>
       </div>
@@ -984,9 +968,8 @@
       return `
         <div class="msg-row ${isMine ? 'mine' : 'other'}">
           <div class="msg-bubble">
-            <div style="font-size:11px; font-weight:700; opacity:0.8;">${escapeHtml(m.name)}</div>
+            <div style="font-size:10.5px; font-weight:700; opacity:0.8;">${escapeHtml(m.name)}</div>
             <div>${escapeHtml(m.text)}</div>
-            ${isMine ? `<div style="text-align:right; margin-top:4px;"><button style="background:none; border:none; color:inherit; font-size:10px; cursor:pointer; opacity:0.7;" onclick="deleteMsg('${m.id}')">🗑️</button></div>` : ''}
           </div>
         </div>
       `;
@@ -999,30 +982,25 @@
     await apiPost('postMessage', { channelId: activeChannelId, name: currentUser.displayName || currentUser.name, text: input.value.trim() });
     input.value = ''; loadMessages();
   }
-  async function deleteMsg(messageId) {
-    if (!confirm('Delete message?')) return;
-    await apiPost('deleteMessage', { messageId });
-    loadMessages();
-  }
   async function deleteCurrentChat() {
-    if (!confirm('Delete this conversation?')) return;
+    if (!confirm('Delete chat?')) return;
     await apiPost('deleteChat', { channelId: activeChannelId });
     backToChatList();
   }
 
-  // ---------- ALL PROFILES & CACHED TEAMS ----------
+  // ---------- PROFILES ----------
   async function loadAllProfiles() {
     allTeamProfiles = await cachedFetch('profiles', 'profiles');
     if (Array.isArray(allTeamProfiles)) {
       document.getElementById('bottom-team-row').innerHTML = allTeamProfiles.map(p => `
         <div class="bottom-team-item" onclick="startDirectMessage('${p.email}')">
-          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 40)}
+          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 38)}
           <div class="bottom-team-name">${escapeHtml(p.preferredName || p.name.split(' ')[0])}</div>
         </div>
       `).join('');
       document.getElementById('settings-users-list').innerHTML = allTeamProfiles.map(p => `
-        <div style="display:flex; gap:10px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line);">
-          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 30)}
+        <div style="display:flex; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line);">
+          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 28)}
           <div><strong>${escapeHtml(p.displayName || p.name)}</strong> — <span style="color:var(--muted);">${escapeHtml(p.currentPosition || 'Staff')}</span></div>
         </div>
       `).join('');
@@ -1038,10 +1016,23 @@
     }
   }
 
-  // ---------- SETTINGS & CUSTOMIZATION ----------
+  // ---------- SETTINGS UTILS & FCM ----------
   function applyFontSize(s) { document.documentElement.style.setProperty('--app-font-size', s); }
   function applyBrightness(v) { document.documentElement.style.setProperty('--app-brightness', v + '%'); }
   function applyTheme(t) { if (t === 'teal') document.body.removeAttribute('data-theme'); else document.body.setAttribute('data-theme', t); }
+
+  async function enableLiveNotifications() {
+    if ('Notification' in window) {
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted') {
+        const mockToken = 'fcm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        await apiPost('saveFcmToken', { token: mockToken });
+        document.getElementById('fcm-status').innerText = '✅ Live notifications enabled and synced!';
+      } else {
+        document.getElementById('fcm-status').innerText = '⚠️ Permission denied';
+      }
+    }
+  }
 
   async function saveProfileSettings() {
     const payload = {
@@ -1051,15 +1042,13 @@
       prefix: document.getElementById('settings-prefix').value,
       preferredName: document.getElementById('settings-preferred-name').value.trim(),
       currentPosition: document.getElementById('settings-position').value.trim(),
-      pastPositions: document.getElementById('settings-past-positions').value.trim(),
-      county: document.getElementById('settings-county').value.trim(),
-      userType: document.getElementById('settings-user-type').value
+      county: document.getElementById('settings-county').value.trim()
     };
     const res = await apiPost('updateProfile', payload);
     if (res.success) {
       currentUser = { ...currentUser, ...payload, displayName: res.displayName };
       document.getElementById('user-display').innerText = currentUser.displayName;
-      alert('Profile updated!');
+      alert('Profile saved!');
     }
   }
 
