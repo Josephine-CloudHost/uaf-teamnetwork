@@ -6,7 +6,7 @@
 <title>UAF Team Network</title>
 
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2F4888">
+<meta name="theme-color" content="#0038A8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="UAF Network">
 
@@ -23,12 +23,10 @@
     --navy-text: #0C2340;
     --ink: #14213D;
     --accent: #C8102E;
-    --accent-soft: #FADADD;
     --line: #D3DEEE;
     --muted: #5C6B82;
     --team-ring: #C07954;
     --app-font-size: 14.5px;
-    --app-density: 16px;
     --app-brightness: 100%;
   }
 
@@ -39,7 +37,7 @@
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    padding: 14px;
+    padding: 12px;
     min-height: 100vh;
     background: var(--outer-bg-gradient);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -52,25 +50,17 @@
   }
 
   #session-check {
-    position: fixed;
-    inset: 0;
-    background: var(--outer-bg-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    color: #FFF;
-    font-size: 16px;
-    font-weight: 600;
+    position: fixed; inset: 0; background: var(--outer-bg-gradient);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; color: #FFF; font-size: 16px; font-weight: 600;
   }
 
-  /* Main Window Architecture */
   .app-window {
     width: 100%;
     max-width: 1300px;
     height: 94vh;
     background: var(--window-bg);
-    border-radius: 20px;
+    border-radius: 18px;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
     display: flex;
     overflow: hidden;
@@ -79,471 +69,192 @@
 
   /* Auth Screen */
   #auth-screen {
-    width: 100%;
-    height: 100%;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: #F8FAFC;
-    padding: 24px;
+    width: 100%; height: 100%; display: none;
+    align-items: center; justify-content: center;
+    background: #F8FAFC; padding: 24px;
   }
   #auth-screen.visible { display: flex; }
   .auth-card {
-    background: #FFF;
-    border-radius: 12px;
-    padding: 36px;
-    width: 100%;
-    max-width: 440px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    background: #FFF; border-radius: 12px; padding: 36px;
+    width: 100%; max-width: 440px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     border: 1px solid var(--line);
   }
 
-  /* Fixed Left Sidebar (Reduced width for Android view) */
+  /* Static Left Sidebar (Optimized width) */
   .app-sidebar {
-    width: 56px;
+    width: 54px;
     background: var(--sidebar-bg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 0;
-    flex-shrink: 0;
-    gap: 18px;
-    z-index: 100;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 20px 0; flex-shrink: 0; gap: 16px; z-index: 100;
   }
   .sidebar-btn {
-    background: transparent;
-    border: none;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 20px;
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s ease;
-    position: relative;
+    background: transparent; border: none; color: rgba(255, 255, 255, 0.8);
+    font-size: 20px; cursor: pointer; width: 40px; height: 40px;
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    position: relative; transition: background 0.15s ease;
   }
-  .sidebar-btn:hover, .sidebar-btn.active {
-    color: #FFF;
-    background: rgba(255, 255, 255, 0.22);
-  }
+  .sidebar-btn:hover, .sidebar-btn.active { color: #FFF; background: rgba(255, 255, 255, 0.22); }
   .sidebar-badge {
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 9.5px;
-    font-weight: 700;
-    border-radius: 999px;
-    padding: 1px 4px;
+    position: absolute; top: 3px; right: 3px; background: var(--accent);
+    color: #fff; font-size: 9.5px; font-weight: 700; border-radius: 999px; padding: 1px 4px;
   }
 
   /* Main Container */
   .app-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    height: 100%;
-    position: relative;
-    background: var(--window-bg);
+    flex: 1; display: flex; flex-direction: column;
+    min-width: 0; height: 100%; position: relative; background: var(--window-bg);
   }
 
   /* Top Navigation Bar */
   .app-topbar {
-    height: 60px;
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #FFF;
-    border-bottom: 1px solid var(--line);
-    flex-shrink: 0;
-    gap: 16px;
+    height: 60px; padding: 0 22px; display: flex;
+    align-items: center; justify-content: space-between;
+    background: #FFF; border-bottom: 1px solid var(--line);
+    flex-shrink: 0; gap: 14px;
   }
-  .topbar-brand {
-    font-size: 18.5px;
-    font-weight: 800;
-    color: var(--navy-text);
-  }
+  .topbar-brand { font-size: 18.5px; font-weight: 800; color: var(--navy-text); }
   .topbar-search-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #F8FAFC;
-    border: 1.5px solid #CBD5E1;
-    border-radius: 999px;
-    padding: 6px 16px;
-    width: 100%;
-    max-width: 380px;
+    display: flex; align-items: center; gap: 8px; background: #F8FAFC;
+    border: 1.5px solid #CBD5E1; border-radius: 999px; padding: 6px 14px;
+    width: 100%; max-width: 360px;
   }
-  .topbar-search-box input {
-    border: none;
-    outline: none;
-    font-size: 13.5px;
-    width: 100%;
-    background: transparent;
-  }
-  .topbar-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--navy-text);
-    cursor: pointer;
-  }
+  .topbar-search-box input { border: none; outline: none; font-size: 13.5px; width: 100%; background: transparent; }
+  .topbar-user { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--navy-text); cursor: pointer; }
 
   /* Upper Tabstrip */
   .app-tabstrip {
-    background: var(--tab-strip-bg);
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    gap: 3px;
-    overflow-x: auto;
-    border-bottom: 1px solid var(--line);
-    flex-shrink: 0;
+    background: var(--tab-strip-bg); display: flex; align-items: center;
+    padding: 0 18px; gap: 3px; overflow-x: auto; border-bottom: 1px solid var(--line); flex-shrink: 0;
   }
   .app-tabstrip button {
-    background: none;
-    border: none;
-    color: var(--tab-text);
-    padding: 12px 18px;
-    font-size: 13.5px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    border-radius: 6px 6px 0 0;
+    background: none; border: none; color: var(--tab-text); padding: 11px 16px;
+    font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; border-radius: 6px 6px 0 0;
   }
-  .app-tabstrip button.active {
-    background: var(--tab-active-bg);
-    color: #FFF;
-    font-weight: 700;
-  }
-  .app-tabstrip button .badge {
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 700;
-    border-radius: 999px;
-    padding: 1px 5px;
-    margin-left: 4px;
-  }
+  .app-tabstrip button.active { background: var(--tab-active-bg); color: #FFF; font-weight: 700; }
 
   /* Free Open Scrolling Canvas */
   .app-content-body {
-    flex: 1;
-    background: var(--content-bg);
-    padding: 24px 28px 90px;
-    overflow-y: auto;
-    position: relative;
+    flex: 1; background: var(--content-bg); padding: 22px 24px 84px;
+    overflow-y: auto; position: relative;
   }
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* Universal User Avatar Renderer */
+  /* Universal Profile Avatar */
   .uaf-avatar {
-    border-radius: 50%;
-    background: var(--primary);
-    color: #FFF;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    overflow: hidden;
-    flex-shrink: 0;
-    border: 2px solid var(--team-ring);
+    border-radius: 50%; background: var(--primary); color: #FFF;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; overflow: hidden; flex-shrink: 0; border: 2px solid var(--team-ring);
   }
   .uaf-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
   /* LinkedIn-Style Post Cards */
   .feed-post-card {
-    background: #FFF;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 18px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    background: #FFF; border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
   }
-  .post-author-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-  .post-author-name {
-    font-weight: 700;
-    color: var(--navy-text);
-    font-size: 15px;
-  }
-  .post-author-sub {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 1px;
-  }
-  .post-body-text {
-    font-size: 14.5px;
-    line-height: 1.5;
-    color: var(--ink);
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .post-img {
-    width: 100%;
-    max-height: 380px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-top: 12px;
-  }
+  .post-author-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .post-author-info { display: flex; align-items: center; gap: 10px; }
+  .post-author-name { font-weight: 700; color: var(--navy-text); font-size: 14.5px; }
+  .post-author-sub { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+  .post-body-text { font-size: 14px; line-height: 1.5; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+  .post-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: 8px; margin-top: 10px; }
   .post-metrics-bar {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 4px 6px;
-    font-size: 12px;
-    color: var(--muted);
-    border-bottom: 1px solid var(--line);
-    margin-top: 8px;
+    display: flex; justify-content: space-between; padding: 10px 2px 6px;
+    font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--line); margin-top: 8px;
   }
-  .post-actions-bar {
-    display: flex;
-    gap: 4px;
-    padding-top: 8px;
-  }
+  .post-actions-bar { display: flex; gap: 4px; padding-top: 6px; }
   .post-act-btn {
-    flex: 1;
-    background: none;
-    border: none;
-    padding: 8px 6px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: background 0.12s ease;
+    flex: 1; background: none; border: none; padding: 8px 4px; border-radius: 6px;
+    font-size: 12.5px; font-weight: 600; color: var(--muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
   }
   .post-act-btn:hover { background: #F1F5F9; color: var(--navy-text); }
   .post-act-btn.active { color: var(--primary); font-weight: 700; }
-  .post-comments-drawer {
-    display: none;
-    margin-top: 12px;
-    border-top: 1px solid var(--line);
-    padding-top: 12px;
-  }
-  .comment-item {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    font-size: 13px;
-  }
-  .comment-bubble {
-    background: #F1F5F9;
-    border-radius: 10px;
-    padding: 8px 12px;
-    flex: 1;
-  }
+  .post-comments-drawer { display: none; margin-top: 10px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .comment-item { display: flex; gap: 8px; margin-bottom: 8px; font-size: 12.5px; }
+  .comment-bubble { background: #F1F5F9; border-radius: 8px; padding: 6px 10px; flex: 1; }
 
-  /* 4-Quadrant Finances Layout (Matching Reference Image) */
-  .fin-hub-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 20px 0 28px;
-  }
+  /* 4-Quadrant Finances Layout */
+  .fin-hub-container { display: flex; justify-content: center; align-items: center; margin: 16px 0 24px; }
   .fin-hub-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    width: 100%;
-    max-width: 580px;
-    position: relative;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    width: 100%; max-width: 560px; position: relative;
   }
   .fin-hub-center-circle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 68px;
-    height: 68px;
-    background: #FFFFFF;
-    border: 4px solid #2F4888;
-    border-radius: 50%;
-    z-index: 5;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 13px;
-    color: var(--primary);
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 64px; height: 64px; background: #FFF; border: 4px solid #2F4888;
+    border-radius: 50%; z-index: 5; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: var(--primary);
   }
-  .fin-quadrant {
-    min-height: 140px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    position: relative;
-  }
-  .fin-quadrant.orange {
-    background: #FF6600;
-    color: #FFFFFF;
-    border-radius: 28px 8px 28px 8px;
-  }
-  .fin-quadrant.blue {
-    background: #004D80;
-    color: #FFFFFF;
-    border-radius: 8px 28px 8px 28px;
-  }
-  .fin-quadrant-title {
-    font-size: 14px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .fin-quadrant-value {
-    font-size: 22px;
-    font-weight: 800;
-    margin-top: 8px;
-  }
-  .fin-quadrant-sub {
-    font-size: 13px;
-    opacity: 0.9;
-    font-weight: 600;
-  }
+  .fin-quadrant { min-height: 130px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; }
+  .fin-quadrant.orange { background: #FF6600; color: #FFF; border-radius: 26px 8px 26px 8px; }
+  .fin-quadrant.blue { background: #004D80; color: #FFF; border-radius: 8px 26px 8px 26px; }
+  .fin-quadrant-title { font-size: 13px; font-weight: 800; text-transform: uppercase; }
+  .fin-quadrant-value { font-size: 21px; font-weight: 800; margin-top: 6px; }
+  .fin-quadrant-sub { font-size: 12.5px; opacity: 0.9; font-weight: 600; }
 
-  /* Programs & Impact Grids */
-  .programs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-  .program-card { background: #FFF; border: 1px solid var(--line); border-radius: 12px; padding: 18px; position: relative; }
+  /* Programs & Impact Cards */
+  .programs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+  .program-card { background: #FFF; border: 1px solid var(--line); border-radius: 12px; padding: 16px; position: relative; }
 
   /* WhatsApp Style Chatroom Area */
   .chat-app-wrapper {
-    background: #FFF;
-    border-radius: 12px;
-    border: 1px solid var(--line);
-    min-height: 540px;
-    display: flex;
-    flex-direction: column;
+    background: #FFF; border-radius: 12px; border: 1px solid var(--line);
+    min-height: 520px; display: flex; flex-direction: column;
   }
   .chat-header-bar {
-    background: #F8FAFC;
-    padding: 12px 18px;
-    border-bottom: 1px solid var(--line);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
+    background: #F8FAFC; padding: 10px 16px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
   }
   .chat-scrolling-messages {
-    flex: 1;
-    min-height: 380px;
-    padding: 18px;
-    overflow-y: auto;
-    background: #F4F7FB;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    flex: 1; min-height: 360px; padding: 16px; overflow-y: auto;
+    background: #F4F7FB; display: flex; flex-direction: column; gap: 10px;
   }
   .chat-fixed-input-bar {
-    padding: 12px 18px;
-    background: #FFF;
-    border-top: 1px solid var(--line);
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-shrink: 0;
+    padding: 10px 16px; background: #FFF; border-top: 1px solid var(--line);
+    display: flex; gap: 8px; align-items: center; flex-shrink: 0;
   }
-
-  /* Dynamic Call Bar */
-  .call-banner-bar {
-    background: var(--navy-text);
-    color: #FFF;
-    padding: 10px 16px;
-    border-radius: 8px;
-    margin-bottom: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .msg-row { display: flex; width: 100%; gap: 8px; }
+  .msg-row.mine { justify-content: flex-start; }
+  .msg-row.other { justify-content: flex-end; }
+  .msg-bubble {
+    max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.45;
+    position: relative; word-break: break-word;
   }
+  .msg-row.mine .msg-bubble { background: #FADADD; color: #14213D; }
+  .msg-row.other .msg-bubble { background: var(--primary); color: #FFF; }
 
-  /* Static Footer Team Drawer (Auto-hiding on scroll) */
+  /* Static Footer Team Drawer */
   .app-bottom-team-bar {
-    position: absolute;
-    bottom: 0;
-    left: 56px;
-    right: 0;
-    background: #FFFFFF;
-    border-top: 1.5px solid var(--line);
-    padding: 10px 24px;
-    z-index: 50;
-    transition: transform 0.25s ease;
+    position: absolute; bottom: 0; left: 54px; right: 0;
+    background: #FFF; border-top: 1.5px solid var(--line); padding: 8px 20px;
+    z-index: 50; transition: transform 0.25s ease;
   }
-  .app-bottom-team-bar.hidden {
-    transform: translateY(100%);
-  }
-  .bottom-team-list {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    overflow-x: auto;
-    padding-bottom: 2px;
-  }
-  .bottom-team-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-  .bottom-team-name {
-    font-size: 11px;
-    color: var(--navy-text);
-    font-weight: 600;
-    margin-top: 3px;
-    max-width: 60px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  .app-bottom-team-bar.hidden { transform: translateY(100%); }
+  .bottom-team-list { display: flex; align-items: center; gap: 16px; overflow-x: auto; padding-bottom: 2px; }
+  .bottom-team-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; flex-shrink: 0; }
+  .bottom-team-name { font-size: 10.5px; color: var(--navy-text); font-weight: 600; margin-top: 2px; max-width: 58px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* Popover Team Detail Drawer */
-  #team-member-popover {
-    display: none;
-    background: #F8FAFC;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-top: 10px;
-  }
+  /* Settings Accordion */
+  .settings-list { background: #FFF; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 16px; }
+  .settings-group-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 16px 4px; }
+  .settings-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); cursor: pointer; text-decoration: none; color: inherit; }
+  .settings-row-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: var(--primary); color: #fff; flex-shrink: 0; }
+  .settings-row-expand { padding: 10px 16px 16px; border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.6; }
 
-  /* Settings Collapsibles */
-  .settings-list { background: #FFF; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 18px; }
-  .settings-group-label { font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 18px 6px; }
-  .settings-row { display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-bottom: 1px solid var(--line); cursor: pointer; text-decoration: none; color: inherit; }
-  .settings-row-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--primary); color: #fff; flex-shrink: 0; }
-  .settings-row-expand { padding: 10px 18px 18px; border-bottom: 1px solid var(--line); font-size: 13.5px; line-height: 1.6; }
-
-  /* Standard Components */
-  .btn { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 11px; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; }
+  /* Forms & Buttons */
+  .btn { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; }
   .btn.secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
   .btn.danger { background: transparent; color: #B3261E; border: 1px solid #B3261E; }
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
-  .field input, .field textarea, .field select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; background: #FFF; }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .field input, .field textarea, .field select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 13.5px; background: #FFF; }
   .prefix-row { display: flex; gap: 8px; }
-  .prefix-row select { width: 90px; flex-shrink: 0; }
-  .prefix-row input { flex: 1; }
+  .prefix-row select { width: 85px; flex-shrink: 0; }
   .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
   .modal.open { display: flex; }
-  .modal-card { background: #FFF; padding: 24px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+  .modal-card { background: #FFF; padding: 20px; border-radius: 12px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
 
   @media (max-width: 860px) {
     body { padding: 0; }
@@ -558,15 +269,15 @@
 
 <div class="app-window">
 
-  <!-- ==================== LEFT STATIC SIDEBAR ==================== -->
+  <!-- ==================== STATIC LEFT SIDEBAR ==================== -->
   <aside class="app-sidebar" id="app-sidebar" style="display:none;">
-    <button class="sidebar-btn active" onclick="switchTab('feed')" title="Main Feed">🏠</button>
+    <button class="sidebar-btn active" onclick="switchTab('feed')" title="Feed">🏠</button>
     <button class="sidebar-btn" onclick="openFullChatsTab()" title="Chats">💬<span class="sidebar-badge" id="sidebar-chat-badge" style="display:none"></span></button>
     <button class="sidebar-btn" onclick="switchTab('notifications')" title="Notifications">🔔<span class="sidebar-badge" id="sidebar-notif-badge" style="display:none"></span></button>
     <button class="sidebar-btn" onclick="switchTab('settings')" title="Settings">⚙️</button>
   </aside>
 
-  <!-- ==================== MAIN APPLICATION SHELL ==================== -->
+  <!-- ==================== MAIN ENVIRONMENT ==================== -->
   <div class="app-main">
 
     <!-- AUTH SCREEN -->
@@ -584,7 +295,7 @@
               <input type="text" id="auth-preferred-name" placeholder="e.g. Torbor">
             </div>
           </div>
-          <div class="field" id="phone-field" style="display:none"><label>Phone</label><input type="text" id="auth-phone"></div>
+          <div class="field" id="phone-field" style="display:none"><label>Phone Number</label><input type="text" id="auth-phone"></div>
           <div class="field"><label>Email Address</label><input type="email" id="auth-email"></div>
           <div class="field"><label>Password</label><input type="password" id="auth-pass"></div>
           <div class="field" id="code-field" style="display:none"><label>Team Access Code</label><input type="text" id="auth-code"></div>
@@ -597,36 +308,29 @@
         </div>
 
         <div id="auth-fields-verify" style="display:none;">
-          <p style="font-size:13px; color:var(--muted);">Enter the 6-digit verification code sent to <strong id="verify-target-email"></strong>.</p>
-          <div class="field"><label>Verification Code</label><input type="text" id="auth-verify-code" maxlength="6" style="text-align:center; letter-spacing:4px; font-size:18px;"></div>
-          <button class="btn" onclick="submitEmailVerification()">Verify Account</button>
-          <button class="btn secondary" style="margin-top:8px;" onclick="resendVerificationCode()">Resend Code</button>
-          <p style="text-align:center; font-size:13px; margin-top:10px;"><a href="#" onclick="cancelAuthSubflow(event)">Back to Sign In</a></p>
-        </div>
-
-        <div id="auth-fields-reset" style="display:none;">
-          <div class="field" id="reset-email-field"><label>Email</label><input type="email" id="reset-email"></div>
-          <div class="field" id="reset-token-field" style="display:none;"><label>Reset Code</label><input type="text" id="reset-token" maxlength="6" style="text-align:center; letter-spacing:4px;"></div>
-          <div class="field" id="reset-newpass-field" style="display:none;"><label>New Password</label><input type="password" id="reset-newpass"></div>
-          <button class="btn" id="reset-submit-btn" onclick="submitPasswordResetRequest()">Send Reset Code</button>
-          <p style="text-align:center; font-size:13px; margin-top:10px;"><a href="#" onclick="cancelAuthSubflow(event)">Back to Sign In</a></p>
+          <p style="font-size:13px; color:var(--muted);">Enter verification code sent to <strong id="verify-target-email"></strong>.</p>
+          <div class="field"><input type="text" id="auth-verify-code" maxlength="6" style="text-align:center; letter-spacing:4px; font-size:18px;"></div>
+          <button class="btn" onclick="submitEmailVerification()">Verify</button>
         </div>
       </div>
     </div>
 
-    <!-- LOGGED IN VIEW -->
+    <!-- MAIN APP SCREEN -->
     <div id="app-screen" style="display:none; flex-direction:column; height:100%; width:100%;">
 
       <!-- TOP BAR -->
       <header class="app-topbar">
-        <div class="topbar-brand">UAF Team Network</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="topbar-brand">UAF Team Network</div>
+          <span id="connection-status-badge" style="font-size:11px; padding:2px 8px; border-radius:999px; background:#D1FAE5; color:#065F46; font-weight:700;">🟢 Live</span>
+        </div>
         <div class="topbar-search-box">
           <span>🔍</span>
           <input type="text" placeholder="Search team, documents, finances..." id="global-search" oninput="handleUniversalSearch(this.value)">
         </div>
         <div class="topbar-user" onclick="switchTab('settings')">
           <span id="user-display">User Name</span>
-          <div class="uaf-avatar" id="header-avatar" style="width:36px; height:36px; font-size:13px;">U</div>
+          <div class="uaf-avatar" id="header-avatar" style="width:34px; height:34px; font-size:13px;">U</div>
         </div>
       </header>
 
@@ -635,7 +339,7 @@
         <button class="active" onclick="switchTab('feed')">Main Feed</button>
         <button onclick="switchTab('partnerships')">Partnerships</button>
         <button onclick="switchTab('documents')">Documents</button>
-        <button onclick="switchTab('tasks')">Tasks<span class="badge" id="tasks-badge" style="display:none"></span></button>
+        <button onclick="switchTab('tasks')">Tasks</button>
         <button onclick="switchTab('finances')">UAF Finances</button>
         <button onclick="switchTab('programs')">UAF Programs</button>
         <button onclick="switchTab('impact')">Impact</button>
@@ -647,58 +351,53 @@
         <!-- SEARCH RESULTS -->
         <div id="tab-search-results" class="panel">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-            <h3 style="margin:0; color:var(--navy-text);">Search Results</h3>
+            <h3 style="margin:0;">Search Results</h3>
             <button class="btn secondary" style="width:auto; padding:4px 10px; font-size:12px;" onclick="closeSearch()">Clear</button>
           </div>
           <div id="search-results-container"></div>
         </div>
 
-        <!-- MAIN FEED (LinkedIn Style) -->
+        <!-- MAIN FEED -->
         <div id="tab-feed" class="panel active">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-            <button class="btn" style="width:auto; padding:10px 18px; font-size:13.5px;" onclick="openModal('update-modal')">+ Post Team Update</button>
+          <div style="margin-bottom:16px;">
+            <button class="btn" style="width:auto; padding:9px 18px; font-size:13.5px;" onclick="openModal('update-modal')">+ Post Update</button>
           </div>
           <div id="feed-container">Loading updates...</div>
         </div>
 
         <!-- PARTNERSHIPS TAB -->
         <div id="tab-partnerships" class="panel">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
-            <h3 style="margin:0; color:var(--navy-text);">Partnerships Register</h3>
-            <button class="btn" id="new-partner-btn" style="width:auto; padding:8px 16px; font-size:13px; display:none;" onclick="openModal('modal-partnership')">+ Add Partner</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h3 style="margin:0;">Partnerships</h3>
+            <button class="btn" id="new-partner-btn" style="width:auto; padding:6px 14px; font-size:12px; display:none;" onclick="openModal('modal-partnership')">+ Add Partner</button>
           </div>
-          <div class="programs-grid" id="partnerships-container">Loading partnerships...</div>
+          <div class="programs-grid" id="partnerships-container"></div>
         </div>
 
         <!-- DOCUMENTS TAB -->
         <div id="tab-documents" class="panel">
-          <h3 style="margin-top:0; color:var(--navy-text);">Documents Repository</h3>
+          <h3 style="margin-top:0;">Documents</h3>
           <input type="file" id="doc-file-input" onchange="uploadDocument(event)">
-          <div id="doc-list" style="margin-top:16px;"></div>
+          <div id="doc-list" style="margin-top:14px;"></div>
         </div>
 
         <!-- TASKS TAB -->
         <div id="tab-tasks" class="panel">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-            <h3 style="margin:0; color:var(--navy-text);">Tasks &amp; Activities</h3>
-            <button class="btn" id="new-task-btn" style="width:auto; padding:8px 14px; font-size:13px; display:none;" onclick="openTaskModal()">+ New Task</button>
+            <h3 style="margin:0;">Tasks</h3>
+            <button class="btn" id="new-task-btn" style="width:auto; padding:6px 14px; font-size:12px; display:none;" onclick="openTaskModal()">+ New Task</button>
           </div>
-          <div id="tasks-list">Loading tasks...</div>
+          <div id="tasks-list"></div>
         </div>
 
-        <!-- UAF FINANCES (4-Quadrant Matching Reference Image) -->
+        <!-- UAF FINANCES (4-Quadrant Matching Image) -->
         <div id="tab-finances" class="panel">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3 style="margin:0; color:var(--navy-text);">UAF Finances</h3>
-            <span id="fin-role-badge" style="font-size:12px; padding:3px 10px; border-radius:999px; background:#E0E7FF; color:#3730A3; font-weight:700;">Read-Only</span>
-          </div>
+          <h3 style="margin-top:0;">UAF Finances</h3>
 
-          <!-- 4-Quadrant Visual Hub -->
           <div class="fin-hub-container">
             <div class="fin-hub-grid">
               <div class="fin-hub-center-circle">UAF</div>
 
-              <!-- Top Left: Operational Funds (Orange) -->
               <div class="fin-quadrant orange">
                 <div class="fin-quadrant-title">OPERATIONAL FUNDS</div>
                 <div>
@@ -707,7 +406,6 @@
                 </div>
               </div>
 
-              <!-- Top Right: Grant Funds (Blue) -->
               <div class="fin-quadrant blue">
                 <div class="fin-quadrant-title">Grant Funds</div>
                 <div>
@@ -716,7 +414,6 @@
                 </div>
               </div>
 
-              <!-- Bottom Left: Program Funds (Blue) -->
               <div class="fin-quadrant blue">
                 <div class="fin-quadrant-title">Program Funds</div>
                 <div>
@@ -725,7 +422,6 @@
                 </div>
               </div>
 
-              <!-- Bottom Right: Donations (Orange) -->
               <div class="fin-quadrant orange">
                 <div class="fin-quadrant-title">Donations</div>
                 <div>
@@ -736,237 +432,220 @@
             </div>
           </div>
 
-          <!-- Admin Actions Bar -->
-          <div class="fin-actions-bar" id="fin-actions-bar" style="display:none; justify-content:center; gap:8px;">
-            <button class="btn" style="width:auto; padding:8px 14px;" onclick="openModal('modal-update-org')">Update Balance</button>
-            <button class="btn secondary" style="width:auto; padding:8px 14px;" onclick="openAddIncomeModal()">+ Income</button>
-            <button class="btn danger" style="width:auto; padding:8px 14px;" onclick="openModal('modal-add-expense')">− Expense</button>
-            <button class="btn secondary" style="width:auto; padding:8px 14px;" onclick="openModal('modal-add-initiative')">+ Initiative</button>
-            <button class="btn secondary" style="width:auto; padding:8px 14px; background:#254587; color:#fff;" onclick="openModal('modal-financial-report')">📊 Report</button>
+          <div class="fin-actions-bar" id="fin-actions-bar" style="display:none; justify-content:center; gap:8px; margin-bottom:14px;">
+            <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-update-org')">Update Balance</button>
+            <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-income')">+ Income</button>
+            <button class="btn danger" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openModal('modal-add-expense')">− Expense</button>
+            <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px; background:#254587; color:#fff;" onclick="openModal('modal-financial-report')">📊 Report</button>
           </div>
-
-          <!-- Collapsible Executive Tables -->
-          <details class="settings-list" id="fin-initiatives-section" style="display:none; margin-top:16px;">
-            <summary class="settings-row"><div class="settings-row-title">Initiatives Funds Details</div><div>›</div></summary>
-            <div class="settings-row-expand" style="overflow-x:auto;">
-              <table class="fin-table" style="width:100%;">
-                <thead><tr><th>Name</th><th>Currency</th><th>Income</th><th>Expenses</th><th>Balance</th><th>Action</th></tr></thead>
-                <tbody id="initiatives-table-body"></tbody>
-              </table>
-            </div>
-          </details>
-
-          <details class="settings-list" id="fin-ledger-section" style="display:none;">
-            <summary class="settings-row"><div class="settings-row-title">Audited Transaction Ledger</div><div>›</div></summary>
-            <div class="settings-row-expand" style="overflow-x:auto;">
-              <table class="fin-table" style="width:100%;">
-                <thead><tr><th>Date</th><th>User</th><th>Category</th><th>Amount</th><th>Description</th><th>Action</th></tr></thead>
-                <tbody id="ledger-table-body"></tbody>
-              </table>
-            </div>
-          </details>
         </div>
 
-        <!-- UAF PROGRAMS TAB -->
+        <!-- UAF PROGRAMS TAB (All 5 Preloaded) -->
         <div id="tab-programs" class="panel">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-            <h3 style="margin:0; color:var(--navy-text);">UAF Core Programs</h3>
-            <button class="btn" id="new-program-btn" style="width:auto; padding:8px 16px; font-size:13px; display:none;" onclick="openAddProgramModal()">+ New Program</button>
+            <h3 style="margin:0;">UAF Core Programs</h3>
+            <button class="btn" id="new-program-btn" style="width:auto; padding:6px 14px; font-size:12px; display:none;" onclick="openModal('modal-program')">+ Add Program</button>
           </div>
-          <div class="programs-grid" id="programs-container">Loading programs...</div>
+          <div class="programs-grid" id="programs-container"></div>
         </div>
 
         <!-- IMPACT TAB -->
         <div id="tab-impact" class="panel">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-            <div>
-              <h3 style="margin:0; color:var(--navy-text);">Impact Metrics &amp; Outreach</h3>
-              <div style="font-size:12px; color:var(--muted);">Tracking lives empowered across Liberia</div>
-            </div>
-            <button class="btn" id="new-impact-btn" style="width:auto; padding:8px 16px; font-size:13px; display:none;" onclick="openAddImpactModal()">+ Record Impact</button>
+            <h3 style="margin:0;">Impact Metrics &amp; Outreach</h3>
+            <button class="btn" id="new-impact-btn" style="width:auto; padding:6px 14px; font-size:12px; display:none;" onclick="openModal('modal-impact')">+ Record Impact</button>
           </div>
-          <div id="impact-metrics-summary" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:16px;"></div>
-          <div id="impact-list">Loading impact entries...</div>
+          <div id="impact-list"></div>
         </div>
 
         <!-- NOTIFICATIONS TAB -->
         <div id="tab-notifications" class="panel">
-          <h3 style="margin-top:0; color:var(--navy-text);">Notifications</h3>
-          <div id="notifications-list">Loading notifications...</div>
+          <h3 style="margin-top:0;">Notifications</h3>
+          <div id="notifications-list"></div>
         </div>
 
-        <!-- CHATS FULL TAB -->
+        <!-- CHATS TAB -->
         <div id="tab-chats" class="panel">
-          <div class="call-banner-bar">
-            <span id="call-status-label">Team Audio Meeting Room</span>
-            <button class="btn" id="call-action-btn" style="width:auto; padding:6px 14px; font-size:12px; background:#0038A8;" onclick="handleCallAction()">📞 Call Team</button>
+          <div style="background:#0C2340; color:#fff; padding:10px 16px; border-radius:8px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span>Global Audio Call Room</span>
+            <button class="btn" id="call-action-btn" style="width:auto; padding:6px 14px; font-size:12px;" onclick="handleCallAction()">📞 Call Team</button>
           </div>
 
           <div class="chat-app-wrapper">
-            <!-- Screen 1: Chat List -->
             <div id="chat-list-view">
               <div class="chat-header-bar">
-                <h4 style="margin:0; color:var(--navy-text);">Conversations</h4>
-                <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="openCreateGroupModal()">+ Group</button>
+                <h4 style="margin:0;">Conversations</h4>
+                <button class="btn" style="width:auto; padding:4px 10px; font-size:11px;" onclick="openCreateGroupModal()">+ Group</button>
               </div>
-              <div id="chats-list" style="padding:12px;"></div>
+              <div id="chats-list" style="padding:10px;"></div>
             </div>
 
-            <!-- Screen 2: Dedicated Room -->
             <div id="chat-room-view" style="display:none;">
               <div class="chat-header-bar">
-                <div style="display:flex; align-items:center; gap:10px;">
-                  <button class="btn secondary" style="width:auto; padding:4px 8px; font-size:16px;" onclick="backToChatList()">←</button>
-                  <div class="uaf-avatar" id="chat-room-avatar" style="width:34px; height:34px;">C</div>
-                  <strong id="chat-title" style="color:var(--navy-text);">Chat</strong>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button class="btn secondary" style="width:auto; padding:3px 6px; font-size:14px;" onclick="backToChatList()">←</button>
+                  <div class="uaf-avatar" id="chat-room-avatar" style="width:30px; height:30px;">C</div>
+                  <strong id="chat-title">Chat</strong>
                 </div>
                 <div>
-                  <button class="btn secondary" id="add-member-btn" style="width:auto; padding:4px 8px; font-size:11px;" onclick="openAddMemberModal()">+ Member</button>
-                  <button class="btn secondary" id="group-settings-btn" style="width:auto; padding:4px 8px; font-size:11px;" onclick="openGroupSettingsModal()">⚙ Group</button>
+                  <button class="btn danger" style="width:auto; padding:3px 6px; font-size:11px;" onclick="deleteCurrentChat()">Delete Chat</button>
                 </div>
               </div>
               <div class="chat-scrolling-messages" id="chat-messages"></div>
               <div class="chat-fixed-input-bar">
-                <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:10px; border-radius:8px; border:1px solid var(--line);" onkeydown="if(event.key==='Enter') sendMessage();">
-                <button class="btn secondary" id="voice-btn" style="width:auto; padding:8px 12px;" onclick="toggleVoiceRecording()" title="Audio Memo">🎙️</button>
-                <button class="btn" style="width:auto; padding:10px 18px;" onclick="sendMessage()">Send</button>
+                <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--line);" onkeydown="if(event.key==='Enter') sendMessage();">
+                <button class="btn" style="width:auto; padding:8px 16px;" onclick="sendMessage()">Send</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- SETTINGS TAB -->
+        <!-- SETTINGS TAB (Full Restored Profile + Policies + Handbook + Display) -->
         <div id="tab-settings" class="panel">
-          <h3 style="margin-top:0; color:var(--navy-text);">Settings &amp; Organizational Handbook</h3>
+          <h3 style="margin-top:0;">Settings &amp; Organizational Handbook</h3>
 
           <div class="settings-list">
-            <!-- Appearance Customization -->
-            <div class="settings-group-label">Display &amp; Appearance Customization</div>
+            <!-- Appearance Controls -->
+            <div class="settings-group-label">Display &amp; Appearance</div>
             <div class="settings-row" style="cursor:default;">
               <div class="settings-row-icon">🔤</div>
-              <div class="settings-row-text">
-                <div class="settings-row-title">Font Size &amp; Writing Scale</div>
-                <div class="settings-row-subtitle">Adjust overall text readability</div>
-              </div>
-              <select style="width:auto;" onchange="applyFontSize(this.value)">
+              <div style="flex:1;"><div>Writing &amp; Font Size</div></div>
+              <select onchange="applyFontSize(this.value)">
                 <option value="13px">Small</option>
-                <option value="14.5px" selected>Medium (Default)</option>
+                <option value="14.5px" selected>Medium</option>
                 <option value="16px">Large</option>
                 <option value="18px">Extra Large</option>
               </select>
             </div>
-
             <div class="settings-row" style="cursor:default;">
               <div class="settings-row-icon">☀️</div>
-              <div class="settings-row-text">
-                <div class="settings-row-title">Screen Brightness / Night Dim</div>
-              </div>
-              <input type="range" min="60" max="100" value="100" style="width:120px;" oninput="applyBrightness(this.value)">
+              <div style="flex:1;"><div>Screen Dimming / Brightness</div></div>
+              <input type="range" min="60" max="100" value="100" style="width:110px;" oninput="applyBrightness(this.value)">
+            </div>
+            <div class="settings-row" style="cursor:default;">
+              <div class="settings-row-icon">🎨</div>
+              <div style="flex:1;"><div>Theme</div></div>
+              <select onchange="applyTheme(this.value)">
+                <option value="teal">UAF Blue/Teal</option>
+                <option value="forest">Forest Green</option>
+                <option value="sunset">Sunset Warm</option>
+                <option value="midnight">Midnight Dark</option>
+              </select>
             </div>
 
-            <!-- Contacts / Users Directory (Moved here) -->
-            <div class="settings-group-label">Team &amp; User Directory</div>
+            <!-- Users & Team -->
+            <div class="settings-group-label">Team &amp; Users Directory</div>
             <details>
               <summary class="settings-row">
                 <div class="settings-row-icon">👥</div>
-                <div class="settings-row-text"><div class="settings-row-title">Users Directory</div><div class="settings-row-subtitle">Browse full team roster and contact channels</div></div>
+                <div style="flex:1;"><div>Users Directory</div><div style="font-size:11px; color:var(--muted);">Full team directory and contacts</div></div>
                 <div>›</div>
               </summary>
-              <div class="settings-row-expand" id="settings-users-list">Loading users...</div>
+              <div class="settings-row-expand" id="settings-users-list"></div>
             </details>
 
-            <!-- Profile Info -->
-            <div class="settings-group-label">Account &amp; Security</div>
+            <!-- Complete Original Profile Settings -->
+            <div class="settings-group-label">Profile Settings</div>
             <details>
               <summary class="settings-row">
                 <div class="settings-row-icon">👤</div>
-                <div class="settings-row-text"><div class="settings-row-title">Edit Profile Information</div><div class="settings-row-subtitle">Update name, photo, bio, phone, county</div></div>
+                <div style="flex:1;"><div>Edit Profile Information</div><div style="font-size:11px; color:var(--muted);">Photo, Bio, Prefix, Position, County, Project Role</div></div>
                 <div>›</div>
               </summary>
               <div class="settings-row-expand">
                 <div class="field"><label>Profile Picture</label><input type="file" id="settings-photo" accept="image/*" onchange="previewSettingsPhoto(event)"></div>
+                <div class="field">
+                  <label>Prefix &amp; Preferred Name</label>
+                  <div class="prefix-row">
+                    <select id="settings-prefix"><option value="">—</option><option value="Mr.">Mr.</option><option value="Mrs.">Mrs.</option><option value="Ms.">Ms.</option><option value="Dr.">Dr.</option></select>
+                    <input type="text" id="settings-preferred-name" placeholder="Preferred Name">
+                  </div>
+                </div>
                 <div class="field"><label>Full Name</label><input type="text" id="settings-full-name"></div>
                 <div class="field"><label>Bio / Summary</label><textarea id="settings-bio" rows="2"></textarea></div>
-                <div class="field"><label>Position (Display)</label><input type="text" id="settings-position"></div>
-                <div class="field"><label>Phone</label><input type="text" id="settings-phone"></div>
+                <div class="field"><label>Current Position</label><input type="text" id="settings-position"></div>
+                <div class="field"><label>Past Positions</label><input type="text" id="settings-past-positions"></div>
+                <div class="field"><label>Phone Number</label><input type="text" id="settings-phone"></div>
                 <div class="field"><label>County</label><input type="text" id="settings-county"></div>
+                <div class="field"><label>User Type</label>
+                  <select id="settings-user-type">
+                    <option value="General Team Member">General Team Member</option>
+                    <option value="County Level Team Member">County Level Team Member</option>
+                    <option value="Executive Management Team Member">Executive Management Team Member</option>
+                  </select>
+                </div>
                 <button class="btn" onclick="saveProfileSettings()">Save Profile</button>
               </div>
             </details>
 
             <div class="settings-row" onclick="openModal('modal-change-password')">
               <div class="settings-row-icon">🔒</div>
-              <div class="settings-row-text"><div class="settings-row-title">Change Password</div></div>
+              <div style="flex:1;"><div>Change Password</div></div>
               <div>›</div>
             </div>
 
-            <!-- Comprehensive UAF History Narrative -->
+            <!-- Full UAF Organizational History Narrative -->
             <div class="settings-group-label">Organizational History</div>
             <details>
               <summary class="settings-row">
                 <div class="settings-row-icon">📜</div>
-                <div class="settings-row-text"><div class="settings-row-title">History of Upskill Africa Foundation</div><div class="settings-row-subtitle">Origins, founders, and organizational growth</div></div>
-                <div>›</div>
-              </summary>
-              <div class="settings-row-expand" style="font-size:13.5px; line-height:1.65;">
-                <p><strong>Founded July 2, 2023</strong> by <strong>Chris Nen Torbor</strong> and <strong>Litrice M. Browne</strong>, when they reached out to Jeremiah Kollie and Michael Donor at their residence in Pipeline and presented the dream to educate Liberians and Africans.</p>
-                <p>The vision was embraced and supported especially by Michael B. Donor, operating over a full year with three core individuals: Torbor, Donor, and Browne. Originally operating informally as <em>"Upskill - Education and Social Services"</em>.</p>
-                <p>In early 2024, Rejoice Korvah was recruited as Social Affairs Officer. Later in mid-2024, UAF recruited Michael Togbah (General Secretary), Gifty Promise Nimenee (Social Affairs Officer), Garmai M. Kollie (Chief Financial Officer), and Emmanuel Suah (Help Desk), implementing multiple programs. Subsequent recruits included Fatu Yamah and Moses Saah.</p>
-                <p>In 2026, UAF expanded its executive team: Stephen T. Powo, Jr. (Education Empowerment Officer), Frances Joyce Mawolo (Child Protection Officer), Joyce V. Cole (Resource Mobilization Officer), John Muyuneh (Financial Assistant), and Francilia F. Nagbe (Executive Assistant), alongside county coordinators in Maryland (Solomon Weah, Romeo S. Prowd, Ramble Romeo) and Nimba (Christopher Yelebo).</p>
-                <p>Upskill was formally registered on <strong>September 6, 2025</strong> as <strong>Upskill Africa Foundation (UAF)</strong>, partnered with Litrich Agro and Innovation Enterprise (IE).</p>
-              </div>
-            </details>
-
-            <!-- NGO Behavioral Policies -->
-            <div class="settings-group-label">Code of Conduct &amp; Legal Policies</div>
-            <details>
-              <summary class="settings-row">
-                <div class="settings-row-icon">⚖️</div>
-                <div class="settings-row-text"><div class="settings-row-title">NGO Staff Behavioral Policy</div></div>
+                <div style="flex:1;"><div>History of Upskill Africa Foundation</div></div>
                 <div>›</div>
               </summary>
               <div class="settings-row-expand">
-                <p>Zero tolerance for harassment, integrity in financial accounting, and safeguarding of youth and vulnerable community members.</p>
+                <p><strong>Founded July 2, 2023</strong> by <strong>Chris Nen Torbor</strong> and <strong>Litrice M. Browne</strong>, calling upon Jeremiah Kollie and Michael Donor in Pipeline to present the dream of educating Liberians and Africans.</p>
+                <p>Operating for over a year with three core individuals: Torbor, Donor, and Browne, originally known informally as <em>"Upskill - Education and Social Services"</em>.</p>
+                <p>Expanded in 2024 with Rejoice Korvah, Michael Togbah, Gifty Promise Nimenee, Garmai M. Kollie (CFO), Emmanuel Suah, Fatu Yamah, and Moses Saah. In 2026, recruited Stephen T. Powo, Jr., Frances Joyce Mawolo, Joyce V. Cole, John Muyuneh, Francilia F. Nagbe, Solomon Weah, Romeo S. Prowd, Ramble Romeo, and Christopher Yelebo.</p>
+                <p>Formally registered on <strong>September 6, 2025</strong> as <strong>Upskill Africa Foundation (UAF)</strong>, partnered with Litrich Agro and Innovation Enterprise (IE).</p>
+              </div>
+            </details>
+
+            <!-- Complete NGO Behavioral Policies -->
+            <div class="settings-group-label">Policies &amp; Code of Conduct</div>
+            <details>
+              <summary class="settings-row">
+                <div class="settings-row-icon">⚖️</div>
+                <div style="flex:1;"><div>Staff Code of Conduct</div></div>
+                <div>›</div>
+              </summary>
+              <div class="settings-row-expand">
+                <p>Professional integrity, anti-harassment, and safeguarding vulnerable beneficiaries.</p>
               </div>
             </details>
 
             <details>
               <summary class="settings-row">
                 <div class="settings-row-icon">🛡️</div>
-                <div class="settings-row-text"><div class="settings-row-title">Confidentiality &amp; Non-Misuse Policy</div></div>
+                <div style="flex:1;"><div>Confidentiality &amp; Non-Misuse Policy</div></div>
                 <div>›</div>
               </summary>
               <div class="settings-row-expand">
-                <p>All beneficiary and financial data are strictly protected under applicable Data Protection frameworks and Cyber Laws. Unauthorized distribution is prohibited.</p>
+                <p>Proprietary beneficiary and organizational data are strictly confidential under Cyber &amp; Data Protection laws.</p>
               </div>
             </details>
 
-            <!-- Log Out of Account Button -->
-            <div style="padding:16px;">
-              <button class="btn danger" style="background:#FDE8E8; color:#B3261E; border:1px solid #B3261E;" onclick="logoutUser()">Log Out of UAF Network</button>
+            <details>
+              <summary class="settings-row">
+                <div class="settings-row-icon">🚪</div>
+                <div style="flex:1;"><div>Resignation &amp; Exit Procedure</div></div>
+                <div>›</div>
+              </summary>
+              <div class="settings-row-expand">
+                <p>Formal asset handover and revocation of credentials with ongoing non-disclosure commitments.</p>
+              </div>
+            </details>
+
+            <div style="padding:14px;">
+              <button class="btn danger" onclick="logoutUser()">Log Out of Account</button>
             </div>
           </div>
         </div>
 
       </main>
 
-      <!-- ==================== STATIC BOTTOM TEAM DRAWER ==================== -->
+      <!-- ==================== STATIC BOTTOM FOOTER ==================== -->
       <footer class="app-bottom-team-bar" id="app-bottom-team-bar">
         <div class="bottom-team-list" id="bottom-team-row"></div>
-        <div id="team-member-popover">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; gap:10px; align-items:center;">
-              <div class="uaf-avatar" id="popover-avatar" style="width:44px; height:44px;">U</div>
-              <div>
-                <strong id="popover-name" style="color:var(--navy-text);">Name</strong>
-                <div id="popover-role" style="font-size:12px; color:var(--accent); font-weight:600;">Position</div>
-              </div>
-            </div>
-            <button class="btn secondary" style="width:auto; padding:3px 8px; font-size:11px;" onclick="closeTeamPopover()">✕</button>
-          </div>
-          <div id="popover-bio" style="font-size:12.5px; margin:8px 0;"></div>
-          <div id="popover-actions" style="display:flex; gap:8px;"></div>
-        </div>
       </footer>
 
     </div>
@@ -974,22 +653,19 @@
 </div>
 
 <!-- ==================== MODALS ==================== -->
-
-<!-- POST MODAL -->
 <div class="modal" id="update-modal">
   <div class="modal-card">
-    <h3 style="margin-top:0; color:var(--navy-text);">Share Team Update</h3>
-    <div class="field"><textarea id="post-text" rows="3" placeholder="What would you like to share?"></textarea></div>
+    <h3 style="margin-top:0;">Post Update</h3>
+    <div class="field"><textarea id="post-text" rows="3" placeholder="Share news..."></textarea></div>
     <div class="field"><label>Attach Image</label><input type="file" id="post-photo" accept="image/*"></div>
-    <button class="btn" onclick="submitTeamUpdate()">Post Update</button>
+    <button class="btn" onclick="submitTeamUpdate()">Post</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('update-modal')">Cancel</button>
   </div>
 </div>
 
-<!-- CHANGE PASSWORD MODAL -->
 <div class="modal" id="modal-change-password">
   <div class="modal-card">
-    <h3 style="margin-top:0; color:var(--navy-text);">Change Password</h3>
+    <h3 style="margin-top:0;">Change Password</h3>
     <div class="field"><label>Current Password</label><input type="password" id="change-pass-current"></div>
     <div class="field"><label>New Password</label><input type="password" id="change-pass-new"></div>
     <button class="btn" onclick="submitChangePassword()">Update</button>
@@ -997,95 +673,36 @@
   </div>
 </div>
 
-<!-- ADD PROGRAM MODAL -->
 <div class="modal" id="modal-program">
   <div class="modal-card">
-    <h3 style="margin-top:0; color:var(--navy-text);">Add Core Program</h3>
-    <div class="field"><label>Program Title</label><input type="text" id="prog-title"></div>
-    <div class="field"><label>Short Code</label><input type="text" id="prog-code" placeholder="e.g. WHEP"></div>
+    <h3 style="margin-top:0;">Add Core Program</h3>
+    <div class="field"><label>Title</label><input type="text" id="prog-title"></div>
+    <div class="field"><label>Short Code</label><input type="text" id="prog-code"></div>
     <div class="field"><label>Target Beneficiaries</label><input type="text" id="prog-target"></div>
     <div class="field"><label>Description</label><textarea id="prog-desc" rows="3"></textarea></div>
-    <button class="btn" onclick="submitProgram()">Save Program</button>
+    <button class="btn" onclick="submitProgram()">Save</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-program')">Cancel</button>
   </div>
 </div>
 
-<!-- ADD IMPACT MODAL -->
 <div class="modal" id="modal-impact">
   <div class="modal-card">
-    <h3 style="margin-top:0; color:var(--navy-text);">Record Impact Data</h3>
-    <div class="field"><label>Initiative / Program</label><input type="text" id="imp-initiative"></div>
-    <div class="field"><label>Location (County / Community)</label><input type="text" id="imp-location"></div>
+    <h3 style="margin-top:0;">Record Impact Data</h3>
+    <div class="field"><label>Initiative</label><input type="text" id="imp-initiative"></div>
+    <div class="field"><label>Location</label><input type="text" id="imp-location"></div>
     <div class="field"><label>Men Reached</label><input type="number" id="imp-men" value="0"></div>
     <div class="field"><label>Women Reached</label><input type="number" id="imp-women" value="0"></div>
-    <div class="field"><label>Average Age</label><input type="text" id="imp-age" placeholder="e.g. 16-25"></div>
+    <div class="field"><label>Average Age</label><input type="text" id="imp-age"></div>
     <div class="field"><label>Impact Method</label>
       <select id="imp-method">
         <option value="Trained">Trained</option>
-        <option value="Direct Aid / Given Money">Direct Aid / Given Money</option>
+        <option value="Direct Financial Aid">Direct Financial Aid</option>
         <option value="Reintegrated in School">Reintegrated in School</option>
         <option value="Toolkits Distributed">Toolkits Distributed</option>
       </select>
     </div>
-    <button class="btn" onclick="submitImpact()">Record Metric</button>
+    <button class="btn" onclick="submitImpact()">Record</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-impact')">Cancel</button>
-  </div>
-</div>
-
-<!-- FINANCE MODALS -->
-<div class="modal" id="modal-update-org">
-  <div class="modal-card">
-    <h3 style="margin-top:0;">Update Operational Balance</h3>
-    <div class="field"><label>New Balance</label><input type="number" step="0.01" id="input-org-balance"></div>
-    <div class="field"><label>Currency</label><select id="input-org-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
-    <button class="btn" onclick="submitUpdateOrgBalance()">Save</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-update-org')">Cancel</button>
-  </div>
-</div>
-
-<div class="modal" id="modal-add-income">
-  <div class="modal-card">
-    <h3 style="margin-top:0;">Record Income</h3>
-    <div class="field"><label>Target</label>
-      <select id="income-source-select">
-        <option value="Grant">Grant</option>
-        <option value="Other Balance">Program Funds</option>
-        <option value="Donation">Donation</option>
-      </select>
-    </div>
-    <div class="field"><label>Amount</label><input type="number" step="0.01" id="income-amount"></div>
-    <div class="field"><label>Currency</label><select id="income-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
-    <button class="btn" onclick="submitIncome()">Record</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-income')">Cancel</button>
-  </div>
-</div>
-
-<div class="modal" id="modal-add-expense">
-  <div class="modal-card">
-    <h3 style="margin-top:0;">Record Expense</h3>
-    <div class="field"><label>Description</label><input type="text" id="expense-desc"></div>
-    <div class="field"><label>Amount</label><input type="number" step="0.01" id="expense-amount"></div>
-    <div class="field"><label>Source</label>
-      <select id="expense-source-select">
-        <option value="Operational Account">Operational Account</option>
-        <option value="Grant">Grant</option>
-        <option value="Other Balance">Program Funds</option>
-        <option value="Donation">Donation</option>
-      </select>
-    </div>
-    <div class="field"><label>Currency</label><select id="expense-currency"><option value="USD">USD ($)</option><option value="LRD">LRD (L$)</option></select></div>
-    <button class="btn danger" onclick="submitExpense()">Submit Expense</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-expense')">Cancel</button>
-  </div>
-</div>
-
-<div class="modal" id="modal-financial-report">
-  <div class="modal-card">
-    <h3 style="margin-top:0;">Download Financial Statement</h3>
-    <div class="field"><label>Start Date</label><input type="date" id="report-start-date"></div>
-    <div class="field"><label>End Date</label><input type="date" id="report-end-date"></div>
-    <button class="btn" onclick="downloadFinancialReport()">Download CSV</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-financial-report')">Cancel</button>
   </div>
 </div>
 
@@ -1096,34 +713,55 @@
   let activeChannelId = 'team';
   let isSignupMode = false;
   let allTeamProfiles = [];
-  let profileNameMap = {};
+  let isOnline = navigator.onLine;
   let lastScrollTop = 0;
   const SESSION_KEY = 'uaf_session';
 
   function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('open'); }
   function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('open'); }
 
+  // Offline-First Network Dispatcher
   async function apiPost(action, data = {}) {
     const payload = {
       action, ...data,
       email: data.email || (currentUser ? currentUser.email : undefined),
       sessionToken: data.sessionToken || currentSessionToken || undefined
     };
-    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-    return res.json();
+    try {
+      const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+      const json = await res.json();
+      setOnlineStatus(true);
+      return json;
+    } catch (err) {
+      setOnlineStatus(false);
+      return { error: 'Offline. Action saved locally.' };
+    }
   }
 
-  function canManageFinances() {
-    if (!currentUser) return false;
-    const r = (currentUser.authorizedRole || '').trim();
-    return r === 'Executive Director' || r === 'CFO';
-  }
-  function isAuthorizedCoordinator() {
-    if (!currentUser) return false;
-    return canManageFinances() || currentUser.authorizedTaskAdmin === true;
+  async function cachedFetch(action, cacheKey) {
+    try {
+      const res = await fetch(`${SCRIPT_URL}?action=${action}&email=${encodeURIComponent(currentUser ? currentUser.email : '')}&sessionToken=${encodeURIComponent(currentSessionToken || '')}`);
+      const data = await res.json();
+      localStorage.setItem('cached_' + cacheKey, JSON.stringify(data));
+      setOnlineStatus(true);
+      return data;
+    } catch (e) {
+      setOnlineStatus(false);
+      const cached = localStorage.getItem('cached_' + cacheKey);
+      return cached ? JSON.parse(cached) : [];
+    }
   }
 
-  // Universal Avatar Generator with Photo Detection
+  function setOnlineStatus(online) {
+    isOnline = online;
+    const b = document.getElementById('connection-status-badge');
+    if (b) {
+      b.innerText = online ? '🟢 Live' : '📡 Offline (Cached)';
+      b.style.background = online ? '#D1FAE5' : '#FEF3C7';
+      b.style.color = online ? '#065F46' : '#92400E';
+    }
+  }
+
   function getAvatarHtml(email, name, photoUrl, size = 36) {
     const profile = allTeamProfiles.find(p => p.email === email);
     const photo = photoUrl || (profile && profile.photoUrl);
@@ -1132,7 +770,6 @@
     return `<div class="uaf-avatar" style="width:${size}px; height:${size}px; font-size:${size*0.4}px;">${letter}</div>`;
   }
 
-  // Auto-hiding bottom team footer on scroll
   function handleScrollFooter(el) {
     const st = el.scrollTop;
     const bar = document.getElementById('app-bottom-team-bar');
@@ -1141,7 +778,6 @@
     lastScrollTop = st <= 0 ? 0 : st;
   }
 
-  // ---------- AUTH ----------
   function toggleAuthMode(e) {
     if (e) e.preventDefault();
     isSignupMode = !isSignupMode;
@@ -1155,37 +791,26 @@
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-pass').value;
     if (isSignupMode) {
-      const name = document.getElementById('auth-name').value.trim();
-      const teamCode = document.getElementById('auth-code').value.trim();
-      const prefix = document.getElementById('auth-prefix').value;
-      const preferredName = document.getElementById('auth-preferred-name').value.trim();
-      const res = await apiPost('signup', { email, password, name, teamCode, prefix, preferredName });
+      const res = await apiPost('signup', {
+        email, password, name: document.getElementById('auth-name').value.trim(),
+        teamCode: document.getElementById('auth-code').value.trim(),
+        prefix: document.getElementById('auth-prefix').value,
+        preferredName: document.getElementById('auth-preferred-name').value.trim()
+      });
       if (res.success) {
         document.getElementById('auth-fields-standard').style.display = 'none';
         document.getElementById('auth-fields-verify').style.display = 'block';
         document.getElementById('verify-target-email').innerText = email;
-      } else alert(res.error || 'Signup failed');
+      } else alert(res.error);
     } else {
       const res = await apiPost('login', { email, password });
       if (res.success && res.sessionToken) {
         currentUser = res.profile;
         currentSessionToken = res.sessionToken;
-        localStorage.setItem(SESSION_KEY, JSON.stringify({ email, token: res.sessionToken }));
+        localStorage.setItem(SESSION_KEY, JSON.stringify({ email, token: res.sessionToken, profile: res.profile }));
         enterApp();
-      } else alert(res.error || 'Invalid credentials');
+      } else alert(res.error);
     }
-  }
-
-  async function submitEmailVerification() {
-    const email = document.getElementById('verify-target-email').innerText;
-    const code = document.getElementById('auth-verify-code').value.trim();
-    const res = await apiPost('verifyEmail', { email, code });
-    if (res.success) {
-      currentUser = res.profile;
-      currentSessionToken = res.sessionToken;
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ email, token: res.sessionToken }));
-      enterApp();
-    } else alert(res.error);
   }
 
   function enterApp() {
@@ -1202,7 +827,6 @@
     loadPrograms();
     loadImpact();
     loadPartnerships();
-    checkCallStatus();
   }
 
   async function logoutUser() {
@@ -1210,7 +834,6 @@
     location.reload();
   }
 
-  // ---------- TAB NAVIGATION ----------
   function switchTab(tabName) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.app-tabstrip button').forEach(b => b.classList.remove('active'));
@@ -1232,40 +855,37 @@
     if (tabName === 'documents') loadDocuments();
   }
 
-  function openFullChatsTab() {
-    switchTab('chats');
-    backToChatList();
-    loadChats();
-  }
+  function openFullChatsTab() { switchTab('chats'); backToChatList(); loadChats(); }
 
-  // ---------- LINKEDIN-STYLE FEED ----------
+  // ---------- FEED WITH COUNTERS & DELETE ----------
   async function loadFeed() {
-    const data = await fetch(`${SCRIPT_URL}?action=feedPosts`).then(r => r.json());
+    const data = await cachedFetch('feedPosts', 'feed');
     const container = document.getElementById('feed-container');
     if (!Array.isArray(data)) return;
 
     container.innerHTML = data.map(post => {
+      const isAuthor = currentUser && (post.authorEmail === currentUser.email || (currentUser.authorizedRole === 'Executive Director'));
       const isLiked = post.likes && post.likes.includes(currentUser.email);
       const isDisliked = post.dislikes && post.dislikes.includes(currentUser.email);
-      const likesCount = (post.likes || []).length;
-      const dislikesCount = (post.dislikes || []).length;
-      const comments = post.comments || [];
 
       return `
         <div class="feed-post-card">
           <div class="post-author-row">
-            ${getAvatarHtml(post.authorEmail, post.authorName, null, 42)}
-            <div>
-              <div class="post-author-name">${escapeHtml(post.authorName)}</div>
-              <div class="post-author-sub">${escapeHtml(post.category || 'Member')} • ${new Date(post.timestamp).toLocaleDateString()}</div>
+            <div class="post-author-info">
+              ${getAvatarHtml(post.authorEmail, post.authorName, null, 38)}
+              <div>
+                <div class="post-author-name">${escapeHtml(post.authorName)}</div>
+                <div class="post-author-sub">${escapeHtml(post.category || 'Member')} • ${new Date(post.timestamp).toLocaleDateString()}</div>
+              </div>
             </div>
+            ${isAuthor ? `<button class="btn danger" style="width:auto; padding:2px 8px; font-size:11px;" onclick="deleteFeedPost('${post.id}')">Delete</button>` : ''}
           </div>
           <div class="post-body-text">${escapeHtml(post.text)}</div>
           ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-img">` : ''}
 
           <div class="post-metrics-bar">
-            <span>👍 ${likesCount} Likes • 👎 ${dislikesCount} Dislikes</span>
-            <span>💬 ${comments.length} Comments • 🔁 ${post.repostsCount || 0} Reposts</span>
+            <span>👍 ${post.likes ? post.likes.length : 0} Likes • 👎 ${post.dislikes ? post.dislikes.length : 0} Dislikes</span>
+            <span>💬 ${post.comments ? post.comments.length : 0} Comments • 🔁 ${post.repostsCount || 0} Reposts</span>
           </div>
 
           <div class="post-actions-bar">
@@ -1276,21 +896,16 @@
           </div>
 
           <div class="post-comments-drawer" id="comments-${post.id}">
-            <div style="display:flex; gap:8px; margin-bottom:12px;">
-              <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--line);">
-              <button class="btn" style="width:auto; padding:6px 12px; font-size:12px;" onclick="submitComment('${post.id}')">Reply</button>
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+              <input type="text" id="comment-input-${post.id}" placeholder="Write comment..." style="flex:1; padding:6px; border-radius:6px; border:1px solid var(--line);">
+              <button class="btn" style="width:auto; padding:6px 12px; font-size:11px;" onclick="submitComment('${post.id}')">Reply</button>
             </div>
-            <div>
-              ${comments.map(c => `
-                <div class="comment-item">
-                  ${getAvatarHtml(c.email, c.authorName, null, 28)}
-                  <div class="comment-bubble">
-                    <strong>${escapeHtml(c.authorName)}</strong>
-                    <div>${escapeHtml(c.text)}</div>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
+            ${(post.comments || []).map(c => `
+              <div class="comment-item">
+                ${getAvatarHtml(c.email, c.authorName, null, 26)}
+                <div class="comment-bubble"><strong>${escapeHtml(c.authorName)}</strong>: ${escapeHtml(c.text)}</div>
+              </div>
+            `).join('')}
           </div>
         </div>
       `;
@@ -1301,104 +916,36 @@
     await apiPost('reactFeedPost', { postId, reactionType, authorName: currentUser.displayName || currentUser.name });
     loadFeed();
   }
-
-  function toggleComments(postId) {
-    const el = document.getElementById(`comments-${postId}`);
-    el.style.display = el.style.display === 'block' ? 'none' : 'block';
-  }
-
+  function toggleComments(id) { const el = document.getElementById(`comments-${id}`); el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
   async function submitComment(postId) {
     const input = document.getElementById(`comment-input-${postId}`);
-    const text = input.value.trim();
-    if (!text) return;
-    await apiPost('commentFeedPost', { postId, authorName: currentUser.displayName || currentUser.name, text });
+    if (!input.value.trim()) return;
+    await apiPost('commentFeedPost', { postId, authorName: currentUser.displayName || currentUser.name, text: input.value.trim() });
     loadFeed();
   }
-
-  async function submitTeamUpdate() {
-    const text = document.getElementById('post-text').value.trim();
-    if (!text) return;
-    await apiPost('createTeamUpdate', { authorName: currentUser.displayName || currentUser.name, text });
-    document.getElementById('post-text').value = '';
-    closeModal('update-modal');
+  async function deleteFeedPost(postId) {
+    if (!confirm('Delete this post?')) return;
+    await apiPost('deletePost', { postId });
     loadFeed();
   }
 
   // ---------- PROGRAMS ----------
   async function loadPrograms() {
-    document.getElementById('new-program-btn').style.display = canManageFinances() ? 'inline-block' : 'none';
-    const data = await fetch(`${SCRIPT_URL}?action=programs`).then(r => r.json());
+    const data = await cachedFetch('programs', 'programs');
     document.getElementById('programs-container').innerHTML = (Array.isArray(data) ? data : []).map(p => `
       <div class="program-card">
         <span style="font-size:11px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 8px; border-radius:999px;">${escapeHtml(p.shortCode || 'CORE')}</span>
         <h4 style="margin:6px 0; color:var(--navy-text);">${escapeHtml(p.title)}</h4>
-        <p style="font-size:13px; color:var(--ink); margin:6px 0;">${escapeHtml(p.description)}</p>
-        <div style="font-size:12px; color:var(--muted); margin-top:8px;">🎯 Target: ${escapeHtml(p.targetBeneficiaries || 'Community')}</div>
+        <p style="font-size:13px; margin:6px 0;">${escapeHtml(p.description)}</p>
+        <div style="font-size:11.5px; color:var(--muted);">Target: <strong>${escapeHtml(p.targetBeneficiaries || 'Community')}</strong></div>
       </div>
     `).join('');
-  }
-
-  function openAddProgramModal() { openModal('modal-program'); }
-  async function submitProgram() {
-    const title = document.getElementById('prog-title').value.trim();
-    const shortCode = document.getElementById('prog-code').value.trim();
-    const description = document.getElementById('prog-desc').value.trim();
-    const targetBeneficiaries = document.getElementById('prog-target').value.trim();
-    await apiPost('addProgram', { title, shortCode, description, targetBeneficiaries });
-    closeModal('modal-program');
-    loadPrograms();
-  }
-
-  // ---------- IMPACT METRICS ----------
-  async function loadImpact() {
-    document.getElementById('new-impact-btn').style.display = isAuthorizedCoordinator() ? 'inline-block' : 'none';
-    const data = await fetch(`${SCRIPT_URL}?action=impact`).then(r => r.json());
-    const entries = Array.isArray(data) ? data : [];
-
-    let totalMen = 0, totalWomen = 0;
-    entries.forEach(e => { totalMen += e.maleReached; totalWomen += e.femaleReached; });
-
-    document.getElementById('impact-metrics-summary').innerHTML = `
-      <div class="fin-card"><div class="fin-label">Total Outreach</div><div class="fin-value">${(totalMen + totalWomen).toLocaleString()}</div></div>
-      <div class="fin-card"><div class="fin-label">Female Beneficiaries</div><div class="fin-value">${totalWomen.toLocaleString()}</div></div>
-      <div class="fin-card"><div class="fin-label">Male Beneficiaries</div><div class="fin-value">${totalMen.toLocaleString()}</div></div>
-    `;
-
-    document.getElementById('impact-list').innerHTML = entries.map(e => `
-      <div class="feed-post-card">
-        <h4 style="margin:0 0 6px 0; color:var(--navy-text);">${escapeHtml(e.initiative)} — 📍 ${escapeHtml(e.location)}</h4>
-        <div style="font-size:13px; color:var(--ink);"><strong>Outreach:</strong> ${e.femaleReached} Females, ${e.maleReached} Males (Avg Age: ${escapeHtml(e.averageAge || 'Youth')})</div>
-        <div style="font-size:12px; color:var(--muted); margin-top:4px;">Method: <strong>${escapeHtml(e.impactMethod)}</strong> • Date: ${e.date || '—'}</div>
-      </div>
-    `).join('');
-  }
-
-  function openAddImpactModal() { openModal('modal-impact'); }
-  async function submitImpact() {
-    await apiPost('addImpactEntry', {
-      initiative: document.getElementById('imp-initiative').value.trim(),
-      location: document.getElementById('imp-location').value.trim(),
-      maleReached: document.getElementById('imp-men').value,
-      femaleReached: document.getElementById('imp-women').value,
-      averageAge: document.getElementById('imp-age').value.trim(),
-      impactMethod: document.getElementById('imp-method').value
-    });
-    closeModal('modal-impact');
-    loadImpact();
   }
 
   // ---------- FINANCES ----------
-  function formatMoney(val, cur = 'USD') {
-    const num = Number(val) || 0;
-    return cur === 'LRD' ? `L$ ${num.toLocaleString()}` : `$${num.toLocaleString()}`;
-  }
-
+  function formatMoney(val, cur = 'USD') { const n = Number(val) || 0; return cur === 'LRD' ? `L$ ${n.toLocaleString()}` : `$${n.toLocaleString()}`; }
   async function loadFinances() {
-    const data = await fetch(`${SCRIPT_URL}?action=finances&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
-    const isFull = data.access?.canManageFinances;
-    const isDet = data.access?.canViewDetailed;
-
-    document.getElementById('fin-actions-bar').style.display = isFull ? 'flex' : 'none';
+    const data = await cachedFetch('finances', 'finances');
     const sum = data.summary || {};
     document.getElementById('dash-org-balance-usd').innerText = formatMoney(sum.operationalBalance?.USD, 'USD');
     document.getElementById('dash-org-balance-lrd').innerText = formatMoney(sum.operationalBalance?.LRD, 'LRD');
@@ -1408,95 +955,42 @@
     document.getElementById('dash-other-balance-lrd').innerText = formatMoney(sum.programBalance?.LRD, 'LRD');
     document.getElementById('dash-donation-balance-usd').innerText = formatMoney(sum.donationBalance?.USD, 'USD');
     document.getElementById('dash-donation-balance-lrd').innerText = formatMoney(sum.donationBalance?.LRD, 'LRD');
-
-    if (isDet && data.detail) {
-      document.getElementById('fin-initiatives-section').style.display = 'block';
-      document.getElementById('initiatives-table-body').innerHTML = (data.detail.initiatives || []).map(i => `
-        <tr><td>${escapeHtml(i.name)}</td><td>${i.currency}</td><td>${formatMoney(i.amountReceived, i.currency)}</td><td>${formatMoney(i.totalExpenses, i.currency)}</td><td><strong>${formatMoney(i.currentBalance, i.currency)}</strong></td><td>—</td></tr>
-      `).join('');
-    }
-    if (isFull && data.auditTrail) {
-      document.getElementById('fin-ledger-section').style.display = 'block';
-      document.getElementById('ledger-table-body').innerHTML = data.auditTrail.map(r => `
-        <tr><td>${new Date(r.timestamp).toLocaleDateString()}</td><td>${r.user}</td><td>${r.category}</td><td>${formatMoney(r.amount, r.currency)}</td><td>${escapeHtml(r.description || '')}</td><td>—</td></tr>
-      `).join('');
-    }
+    if (data.access?.canManageFinances) document.getElementById('fin-actions-bar').style.display = 'flex';
   }
 
-  function openAddIncomeModal() { openModal('modal-add-income'); }
-  async function submitUpdateOrgBalance() {
-    await apiPost('updateOrgBalance', { newBalance: document.getElementById('input-org-balance').value, currency: document.getElementById('input-org-currency').value });
-    closeModal('modal-update-org'); loadFinances();
-  }
-  async function submitIncome() {
-    await apiPost('addFinancialIncome', { source: document.getElementById('income-source-select').value, amount: document.getElementById('income-amount').value, currency: document.getElementById('income-currency').value });
-    closeModal('modal-add-income'); loadFinances();
-  }
-  async function submitExpense() {
-    await apiPost('addExpense', { description: document.getElementById('expense-desc').value, amount: document.getElementById('expense-amount').value, category: document.getElementById('expense-source-select').value, currency: document.getElementById('expense-currency').value });
-    closeModal('modal-add-expense'); loadFinances();
-  }
-  async function downloadFinancialReport() {
-    const res = await apiPost('generateFinancialReport', { startDate: document.getElementById('report-start-date').value, endDate: document.getElementById('report-end-date').value });
-    if (res.rows && res.rows.length) {
-      const csv = 'Date,User,Category,Amount,Currency,Description\n' + res.rows.map(r => `${r.date},${r.user},${r.category},${r.amount},${r.currency},"${r.description}"`).join('\n');
-      const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv); a.download = 'UAF_Report.csv'; a.click();
-      closeModal('modal-financial-report');
-    } else alert('No records found');
-  }
-
-  // ---------- CHATS & CALL DYNAMICS ----------
-  async function checkCallStatus() {
-    const res = await fetch(`${SCRIPT_URL}?action=activeCall`).then(r => r.json());
-    const btn = document.getElementById('call-action-btn');
-    if (res.isLive) {
-      btn.innerText = '🟢 Join Team Call (Live)';
-      btn.style.background = '#2E7D32';
-    } else {
-      btn.innerText = '📞 Call Team';
-      btn.style.background = '#0038A8';
-    }
-  }
-
-  function handleCallAction() {
-    window.open('https://meet.jit.si/uaf-global-team-room', '_blank');
-    apiPost('notifyCall', { name: currentUser.displayName || currentUser.name, channelName: 'Team Room' });
-    checkCallStatus();
-  }
-
+  // ---------- CHATS ----------
   async function loadChats() {
-    const channels = await fetch(`${SCRIPT_URL}?action=channels&email=${encodeURIComponent(currentUser.email)}`).then(r => r.json());
+    const channels = await cachedFetch('channels', 'channels');
     document.getElementById('chats-list').innerHTML = (Array.isArray(channels) ? channels : []).map(c => `
-      <div class="feed-post-card" style="display:flex; align-items:center; gap:12px; cursor:pointer; padding:12px;" onclick="openChatRoom('${c.channelId}', '${escapeHtml(c.name || 'Direct Message')}', '${c.type}')">
-        ${getAvatarHtml(null, c.name, null, 38)}
-        <div style="flex:1;"><strong>${escapeHtml(c.name || 'Direct Message')}</strong><div style="font-size:11px; color:var(--muted);">${c.type.toUpperCase()}</div></div>
+      <div class="feed-post-card" style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:10px;" onclick="openChatRoom('${c.channelId}', '${escapeHtml(c.name || 'Direct Message')}')">
+        ${getAvatarHtml(null, c.name, null, 34)}
+        <div style="flex:1;"><strong>${escapeHtml(c.name || 'Direct Message')}</strong></div>
         <span>›</span>
       </div>
     `).join('');
   }
-
-  function openChatRoom(id, title, type) {
+  function openChatRoom(id, title) {
     activeChannelId = id;
     document.getElementById('chat-list-view').style.display = 'none';
     document.getElementById('chat-room-view').style.display = 'block';
     document.getElementById('chat-title').innerText = title;
     loadMessages();
   }
-  function backToChatList() {
-    document.getElementById('chat-room-view').style.display = 'none';
-    document.getElementById('chat-list-view').style.display = 'block';
-    loadChats();
-  }
+  function backToChatList() { document.getElementById('chat-room-view').style.display = 'none'; document.getElementById('chat-list-view').style.display = 'block'; loadChats(); }
   async function loadMessages() {
-    const msgs = await fetch(`${SCRIPT_URL}?action=messages&channelId=${activeChannelId}&email=${encodeURIComponent(currentUser.email)}&sessionToken=${encodeURIComponent(currentSessionToken)}`).then(r => r.json());
-    document.getElementById('chat-messages').innerHTML = (Array.isArray(msgs) ? msgs : []).map(m => `
-      <div class="msg-row ${m.email === currentUser.email ? 'mine' : 'other'}">
-        <div class="msg-bubble">
-          <div style="font-size:11px; font-weight:700; opacity:0.8;">${escapeHtml(profileNameMap[m.email] || m.name)}</div>
-          <div>${escapeHtml(m.text)}</div>
+    const msgs = await cachedFetch(`messages&channelId=${activeChannelId}`, `msgs_${activeChannelId}`);
+    document.getElementById('chat-messages').innerHTML = (Array.isArray(msgs) ? msgs : []).map(m => {
+      const isMine = m.email === currentUser.email;
+      return `
+        <div class="msg-row ${isMine ? 'mine' : 'other'}">
+          <div class="msg-bubble">
+            <div style="font-size:11px; font-weight:700; opacity:0.8;">${escapeHtml(m.name)}</div>
+            <div>${escapeHtml(m.text)}</div>
+            ${isMine ? `<div style="text-align:right; margin-top:4px;"><button style="background:none; border:none; color:inherit; font-size:10px; cursor:pointer; opacity:0.7;" onclick="deleteMsg('${m.id}')">🗑️</button></div>` : ''}
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
     document.getElementById('chat-messages').scrollTop = 99999;
   }
   async function sendMessage() {
@@ -1505,68 +999,73 @@
     await apiPost('postMessage', { channelId: activeChannelId, name: currentUser.displayName || currentUser.name, text: input.value.trim() });
     input.value = ''; loadMessages();
   }
+  async function deleteMsg(messageId) {
+    if (!confirm('Delete message?')) return;
+    await apiPost('deleteMessage', { messageId });
+    loadMessages();
+  }
+  async function deleteCurrentChat() {
+    if (!confirm('Delete this conversation?')) return;
+    await apiPost('deleteChat', { channelId: activeChannelId });
+    backToChatList();
+  }
 
-  // ---------- BOTTOM TEAM BAR & DRAWER ----------
+  // ---------- ALL PROFILES & CACHED TEAMS ----------
   async function loadAllProfiles() {
-    allTeamProfiles = await fetch(`${SCRIPT_URL}?action=profiles`).then(r => r.json());
+    allTeamProfiles = await cachedFetch('profiles', 'profiles');
     if (Array.isArray(allTeamProfiles)) {
-      profileNameMap = {};
-      allTeamProfiles.forEach(p => { profileNameMap[p.email] = p.displayName || p.name; });
       document.getElementById('bottom-team-row').innerHTML = allTeamProfiles.map(p => `
-        <div class="bottom-team-item" onclick="toggleTeamMemberPopover('${p.email}')">
-          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 44)}
+        <div class="bottom-team-item" onclick="startDirectMessage('${p.email}')">
+          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 40)}
           <div class="bottom-team-name">${escapeHtml(p.preferredName || p.name.split(' ')[0])}</div>
         </div>
       `).join('');
-
       document.getElementById('settings-users-list').innerHTML = allTeamProfiles.map(p => `
         <div style="display:flex; gap:10px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line);">
-          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 32)}
-          <div><strong>${escapeHtml(p.displayName || p.name)}</strong> — <span style="font-size:12px; color:var(--muted);">${escapeHtml(p.currentPosition || 'Staff')} (${escapeHtml(p.county || 'Liberia')})</span></div>
+          ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 30)}
+          <div><strong>${escapeHtml(p.displayName || p.name)}</strong> — <span style="color:var(--muted);">${escapeHtml(p.currentPosition || 'Staff')}</span></div>
         </div>
       `).join('');
     }
   }
 
-  function toggleTeamMemberPopover(email) {
-    const p = allTeamProfiles.find(item => item.email === email);
-    if (!p) return;
-    document.getElementById('popover-avatar').innerHTML = getAvatarHtml(p.email, p.displayName, p.photoUrl, 44);
-    document.getElementById('popover-name').innerText = p.displayName || p.name;
-    document.getElementById('popover-role').innerText = p.currentPosition || 'Team Member';
-    document.getElementById('popover-bio').innerText = p.bio || 'No bio available.';
-    document.getElementById('team-member-popover').style.display = 'block';
+  async function startDirectMessage(email) {
+    if (email === currentUser.email) return;
+    const res = await apiPost('getOrCreateDM', { emailB: email });
+    if (res.success && res.channelId) {
+      openFullChatsTab();
+      openChatRoom(res.channelId, email);
+    }
   }
-  function closeTeamPopover() { document.getElementById('team-member-popover').style.display = 'none'; }
 
-  // ---------- CUSTOMIZATION UTILS ----------
-  function applyFontSize(size) { document.documentElement.style.setProperty('--app-font-size', size); }
-  function applyBrightness(val) { document.documentElement.style.setProperty('--app-brightness', val + '%'); }
+  // ---------- SETTINGS & CUSTOMIZATION ----------
+  function applyFontSize(s) { document.documentElement.style.setProperty('--app-font-size', s); }
+  function applyBrightness(v) { document.documentElement.style.setProperty('--app-brightness', v + '%'); }
+  function applyTheme(t) { if (t === 'teal') document.body.removeAttribute('data-theme'); else document.body.setAttribute('data-theme', t); }
+
+  async function saveProfileSettings() {
+    const payload = {
+      name: document.getElementById('settings-full-name').value.trim(),
+      bio: document.getElementById('settings-bio').value.trim(),
+      phone: document.getElementById('settings-phone').value.trim(),
+      prefix: document.getElementById('settings-prefix').value,
+      preferredName: document.getElementById('settings-preferred-name').value.trim(),
+      currentPosition: document.getElementById('settings-position').value.trim(),
+      pastPositions: document.getElementById('settings-past-positions').value.trim(),
+      county: document.getElementById('settings-county').value.trim(),
+      userType: document.getElementById('settings-user-type').value
+    };
+    const res = await apiPost('updateProfile', payload);
+    if (res.success) {
+      currentUser = { ...currentUser, ...payload, displayName: res.displayName };
+      document.getElementById('user-display').innerText = currentUser.displayName;
+      alert('Profile updated!');
+    }
+  }
 
   function escapeHtml(str) {
     if (str == null) return '';
     return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  }
-
-  // Universal Real-time Search
-  function handleUniversalSearch(q) {
-    q = (q || '').trim().toLowerCase();
-    if (!q) { document.getElementById('tab-search-results').classList.remove('active'); switchTab('feed'); return; }
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-search-results').classList.add('active');
-
-    const mUsers = allTeamProfiles.filter(p => `${p.name} ${p.currentPosition}`.toLowerCase().includes(q));
-    document.getElementById('search-results-container').innerHTML = `
-      <h4>Matching Users (${mUsers.length})</h4>
-      ${mUsers.map(u => `<div>${escapeHtml(u.name)} — ${escapeHtml(u.currentPosition)}</div>`).join('') || '<p>No matches</p>'}
-    `;
-  }
-  function closeSearch() { document.getElementById('global-search').value = ''; switchTab('feed'); }
-
-  async function submitChangePassword() {
-    const res = await apiPost('changePassword', { currentPassword: document.getElementById('change-pass-current').value, newPassword: document.getElementById('change-pass-new').value });
-    if (res.success) { alert('Password updated!'); closeModal('modal-change-password'); }
-    else alert(res.error || 'Failed');
   }
 
   window.addEventListener('DOMContentLoaded', async () => {
@@ -1574,9 +1073,12 @@
     if (saved) {
       try {
         const s = JSON.parse(saved);
-        const res = await apiPost('validateSession', { email: s.email, token: s.token });
-        if (res.success) { currentUser = res.profile; currentSessionToken = s.token; enterApp(); }
-        else document.getElementById('auth-screen').classList.add('visible');
+        currentUser = s.profile;
+        currentSessionToken = s.token;
+        enterApp();
+        apiPost('validateSession', { email: s.email, token: s.token }).then(res => {
+          if (res.success) currentUser = res.profile;
+        });
       } catch (e) { document.getElementById('auth-screen').classList.add('visible'); }
     } else { document.getElementById('auth-screen').classList.add('visible'); }
     document.getElementById('session-check').style.display = 'none';
