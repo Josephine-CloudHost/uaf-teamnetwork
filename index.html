@@ -1209,6 +1209,13 @@ async function toggleContactStatus(contactId, active) {
   if (c) c.active = active;
 }
 
+async function toggleContactStatus(contactId, active) {
+  const res = await apiPost('toggleContactActive', { contactId, active });
+  if (res.error) { alert(res.error); loadContacts(); return; }
+  const c = allContacts.find(x => x.id === contactId);
+  if (c) c.active = active;
+}
+
   function filterContactsList(q) {
     q = (q || '').toLowerCase().trim();
     const filtered = allContacts.filter(c => `${c.name} ${c.institution} ${c.phone} ${c.email} ${c.category}`.toLowerCase().includes(q));
