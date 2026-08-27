@@ -424,6 +424,11 @@
              <div style="margin-bottom:12px;">
           <input type="text" id="contact-search-input" placeholder="Search contacts by name, institution, telephone..." style="padding:8px 12px; border:1px solid var(--line); border-radius:8px; width:100%;" oninput="filterContactsList(this.value)">
         </div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <input type="text" id="contact-search-input" placeholder="Search contacts by name, institution, telephone..." style="padding:8px 12px; border:1px solid var(--line); border-radius:8px; width:100%;" oninput="filterContactsList(this.value)">
+        </div>
 
         <div class="contacts-table-wrap">
           <table class="contacts-table">
@@ -445,11 +450,11 @@
       </div>
 
       <!-- PARTNERSHIPS TAB -->
-
-      <!-- PARTNERSHIPS TAB -->
-
-      <!-- PARTNERSHIPS TAB -->
       <div id="tab-partnerships" class="panel">
+
+      <!-- PARTNERSHIPS TAB -->
+
+       <div id="tab-partnerships" class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <h3 style="margin:0;">Partnerships</h3>
           <button class="btn" id="new-partner-btn" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="openModal('modal-partnership')">+ Add Partner</button>
@@ -999,6 +1004,25 @@
     }
   }
 
+    async function apiPost(action, data = {}) {
+    const payload = {
+      action, ...data,
+      email: data.email || (currentUser ? currentUser.email : undefined),
+      sessionToken: data.sessionToken || currentSessionToken || undefined
+    };
+    try {
+      const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+      const json = await res.json();
+      setOnlineStatus(true);
+      return json;
+    } catch (err) {
+      setOnlineStatus(false);
+      return { error: 'Connection failed' };
+    }
+  }
+
+  async function cachedFetch(action, cacheKey) {
+    
   function setOnlineStatus(online) {
     const b = document.getElementById('connection-status-badge');
     if (b) {
