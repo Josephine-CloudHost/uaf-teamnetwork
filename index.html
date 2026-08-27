@@ -406,11 +406,23 @@
         </div>
 
         <div style="margin-bottom:12px;">
-          <input type="text" id="contact-search-input" placeholder="Search contacts by name, institution, telephone..." style="padding:8px 12px; border:1px solid var(--line); border-radius:8px; width:100%;" oninput="filterContactsList(this.value)">
-        </div>
-
-        <div class="programs-grid" id="contacts-container"></div>
-      </div>
+          <div class="contacts-table-wrap">
+  <table class="contacts-table">
+    <thead>
+      <tr>
+        <th>S.No</th>
+        <th>Name</th>
+        <th>Institution</th>
+        <th>Category</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Address</th>
+        <th>Active</th>
+      </tr>
+    </thead>
+    <tbody id="contacts-table-body"></tbody>
+  </table>
+</div>
 
       <!-- PARTNERSHIPS TAB -->
       <div id="tab-partnerships" class="panel">
@@ -1168,17 +1180,34 @@
   }
 
   function renderContactsList(list) {
-    const container = document.getElementById('contacts-container');
-    container.innerHTML = list.map(c => `
-      <div class="program-card">
-        <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${escapeHtml(c.category)}</span>
-        <h4 style="margin:4px 0 2px 0; color:var(--navy-text);">${escapeHtml(c.name)}</h4>
-        <div style="font-size:12.5px; color:var(--muted); margin-bottom:6px;">🏢 ${escapeHtml(c.institution || 'Individual')}</div>
-        <div style="font-size:12px; color:var(--ink);">📞 ${escapeHtml(c.phone || '—')} • ✉️ ${escapeHtml(c.email || '—')}</div>
-        <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">📍 ${escapeHtml(c.address || 'Liberia')}</div>
-      </div>
-    `).join('');
-  }
+  const tbody = document.getElementById('contacts-table-body');
+  const canManage = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
+  tbody.innerHTML = list.map((c, idx) => `
+    <tr>
+      <td>${idx + 1}</td>
+      <td class="contact-name-cell">${escapeHtml(c.name)}</td>
+      <td>${escapeHtml(c.institution || '—')}</td>
+      <td>${escapeHtml(c.category)}</td>
+      <td>${escapeHtml(c.phone || '—')}</td>
+      <td>${escapeHtml(c.email || '—')}</td>
+      <td>${escapeHtml(c.address || '—')}</td>
+      <td>
+        <label class="contact-toggle">
+          <input type="checkbox" ${c.active ? 'checked' : ''} ${canManage ? '' : 'disabled'} onchange="toggleContactStatus('${c.id}', this.checked)">
+          <span class="contact-toggle-slider"></span>
+        </label>
+        <span class="contact-status-label" style="color:${c.active ? '#16A34A' : '#94A3B8'}">${c.active ? 'On' : 'Off'}</span>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function toggleContactStatus(contactId, active) {
+  const res = await apiPost('toggleContactActive', { contactId, active });
+  if (res.error) { alert(res.error); loadContacts(); return; }
+  const c = allContacts.find(x => x.id === contactId);
+  if (c) c.active = active;
+}
 
   function filterContactsList(q) {
     q = (q || '').toLowerCase().trim();
