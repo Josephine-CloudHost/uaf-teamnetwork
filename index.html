@@ -195,6 +195,12 @@
 .contact-toggle input:checked + .contact-toggle-slider { background: #16A34A; }
 .contact-toggle input:checked + .contact-toggle-slider::before { transform: translateX(17px); }
 .contact-status-label { font-size: 11px; font-weight: 700; margin-left: 7px; vertical-align: middle; }
+
+.mail-recipient-chip { background:#E0E7FF; color:#3730A3; font-size:12px; font-weight:600; padding:4px 8px; border-radius:999px; display:flex; align-items:center; gap:6px; }
+.mail-recipient-chip button { background:none; border:none; color:#3730A3; cursor:pointer; font-weight:800; }
+.recipient-picker-row { display:flex; align-items:center; justify-content:space-between; padding:8px 6px; border-bottom:1px solid var(--line); font-size:13px; }
+.mail-thread-row { padding:10px; border-bottom:1px solid var(--line); font-size:12.5px; }
+.mail-thread-row:last-child { border-bottom:none; }
   /* Programs, Impact & Contacts */
   .programs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
   .program-card { background: var(--window-bg); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
@@ -394,7 +400,7 @@
         <div id="feed-container">Loading updates...</div>
       </div>
 
-      <!-- CONTACT LIST TAB (NEW) -->
+                <!-- CONTACT LIST TAB -->
       <div id="tab-contacts" class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
           <div>
@@ -402,24 +408,12 @@
             <div style="font-size:11.5px; color:var(--muted);">UAF institutional partners, government contacts, and donors</div>
           </div>
           <div style="display:flex; gap:6px;">
-            <button class="btn secondary" id="btn-toggle-mailing" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="toggleMailingBox()">✉️ Send Mailing</button>
+            <button class="btn secondary" id="btn-toggle-mailing" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="openMailingModal()">✉️ Mailing</button>
             <button class="btn" id="btn-add-contact" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="openModal('modal-contact')">+ Add Contact</button>
           </div>
         </div>
 
-        <!-- Collapsible Broadcast Mailing Box -->
-        <div id="mailing-composer-box" style="display:none; background:var(--window-bg); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:16px;">
-          <h4 style="margin:0 0 10px 0;">Official Communication Dispatcher (info.uaf@gmail.com)</h4>
-          <div class="field">
-            <label>Recipients</label>
-            <select id="mail-recipients-select" multiple style="height:80px;"></select>
-          </div>
-          <div class="field"><label>Subject</label><input type="text" id="mail-subject" placeholder="Official announcement..."></div>
-          <div class="field"><label>Message Content</label><textarea id="mail-body" rows="4" placeholder="Type communication..."></textarea></div>
-          <button class="btn" onclick="submitMailingBroadcast()">Send Official Communication</button>
-        </div>
-
-                       <div style="margin-bottom:12px;">
+        <div style="margin-bottom:12px;">
           <input type="text" id="contact-search-input" placeholder="Search contacts by name, institution, telephone..." style="padding:8px 12px; border:1px solid var(--line); border-radius:8px; width:100%;" oninput="filterContactsList(this.value)">
         </div>
 
@@ -440,6 +434,12 @@
             </thead>
             <tbody id="contacts-table-body"></tbody>
           </table>
+        </div>
+
+        <div id="contacts-pagination" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:12.5px;">
+          <button class="btn secondary" style="width:auto; padding:5px 14px; font-size:12px;" onclick="changeContactsPage(-1)">‹ Previous</button>
+          <span id="contacts-page-label">Page 1 of 1</span>
+          <button class="btn secondary" style="width:auto; padding:5px 14px; font-size:12px;" onclick="changeContactsPage(1)">Next ›</button>
         </div>
       </div>
       <!-- PARTNERSHIPS TAB -->
@@ -776,11 +776,12 @@
 </div>
 
 <!-- ADD CONTACT MODAL -->
+<!-- ADD CONTACT MODAL -->
 <div class="modal" id="modal-contact">
   <div class="modal-card">
     <h3 style="margin-top:0;">Add Contact to Directory</h3>
     <div class="field"><label>Full Name / Contact Person</label><input type="text" id="con-name"></div>
-       <div class="field">
+    <div class="field">
       <label>Category</label>
       <select id="con-category">
         <option value="Team Member">Team Member</option>
@@ -794,13 +795,96 @@
         <option value="Community Partner">Community Partner</option>
       </select>
     </div>
-    
     <div class="field"><label>Institution / Organization Name</label><input type="text" id="con-institution"></div>
     <div class="field"><label>Telephone Number</label><input type="text" id="con-phone"></div>
     <div class="field"><label>Email Address</label><input type="email" id="con-email"></div>
     <div class="field"><label>Physical Address / County</label><input type="text" id="con-address"></div>
     <button class="btn" onclick="submitNewContact()">Save Contact</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-contact')">Cancel</button>
+  </div>
+</div>
+
+<!-- EDIT CONTACT MODAL (Admin/Executive Director only) -->
+<div class="modal" id="modal-edit-contact">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Edit Contact</h3>
+    <input type="hidden" id="edit-con-id">
+    <div class="field"><label>Full Name / Contact Person</label><input type="text" id="edit-con-name"></div>
+    <div class="field">
+      <label>Category</label>
+      <select id="edit-con-category">
+        <option value="Team Member">Team Member</option>
+        <option value="Organization">Organization / INGO</option>
+        <option value="Supporter">Supporter</option>
+        <option value="Government">Government / Ministry</option>
+        <option value="School">School</option>
+        <option value="Donor">Donor / Funder</option>
+        <option value="Beneficiary">Beneficiary</option>
+        <option value="Individual">Individual</option>
+        <option value="Community Partner">Community Partner</option>
+      </select>
+    </div>
+    <div class="field"><label>Institution / Organization Name</label><input type="text" id="edit-con-institution"></div>
+    <div class="field"><label>Telephone Number</label><input type="text" id="edit-con-phone"></div>
+    <div class="field"><label>Email Address</label><input type="email" id="edit-con-email"></div>
+    <div class="field"><label>Physical Address / County</label><input type="text" id="edit-con-address"></div>
+    <button class="btn" onclick="submitEditContact()">Save Changes</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-edit-contact')">Cancel</button>
+  </div>
+</div>
+
+  <!-- MAILING MODAL -->
+<div class="modal" id="modal-mailing">
+  <div class="modal-card" style="max-width:640px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h3 style="margin:0;">Official Mailing — info.uaf@gmail.com</h3>
+      <button class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px;" onclick="closeModal('modal-mailing')">Close</button>
+    </div>
+
+    <details class="settings-list" open id="mail-compose-section">
+      <summary class="settings-row"><div style="flex:1; font-weight:700;">✏️ Compose</div><div>›</div></summary>
+      <div class="settings-row-expand">
+        <div class="field">
+          <label>Recipients</label>
+          <div id="mail-recipient-chips" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px;"></div>
+          <div style="display:flex; gap:6px;">
+            <input type="email" id="mail-recipient-typein" placeholder="Type an email and press Add..." style="flex:1;">
+            <button class="btn secondary" style="width:auto; padding:6px 10px; font-size:12px;" onclick="addTypedRecipient()">Add</button>
+            <button class="btn" style="width:auto; padding:6px 10px; font-size:12px;" onclick="openRecipientPicker()">+ Contacts</button>
+          </div>
+        </div>
+        <div class="field"><label>Subject</label><input type="text" id="mail-subject" placeholder="Official announcement..."></div>
+        <div class="field"><label>Message Body</label><textarea id="mail-body" rows="5" placeholder="Type communication..."></textarea></div>
+        <div class="field"><label>Attach File (optional)</label><input type="file" id="mail-attachment"></div>
+        <div class="field">
+          <label style="display:flex; align-items:center; gap:6px; font-weight:600; color:var(--muted);">
+            <input type="checkbox" id="mail-schedule-toggle" onchange="toggleScheduleField()"> Schedule Send
+          </label>
+          <input type="datetime-local" id="mail-schedule-time" style="display:none; margin-top:6px;">
+        </div>
+        <button class="btn" id="mail-send-btn" onclick="submitMailingBroadcast()">Send Official Communication</button>
+      </div>
+    </details>
+
+    <details class="settings-list" id="mail-inbox-section">
+      <summary class="settings-row" onclick="loadMailInbox()"><div style="flex:1; font-weight:700;">📥 Inbox</div><div>›</div></summary>
+      <div class="settings-row-expand" id="mail-inbox-list">Loading…</div>
+    </details>
+
+    <details class="settings-list" id="mail-sent-section">
+      <summary class="settings-row" onclick="loadMailSent()"><div style="flex:1; font-weight:700;">📤 Sent</div><div>›</div></summary>
+      <div class="settings-row-expand" id="mail-sent-list">Loading…</div>
+    </details>
+  </div>
+</div>
+
+<!-- RECIPIENT PICKER (from Contacts) -->
+<div class="modal" id="modal-recipient-picker">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Select Recipients from Contacts</h3>
+    <input type="text" id="recipient-picker-search" placeholder="Search contacts..." style="width:100%; padding:8px; margin-bottom:10px; border:1px solid var(--line); border-radius:8px;" oninput="renderRecipientPicker(this.value)">
+    <div id="recipient-picker-list" style="max-height:280px; overflow-y:auto;"></div>
+    <button class="btn" style="margin-top:10px;" onclick="closeModal('modal-recipient-picker')">Done</button>
   </div>
 </div>
 
