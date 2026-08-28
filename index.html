@@ -795,8 +795,17 @@
         <option value="Community Partner">Community Partner</option>
       </select>
     </div>
+    
+    <div class="field"><label>Institution / Organization Name</label><input type="text" id="con-institution"></div>
+    <div class="field"><label>Telephone Number</label><input type="text" id="con-phone"></div>
+    <div class="field"><label>Email Address</label><input type="email" id="con-email"></div>
+    <div class="field"><label>Physical Address / County</label><input type="text" id="con-address"></div>
+    <button class="btn" onclick="submitNewContact()">Save Contact</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-contact')">Cancel</button>
+  </div>
+</div>
 
-    <!-- EDIT CONTACT MODAL (Admin/Executive Director only) -->
+      <!-- EDIT CONTACT MODAL (Admin/Executive Director only) -->
 <div class="modal" id="modal-edit-contact">
   <div class="modal-card">
     <h3 style="margin-top:0;">Edit Contact</h3>
@@ -824,16 +833,7 @@
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-edit-contact')">Cancel</button>
   </div>
 </div>
-    
-    <div class="field"><label>Institution / Organization Name</label><input type="text" id="con-institution"></div>
-    <div class="field"><label>Telephone Number</label><input type="text" id="con-phone"></div>
-    <div class="field"><label>Email Address</label><input type="email" id="con-email"></div>
-    <div class="field"><label>Physical Address / County</label><input type="text" id="con-address"></div>
-    <button class="btn" onclick="submitNewContact()">Save Contact</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-contact')">Cancel</button>
-  </div>
-</div>
-
+  
 <!-- FINANCES MODALS -->
 <div class="modal" id="modal-update-org">
   <div class="modal-card">
