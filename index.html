@@ -887,6 +887,18 @@
     <button class="btn" style="margin-top:10px;" onclick="closeModal('modal-recipient-picker')">Done</button>
   </div>
 </div>
+
+  <!-- EMAIL DETAIL VIEW -->
+<div class="modal" id="modal-email-detail">
+  <div class="modal-card" style="max-width:600px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h3 style="margin:0;" id="email-detail-subject">Subject</h3>
+      <button class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px;" onclick="closeModal('modal-email-detail')">Close</button>
+    </div>
+    <div id="email-detail-meta" style="font-size:12px; color:var(--muted); margin-bottom:10px; line-height:1.6;"></div>
+    <div id="email-detail-body" style="font-size:13.5px; line-height:1.6; white-space:pre-wrap; word-break:break-word; border-top:1px solid var(--line); padding-top:12px; max-height:50vh; overflow-y:auto;"></div>
+  </div>
+</div>
   
 <!-- FINANCES MODALS -->
 <div class="modal" id="modal-update-org">
@@ -1500,13 +1512,13 @@
     }
   }
 
-  async function loadMailInbox() {
+   async function loadMailInbox() {
     const data = await apiFetchAction('mailInbox');
     const el = document.getElementById('mail-inbox-list');
     if (data.error) { el.innerHTML = `<div style="color:#B3261E; font-size:12.5px;">${escapeHtml(data.error)}</div>`; return; }
     if (!Array.isArray(data) || !data.length) { el.innerHTML = '<div style="color:var(--muted); font-size:12.5px;">Inbox is empty.</div>'; return; }
     el.innerHTML = data.map(t => `
-      <div class="mail-thread-row">
+      <div class="mail-thread-row" style="cursor:pointer;" onclick="openInboxDetail('${t.id}')">
         <div style="display:flex; justify-content:space-between;">
           <strong>${t.unread ? '● ' : ''}${escapeHtml(t.subject || '(no subject)')}</strong>
           <span style="color:var(--muted);">${new Date(t.date).toLocaleString()}</span>
@@ -1517,19 +1529,63 @@
     `).join('');
   }
 
+  async function openInboxDetail(threadId) {
+    document.getElementById('email-detail-subject').innerText = 'Loading…';
+    document.getElementById('email-detail-meta').innerHTML = '';
+    document.getElementById('email-detail-body').innerText = '';
+    openModal('modal-email-detail');
+
+    try {
+      const res = await fetch(`${SCRIPT_URL}?action=mailThreadDetail&threadId=${encodeURIComponent(threadId)}&email=${encodeURIComponent(currentUser.email)}&sessionToken=${encodeURIComponent(currentSessionToken)}`);
+      const data = await res.json();
+      if (data.error) {
+        document.getElementById('email-detail-subject').innerText = 'Error';
+        document.getElementById('email-detail-body').innerText = data.error;
+        return;
+      }
+      document.getElementById('email-detail-subject').innerText = data.subject || '(no subject)';
+      document.getElementById('email-detail-meta').innerHTML = `
+        From: ${escapeHtml(data.from)}<br>
+        To: ${escapeHtml(data.to || '')}<br>
+        Date: ${new Date(data.date).toLocaleString()}
+      `;
+      document.getElementById('email-detail-body').innerText = data.body || '(empty message)';
+    } catch (e) {
+      document.getElementById('email-detail-subject').innerText = 'Error';
+      document.getElementById('email-detail-body').innerText = 'Connection failed';
+    }
+  }
+
+    let cachedSentMail = [];
+
   async function loadMailSent() {
     const data = await apiFetchAction('mailSent');
     const el = document.getElementById('mail-sent-list');
     if (data.error) { el.innerHTML = `<div style="color:#B3261E; font-size:12.5px;">${escapeHtml(data.error)}</div>`; return; }
     if (!Array.isArray(data) || !data.length) { el.innerHTML = '<div style="color:var(--muted); font-size:12.5px;">No sent mail yet.</div>'; return; }
-    el.innerHTML = data.map(m => `
-      <div class="mail-thread-row">
+    cachedSentMail = data;
+    el.innerHTML = data.map((m, idx) => `
+      <div class="mail-thread-row" style="cursor:pointer;" onclick="openSentDetail(${idx})">
         <div><strong>${escapeHtml(m.subject)}</strong></div>
         <div style="color:var(--muted); margin-top:2px;">To: ${m.toEmails.map(escapeHtml).join(', ')}</div>
         <div style="color:var(--muted);">Sent from: ${escapeHtml(m.fromOrgEmail)} • Sent by: ${escapeHtml(m.sentByName)} (${escapeHtml(m.sentByEmail)})</div>
         <div style="color:var(--muted);">On: ${new Date(m.timestamp).toLocaleString()}</div>
       </div>
     `).join('');
+  }
+
+  function openSentDetail(idx) {
+    const m = cachedSentMail[idx];
+    if (!m) return;
+    document.getElementById('email-detail-subject').innerText = m.subject || '(no subject)';
+    document.getElementById('email-detail-meta').innerHTML = `
+      To: ${m.toEmails.map(escapeHtml).join(', ')}<br>
+      Sent from: ${escapeHtml(m.fromOrgEmail)}<br>
+      Sent by: ${escapeHtml(m.sentByName)} (${escapeHtml(m.sentByEmail)})<br>
+      On: ${new Date(m.timestamp).toLocaleString()}
+    `;
+    document.getElementById('email-detail-body').innerText = m.body || '(empty message)';
+    openModal('modal-email-detail');
   }
 
   // small helper for GET-based actions that need the session
