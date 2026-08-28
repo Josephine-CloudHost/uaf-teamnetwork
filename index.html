@@ -1298,124 +1298,71 @@
   }
 
   // ---------- CONTACTS DIRECTORY & BROADCAST MAILING ----------
+  // ---------- CONTACTS DIRECTORY (with pagination) ----------
+  const CONTACTS_PAGE_SIZE = 5;
+  let contactsFilteredList = [];
+  let contactsCurrentPage = 1;
+
   async function loadContacts() {
     allContacts = await cachedFetch('contacts', 'contacts');
     const isExec = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
     document.getElementById('btn-toggle-mailing').style.display = isExec ? 'inline-block' : 'none';
     document.getElementById('btn-add-contact').style.display = isExec ? 'inline-block' : 'none';
-
-    const select = document.getElementById('mail-recipients-select');
-    select.innerHTML = `<option value="ALL">All Contacts &amp; Partners</option>` + allContacts.map(c => `<option value="${c.email}">${escapeHtml(c.name)} (${escapeHtml(c.institution || c.email)})</option>`).join('');
-
     renderContactsList(allContacts);
   }
 
- function renderContactsList(list) {
-  const tbody = document.getElementById('contacts-table-body');
-  const canManage = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
-  const canEdit = currentUser && currentUser.isSuperAdmin;
-  tbody.innerHTML = list.map((c, idx) => `
-    <tr>
-      <td>${idx + 1}</td>
-      <td class="contact-name-cell">${escapeHtml(c.name)}</td>
-      <td>${escapeHtml(c.institution || '—')}</td>
-      <td>${escapeHtml(c.category)}</td>
-      <td>${escapeHtml(c.phone || '—')}</td>
-      <td>${escapeHtml(c.email || '—')}</td>
-      <td>${escapeHtml(c.address || '—')}</td>
-      <td>
-        <label class="contact-toggle">
-          <input type="checkbox" ${c.active ? 'checked' : ''} ${canManage ? '' : 'disabled'} onchange="toggleContactStatus('${c.id}', this.checked)">
-          <span class="contact-toggle-slider"></span>
-        </label>
-        <span class="contact-status-label" style="color:${c.active ? '#16A34A' : '#94A3B8'}">${c.active ? 'On' : 'Off'}</span>
-      </td>
-      <td>
-        ${canEdit ? `<button class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px;" onclick="openEditContactModal('${c.id}')">Edit</button>` : '—'}
-      </td>
-    </tr>
-  `).join('');
-}
+  function renderContactsList(list) {
+    contactsFilteredList = list;
+    contactsCurrentPage = 1;
+    renderContactsPage();
+  }
 
-async function toggleContactStatus(contactId, active) {
-  const res = await apiPost('toggleContactActive', { contactId, active });
-  if (res.error) { alert(res.error); loadContacts(); return; }
-  const c = allContacts.find(x => x.id === contactId);
-  if (c) c.active = active;
-}
+  function renderContactsPage() {
+    const totalPages = Math.max(1, Math.ceil(contactsFilteredList.length / CONTACTS_PAGE_SIZE));
+    if (contactsCurrentPage > totalPages) contactsCurrentPage = totalPages;
+    if (contactsCurrentPage < 1) contactsCurrentPage = 1;
+
+    const start = (contactsCurrentPage - 1) * CONTACTS_PAGE_SIZE;
+    const pageItems = contactsFilteredList.slice(start, start + CONTACTS_PAGE_SIZE);
+
+    const canManage = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
+    const canEdit = currentUser && currentUser.isSuperAdmin;
+    const tbody = document.getElementById('contacts-table-body');
+    tbody.innerHTML = pageItems.map((c, idx) => `
+      <tr>
+        <td>${start + idx + 1}</td>
+        <td class="contact-name-cell">${escapeHtml(c.name)}</td>
+        <td>${escapeHtml(c.institution || '—')}</td>
+        <td>${escapeHtml(c.category)}</td>
+        <td>${escapeHtml(c.phone || '—')}</td>
+        <td>${escapeHtml(c.email || '—')}</td>
+        <td>${escapeHtml(c.address || '—')}</td>
+        <td>
+          <label class="contact-toggle">
+            <input type="checkbox" ${c.active ? 'checked' : ''} ${canManage ? '' : 'disabled'} onchange="toggleContactStatus('${c.id}', this.checked)">
+            <span class="contact-toggle-slider"></span>
+          </label>
+          <span class="contact-status-label" style="color:${c.active ? '#16A34A' : '#94A3B8'}">${c.active ? 'On' : 'Off'}</span>
+        </td>
+        <td>
+          ${canEdit ? `<button class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px;" onclick="openEditContactModal('${c.id}')">Edit</button>` : '—'}
+        </td>
+      </tr>
+    `).join('');
+
+    document.getElementById('contacts-page-label').innerText = `Page ${contactsCurrentPage} of ${totalPages} (${contactsFilteredList.length} contacts)`;
+  }
+
+  function changeContactsPage(delta) {
+    contactsCurrentPage += delta;
+    renderContactsPage();
+  }
 
   function filterContactsList(q) {
     q = (q || '').toLowerCase().trim();
     const filtered = allContacts.filter(c => `${c.name} ${c.institution} ${c.phone} ${c.email} ${c.category}`.toLowerCase().includes(q));
     renderContactsList(filtered);
   }
-
-  function toggleMailingBox() {
-    const box = document.getElementById('mailing-composer-box');
-    box.style.display = box.style.display === 'block' ? 'none' : 'block';
-  }
-
-  async function submitNewContact() {
-    const name = document.getElementById('con-name').value.trim();
-    const category = document.getElementById('con-category').value;
-    const institution = document.getElementById('con-institution').value.trim();
-    const phone = document.getElementById('con-phone').value.trim();
-    const contactEmail = document.getElementById('con-email').value.trim();
-    const address = document.getElementById('con-address').value.trim();
-    if (!name) return;
-
-    await apiPost('addContact', { name, category, institution, phone, contactEmail, address });
-    closeModal('modal-contact');
-    loadContacts();
-  }
-
-    function openEditContactModal(contactId) {
-    const c = allContacts.find(x => x.id === contactId);
-    if (!c) return;
-    document.getElementById('edit-con-id').value = c.id;
-    document.getElementById('edit-con-name').value = c.name || '';
-    document.getElementById('edit-con-category').value = c.category || 'Individual';
-    document.getElementById('edit-con-institution').value = c.institution || '';
-    document.getElementById('edit-con-phone').value = c.phone || '';
-    document.getElementById('edit-con-email').value = c.email || '';
-    document.getElementById('edit-con-address').value = c.address || '';
-    openModal('modal-edit-contact');
-  }
-
-  async function submitEditContact() {
-    const contactId = document.getElementById('edit-con-id').value;
-    const name = document.getElementById('edit-con-name').value.trim();
-    if (!name) { alert('Name is required'); return; }
-
-    const res = await apiPost('updateContact', {
-      contactId,
-      name,
-      category: document.getElementById('edit-con-category').value,
-      institution: document.getElementById('edit-con-institution').value.trim(),
-      phone: document.getElementById('edit-con-phone').value.trim(),
-      contactEmail: document.getElementById('edit-con-email').value.trim(),
-      address: document.getElementById('edit-con-address').value.trim()
-    });
-
-    if (res.error) { alert(res.error); return; }
-    closeModal('modal-edit-contact');
-    loadContacts();
-  }
-  
-  async function submitMailingBroadcast() {
-    const select = document.getElementById('mail-recipients-select');
-    const selectedOptions = Array.from(select.selectedOptions).map(o => o.value);
-    const subject = document.getElementById('mail-subject').value.trim();
-    const messageBody = document.getElementById('mail-body').value.trim();
-    if (!subject || !messageBody) { alert('Subject and content required'); return; }
-
-    let recipientEmails = [];
-    if (selectedOptions.includes('ALL')) {
-      recipientEmails = allContacts.map(c => c.email).filter(Boolean);
-    } else {
-      recipientEmails = selectedOptions.filter(Boolean);
-    }
-
     const res = await apiPost('sendContactEmail', { recipientEmails, subject, messageBody });
     if (res.success) {
       alert(`✅ Official mailing sent to ${res.count} recipient(s)!`);
