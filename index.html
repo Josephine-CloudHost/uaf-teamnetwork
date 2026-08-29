@@ -285,6 +285,13 @@
   .modal.open { display: flex; }
   .modal-card { background: var(--window-bg); padding: 20px; border-radius: 12px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
 
+  .partner-card-clickable { cursor:pointer; transition: box-shadow .15s ease; }
+.partner-card-clickable:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+.partner-logo-round { width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--line); flex-shrink:0; background:#F1F5F9; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--muted); font-size:16px; }
+.partner-card-header { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.partner-detail-logo { width:80px; height:80px; border-radius:50%; object-fit:cover; border:3px solid var(--line); flex-shrink:0; background:#F1F5F9; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--muted); font-size:26px; }
+.partner-detail-row { margin-bottom:12px; font-size:13px; line-height:1.6; }
+.partner-detail-row label { display:block; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.3px; margin-bottom:2px; }
   @media (max-width: 800px) { .topbar-search-box { display: none; } }
 </style>
 </head>
@@ -442,7 +449,8 @@
           <button class="btn secondary" style="width:auto; padding:5px 14px; font-size:12px;" onclick="changeContactsPage(1)">Next ›</button>
         </div>
       </div>
-      <!-- PARTNERSHIPS TAB -->
+    
+    <!-- PARTNERSHIPS TAB -->
       <div id="tab-partnerships" class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <h3 style="margin:0;">Partnerships</h3>
@@ -997,8 +1005,10 @@
 </div>
 
 <div class="modal" id="modal-partnership">
-  <div class="modal-card">
+ <div class="modal-card">
     <h3 style="margin-top:0;">Add Partnership</h3>
+    <div class="field"><label>Partner Logo (optional)</label><input type="file" id="part-logo" accept="image/*"></div>
+    <div class="field"><label>Partner Name</label><input type="text" id="part-name"></div>
     <div class="field"><label>Partner Name</label><input type="text" id="part-name"></div>
     <div class="field"><label>Category</label>
       <select id="part-category">
@@ -1016,6 +1026,65 @@
     <div class="field"><label>Address</label><input type="text" id="part-address"></div>
     <button class="btn" onclick="submitNewPartnership()">Save Partnership</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-partnership')">Cancel</button>
+  </div>
+</div>
+
+  <!-- EDIT PARTNERSHIP MODAL (Admin/Executive Director only) -->
+<div class="modal" id="modal-edit-partnership">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Edit Partnership</h3>
+    <input type="hidden" id="edit-part-id">
+    <div class="field"><label>Partner Logo (optional)</label><input type="file" id="edit-part-logo" accept="image/*"></div>
+    <div class="field" id="edit-part-current-logo-wrap" style="display:none;">
+      <label>Current Logo</label>
+      <img id="edit-part-current-logo" class="partner-logo-round" style="width:60px; height:60px;">
+    </div>
+    <div class="field"><label>Partner Name</label><input type="text" id="edit-part-name"></div>
+    <div class="field"><label>Category</label>
+      <select id="edit-part-category">
+        <option value="Collaborative Partner">Collaborative Partner</option>
+        <option value="Funding Partner">Funding Partner</option>
+        <option value="Technical Partner">Technical Partner</option>
+      </select>
+    </div>
+    <div class="field"><label>Date of Partnership</label><input type="date" id="edit-part-date"></div>
+    <div class="field"><label>Purpose</label><textarea id="edit-part-purpose" rows="2"></textarea></div>
+    <div class="field"><label>What UAF Gains</label><textarea id="edit-part-gains" rows="2"></textarea></div>
+    <div class="field"><label>Partnership Period</label><input type="text" id="edit-part-period"></div>
+    <div class="field"><label>Contact Email</label><input type="email" id="edit-part-email"></div>
+    <div class="field"><label>Telephone</label><input type="text" id="edit-part-tel"></div>
+    <div class="field"><label>Address</label><input type="text" id="edit-part-address"></div>
+    <button class="btn" onclick="submitEditPartnership()">Save Changes</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-edit-partnership')">Cancel</button>
+  </div>
+</div>
+
+<!-- PARTNERSHIP DETAIL VIEW -->
+<div class="modal" id="modal-partnership-detail">
+  <div class="modal-card" style="max-width:520px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div id="pdetail-logo-wrap"></div>
+        <div>
+          <h3 style="margin:0;" id="pdetail-name">Partner Name</h3>
+          <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 8px; border-radius:999px;" id="pdetail-category">Category</span>
+        </div>
+      </div>
+      <button class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px;" onclick="closeModal('modal-partnership-detail')">Close</button>
+    </div>
+
+    <div class="partner-detail-row"><label>Purpose</label><div id="pdetail-purpose">—</div></div>
+    <div class="partner-detail-row"><label>What UAF Gains</label><div id="pdetail-gains">—</div></div>
+    <div class="partner-detail-row"><label>Date of Partnership</label><div id="pdetail-date">—</div></div>
+    <div class="partner-detail-row"><label>Partnership Period</label><div id="pdetail-period">—</div></div>
+    <div class="partner-detail-row"><label>Contact Email</label><div id="pdetail-email">—</div></div>
+    <div class="partner-detail-row"><label>Telephone</label><div id="pdetail-tel">—</div></div>
+    <div class="partner-detail-row"><label>Address</label><div id="pdetail-address">—</div></div>
+
+    <div id="pdetail-actions" style="display:none; margin-top:10px; padding-top:12px; border-top:1px solid var(--line); display:flex; gap:8px;">
+      <button class="btn secondary" style="width:auto; padding:6px 14px; font-size:12px;" id="pdetail-edit-btn">Edit</button>
+      <button class="btn danger" style="width:auto; padding:6px 14px; font-size:12px;" id="pdetail-delete-btn">Delete</button>
+    </div>
   </div>
 </div>
   
@@ -1975,19 +2044,135 @@ async function loadPartnerships() {
   const container = document.getElementById('partnerships-container');
   if (!Array.isArray(allPartnerships)) return;
   container.innerHTML = allPartnerships.map(p => `
-    <div class="program-card">
-      <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${escapeHtml(p.category)}</span>
-      <h4 style="margin:4px 0 2px 0; color:var(--navy-text);">${escapeHtml(p.name)}</h4>
+    <div class="program-card partner-card-clickable" onclick="openPartnershipDetail('${p.id}')">
+      <div class="partner-card-header">
+        ${p.logoUrl
+          ? `<img src="${p.logoUrl}" class="partner-logo-round">`
+          : `<div class="partner-logo-round">${escapeHtml((p.name || '?')[0])}</div>`}
+        <div>
+          <h4 style="margin:0 0 3px 0; color:var(--navy-text);">${escapeHtml(p.name)}</h4>
+          <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${escapeHtml(p.category)}</span>
+        </div>
+      </div>
       <div style="font-size:12.5px; color:var(--ink); margin:6px 0;">${escapeHtml(p.purpose || '')}</div>
       <div style="font-size:11.5px; color:var(--muted);">📞 ${escapeHtml(p.tel || '—')} • ✉️ ${escapeHtml(p.email || '—')}</div>
-      ${canManage ? `<button class="btn danger" style="width:auto; padding:4px 10px; font-size:11px; margin-top:8px;" onclick="deletePartnershipUI('${p.id}')">Delete</button>` : ''}
     </div>
   `).join('');
 }
 
+  function openPartnershipDetail(partnershipId) {
+  const p = allPartnerships.find(x => x.id === partnershipId);
+  if (!p) return;
+
+  document.getElementById('pdetail-logo-wrap').innerHTML = p.logoUrl
+    ? `<img src="${p.logoUrl}" class="partner-detail-logo">`
+    : `<div class="partner-detail-logo">${escapeHtml((p.name || '?')[0])}</div>`;
+  document.getElementById('pdetail-name').innerText = p.name;
+  document.getElementById('pdetail-category').innerText = p.category || 'Collaborative Partner';
+  document.getElementById('pdetail-purpose').innerText = p.purpose || '—';
+  document.getElementById('pdetail-gains').innerText = p.whatUafGains || '—';
+  document.getElementById('pdetail-date').innerText = p.dateOfPartnership ? new Date(p.dateOfPartnership).toLocaleDateString() : '—';
+  document.getElementById('pdetail-period').innerText = p.partnershipPeriod || '—';
+  document.getElementById('pdetail-email').innerText = p.email || '—';
+  document.getElementById('pdetail-tel').innerText = p.tel || '—';
+  document.getElementById('pdetail-address').innerText = p.address || '—';
+
+  const canManage = currentUser && currentUser.isSuperAdmin;
+  const actionsRow = document.getElementById('pdetail-actions');
+  actionsRow.style.display = canManage ? 'flex' : 'none';
+  if (canManage) {
+    document.getElementById('pdetail-edit-btn').onclick = () => {
+      closeModal('modal-partnership-detail');
+      openEditPartnershipModal(p.id);
+    };
+    document.getElementById('pdetail-delete-btn').onclick = () => {
+      closeModal('modal-partnership-detail');
+      deletePartnershipUI(p.id);
+    };
+  }
+
+  openModal('modal-partnership-detail');
+}
+
+  async function deletePartnershipUI(partnershipId) {
+  if (!confirm('Delete this partnership?')) return;
+  const res = await apiPost('deletePartnership', { partnershipId });
+  if (res.error) { alert(res.error); return; }
+  loadPartnerships();
+}
+  
+function openEditPartnershipModal(partnershipId) {
+  const p = allPartnerships.find(x => x.id === partnershipId);
+  if (!p) return;
+  document.getElementById('edit-part-id').value = p.id;
+  document.getElementById('edit-part-name').value = p.name || '';
+  document.getElementById('edit-part-category').value = p.category || 'Collaborative Partner';
+  document.getElementById('edit-part-date').value = p.dateOfPartnership ? new Date(p.dateOfPartnership).toISOString().split('T')[0] : '';
+  document.getElementById('edit-part-purpose').value = p.purpose || '';
+  document.getElementById('edit-part-gains').value = p.whatUafGains || '';
+  document.getElementById('edit-part-period').value = p.partnershipPeriod || '';
+  document.getElementById('edit-part-email').value = p.email || '';
+  document.getElementById('edit-part-tel').value = p.tel || '';
+  document.getElementById('edit-part-address').value = p.address || '';
+  document.getElementById('edit-part-logo').value = '';
+
+  const logoWrap = document.getElementById('edit-part-current-logo-wrap');
+  const logoImg = document.getElementById('edit-part-current-logo');
+  if (p.logoUrl) {
+    logoImg.src = p.logoUrl;
+    logoWrap.style.display = 'block';
+  } else {
+    logoWrap.style.display = 'none';
+  }
+
+  openModal('modal-edit-partnership');
+}
+
+async function submitEditPartnership() {
+  const partnershipId = document.getElementById('edit-part-id').value;
+  const name = document.getElementById('edit-part-name').value.trim();
+  if (!name) { alert('Partner name is required'); return; }
+
+  const existing = allPartnerships.find(x => x.id === partnershipId);
+  let logoUrl = existing ? existing.logoUrl : '';
+  const logoFile = document.getElementById('edit-part-logo').files[0];
+  if (logoFile) {
+    const base64 = await fileToBase64(logoFile);
+    const up = await apiPost('uploadFile', { base64Data: base64, fileName: logoFile.name, mimeType: logoFile.type });
+    if (up.directUrl) logoUrl = up.directUrl;
+  }
+
+  const res = await apiPost('updatePartnership', {
+    partnershipId,
+    name,
+    category: document.getElementById('edit-part-category').value,
+    dateOfPartnership: document.getElementById('edit-part-date').value,
+    purpose: document.getElementById('edit-part-purpose').value.trim(),
+    whatUafGains: document.getElementById('edit-part-gains').value.trim(),
+    partnershipPeriod: document.getElementById('edit-part-period').value.trim(),
+    partnerEmail: document.getElementById('edit-part-email').value.trim(),
+    tel: document.getElementById('edit-part-tel').value.trim(),
+    address: document.getElementById('edit-part-address').value.trim(),
+    logoUrl
+  });
+
+  if (res.error) { alert(res.error); return; }
+  closeModal('modal-edit-partnership');
+  loadPartnerships();
+}
+  
 async function submitNewPartnership() {
   const name = document.getElementById('part-name').value.trim();
   if (!name) return;
+
+  let logoUrl = '';
+  const logoFile = document.getElementById('part-logo').files[0];
+  if (logoFile) {
+    const base64 = await fileToBase64(logoFile);
+    const up = await apiPost('uploadFile', { base64Data: base64, fileName: logoFile.name, mimeType: logoFile.type });
+    if (up.directUrl) logoUrl = up.directUrl;
+  }
+
   await apiPost('addPartnership', {
     name,
     category: document.getElementById('part-category').value,
@@ -1997,8 +2182,10 @@ async function submitNewPartnership() {
     partnershipPeriod: document.getElementById('part-period').value.trim(),
     partnerEmail: document.getElementById('part-email').value.trim(),
     tel: document.getElementById('part-tel').value.trim(),
-    address: document.getElementById('part-address').value.trim()
+    address: document.getElementById('part-address').value.trim(),
+    logoUrl
   });
+  document.getElementById('part-logo').value = '';
   closeModal('modal-partnership');
   loadPartnerships();
 }
