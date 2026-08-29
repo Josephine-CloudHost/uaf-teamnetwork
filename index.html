@@ -1326,9 +1326,31 @@
     loadContacts();
     loadPrograms();
     loadPartnerships();
+    loadNotifications();
     updateLiveNotificationUI();
   }
 
+  async function loadNotifications() {
+  const data = await apiFetchAction('notifications');
+  const container = document.getElementById('notifications-list');
+  if (data.error) { container.innerHTML = `<div style="color:#B3261E; font-size:12.5px;">${escapeHtml(data.error)}</div>`; return; }
+  if (!Array.isArray(data) || !data.length) { container.innerHTML = '<div style="color:var(--muted); font-size:13px;">No notifications yet.</div>'; return; }
+
+  container.innerHTML = data.map(n => `
+    <div class="program-card" style="margin-bottom:8px; cursor:pointer;" onclick="switchTab('${n.targetTab || 'feed'}')">
+      <div style="font-size:13px; color:var(--ink);">${escapeHtml(n.message)}</div>
+      <div style="font-size:11px; color:var(--muted); margin-top:4px;">${new Date(n.timestamp).toLocaleString()}</div>
+    </div>
+  `).join('');
+
+  // update the bell badge count
+  const badge = document.getElementById('sidebar-notif-badge');
+  if (badge) {
+    if (data.length) { badge.innerText = data.length > 9 ? '9+' : data.length; badge.style.display = 'inline-block'; }
+    else badge.style.display = 'none';
+  }
+}
+  
   async function logoutUser() {
     localStorage.removeItem(SESSION_KEY);
     location.reload();
@@ -1353,6 +1375,9 @@
     if (tabName === 'partnerships') loadPartnerships();
     if (tabName === 'tasks') loadTasks();
     if (tabName === 'documents') loadDocuments();
+    if (tabName === 'notifications') loadNotifications();
+  }
+  }
   }
 
   function openFullChatsTab() { switchTab('chats'); backToChatList(); loadChats(); }
