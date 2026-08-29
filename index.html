@@ -1243,12 +1243,26 @@
   }
 
   // @Mention Highlighting Engine
+function linkifyUrls(text) {
+    return text.replace(/(https?:\/\/[^\s<]+)/g, (rawMatch) => {
+      // Strip trailing punctuation that's usually sentence-ending, not part of the URL
+      let url = rawMatch;
+      let trail = '';
+      while (/[.,!?;:)\]]$/.test(url)) {
+        trail = url.slice(-1) + trail;
+        url = url.slice(0, -1);
+      }
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:var(--primary); word-break:break-all;">${url}</a>${trail}`;
+    });
+  }
+
   function formatMentionsAndText(text) {
     if (!text) return '';
     let escaped = escapeHtml(text);
-    return escaped.replace(/@([a-zA-Z0-9_.\-]+)/g, (match, username) => {
+    escaped = escaped.replace(/@([a-zA-Z0-9_.\-]+)/g, (match, username) => {
       return `<span class="user-mention">@${username}</span>`;
     });
+    return linkifyUrls(escaped);
   }
 
   function getAvatarHtml(email, name, photoUrl, size = 32) {
