@@ -1197,6 +1197,8 @@
   let allTeamProfiles = [];
   let allContacts = [];
   let cachedInitiatives = [];
+  let allDocuments = [];
+  let allFeedPosts = [];
   const SESSION_KEY = 'uaf_session_data';
 
   function openModal(id) { const m = document.getElementById(id); if (m) m.classList.add('open'); }
@@ -1441,6 +1443,30 @@ function linkifyUrls(text) {
     switchTab('settings');
   }
 
+    // ---------- GLOBAL SEARCH ----------
+  let searchResultsRegistry = [];
+  function handleUniversalSearch(query) {
+    ...
+  }
+  function renderSearchResults(results, query) {
+    ...
+  }
+  function runSearchResultAction(i) {
+    ...
+  }
+  function closeSearch() {
+    ...
+  }
+
+  // ---------- CONTACTS DIRECTORY (with pagination) ----------
+  async function loadContacts() {
+    allContacts = await cachedFetch('contacts', 'contacts');
+    const isExec = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
+    document.getElementById('btn-toggle-mailing').style.display = isExec ? 'inline-block' : 'none';
+    document.getElementById('btn-add-contact').style.display = isExec ? 'inline-block' : 'none';
+    renderContactsList(allContacts);
+  }
+  
    // ---------- CONTACTS DIRECTORY (with pagination) ----------
   const CONTACTS_PAGE_SIZE = 5;
   let contactsFilteredList = [];
@@ -1786,6 +1812,7 @@ function linkifyUrls(text) {
     const data = await cachedFetch('feedPosts', 'feed');
     const container = document.getElementById('feed-container');
     if (!Array.isArray(data)) return;
+    allFeedPosts = data;
 
     container.innerHTML = data.map(post => {
       const isAuthor = currentUser && (post.authorEmail === currentUser.email || currentUser.isSuperAdmin);
@@ -2415,7 +2442,8 @@ async function submitNewPartnership() {
 async function loadDocuments() {
   const docs = await cachedFetch('documents', 'documents');
   const container = document.getElementById('doc-list');
-  if (!Array.isArray(docs)) return;
+  if (!Array.isArray(docs)) return;  allDocuments = docs;
+   allDocuments = docs;
   container.innerHTML = docs.map(d => `
     <div class="program-card" style="margin-bottom:8px;">
       <a href="${d.fileUrl}" target="_blank" style="font-weight:700; color:var(--primary);">${escapeHtml(d.fileName)}</a>
