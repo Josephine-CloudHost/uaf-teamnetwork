@@ -2198,7 +2198,7 @@ async function submitEditProgram() {
 async function submitNewProgram() {
   const title = document.getElementById('prog-title').value.trim();
   if (!title) return;
-  await apiPost('addProgram', {
+  const res = await apiPost('addProgram', {
     title,
     shortCode: document.getElementById('prog-code').value.trim(),
     description: document.getElementById('prog-desc').value.trim(),
@@ -2206,6 +2206,7 @@ async function submitNewProgram() {
     targetBeneficiaries: document.getElementById('prog-target').value.trim(),
     details: document.getElementById('prog-details').value.trim()
   });
+  if (res.error) { alert(res.error); return; }
   closeModal('modal-program');
   loadPrograms();
 }
