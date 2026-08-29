@@ -347,10 +347,10 @@
 <!-- MAIN APP FRAME -->
 <div class="app-frame" id="app-screen" style="display:none;">
 
-  <!-- FIXED LEFT SIDEBAR -->
   <aside class="app-sidebar">
     <button class="sidebar-btn active" onclick="switchTab('feed')" title="Feed">🏠</button>
     <button class="sidebar-btn" onclick="openFullChatsTab()" title="Chats">💬<span class="sidebar-badge" id="sidebar-chat-badge" style="display:none"></span></button>
+    <button class="sidebar-btn" onclick="switchTab('documents')" title="Documents">📁</button>
     <button class="sidebar-btn" onclick="switchTab('notifications')" title="Notifications">🔔<span class="sidebar-badge" id="sidebar-notif-badge" style="display:none"></span></button>
     <button class="sidebar-btn" onclick="switchTab('settings')" title="Settings">⚙️</button>
     <button class="sidebar-btn" onclick="refreshEntireSystem(true)" title="Refresh System" style="margin-top:auto;">🔄</button>
@@ -376,15 +376,13 @@
     </header>
 
     <!-- STICKY TABSTRIP -->
-    <nav class="app-tabstrip">
+       <nav class="app-tabstrip">
       <button class="active" onclick="switchTab('feed')">Main Feed</button>
       <button onclick="switchTab('contacts')">Contacts</button>
       <button onclick="switchTab('partnerships')">Partnerships</button>
-      <button onclick="switchTab('documents')">Documents</button>
       <button onclick="switchTab('tasks')">Tasks</button>
       <button onclick="switchTab('finances')">UAF Finances</button>
       <button onclick="switchTab('programs')">UAF Programs</button>
-      <button onclick="switchTab('impact')">Impact</button>
     </nav>
 
     <!-- CONTENT SCROLLING CANVAS -->
@@ -570,16 +568,7 @@
         <div class="programs-grid" id="programs-container"></div>
       </div>
 
-      <!-- IMPACT TAB -->
-      <div id="tab-impact" class="panel">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h3 style="margin:0;">Impact Metrics</h3>
-          <button class="btn" id="new-impact-btn" style="width:auto; padding:6px 12px; font-size:12px; display:none;" onclick="openModal('modal-impact')">+ Record Impact</button>
-        </div>
-        <div id="impact-list"></div>
-      </div>
-
-      <!-- NOTIFICATIONS TAB -->
+    <!-- NOTIFICATIONS TAB -->
       <div id="tab-notifications" class="panel">
         <h3 style="margin-top:0;">Notifications</h3>
         <div id="notifications-list"></div>
@@ -976,31 +965,100 @@
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-initiative')">Cancel</button>
   </div>
 </div>
+  
 <div class="modal" id="modal-program">
   <div class="modal-card">
     <h3 style="margin-top:0;">Add UAF Program</h3>
-    <div class="field"><label>Program Title</label><input type="text" id="prog-title"></div>
+    <div class="field"><label>Program Name</label><input type="text" id="prog-title"></div>
     <div class="field"><label>Short Code</label><input type="text" id="prog-code"></div>
-    <div class="field"><label>Description</label><textarea id="prog-desc" rows="3"></textarea></div>
+    <div class="field"><label>Introduction</label><textarea id="prog-desc" rows="3"></textarea></div>
+    <div class="field"><label>Objectives</label><textarea id="prog-objectives" rows="3"></textarea></div>
     <div class="field"><label>Target Beneficiaries</label><input type="text" id="prog-target"></div>
+    <div class="field"><label>Details</label><textarea id="prog-details" rows="3"></textarea></div>
     <button class="btn" onclick="submitNewProgram()">Save Program</button>
     <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-program')">Cancel</button>
   </div>
 </div>
 
-<div class="modal" id="modal-impact">
+<!-- PROGRAM DETAIL VIEW -->
+<div class="modal" id="modal-program-detail">
+  <div class="modal-card" style="max-width:640px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+      <div>
+        <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 8px; border-radius:999px;" id="pgdetail-code">CODE</span>
+        <h3 style="margin:6px 0 0 0;" id="pgdetail-title">Program Title</h3>
+      </div>
+      <button class="btn secondary" style="width:auto; padding:4px 10px; font-size:11px;" onclick="closeModal('modal-program-detail')">Close</button>
+    </div>
+
+    <div class="partner-detail-row"><label>Introduction</label><div id="pgdetail-intro">—</div></div>
+    <div class="partner-detail-row"><label>Objectives</label><div id="pgdetail-objectives">—</div></div>
+    <div class="partner-detail-row"><label>Target Beneficiaries</label><div id="pgdetail-target">—</div></div>
+    <div class="partner-detail-row"><label>Details</label><div id="pgdetail-details">—</div></div>
+
+    <div style="display:flex; gap:8px; margin:12px 0; flex-wrap:wrap;">
+      <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px; background:#254587; color:#fff;" id="pgdetail-report-btn">📊 PDF Report</button>
+      <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px; display:none;" id="pgdetail-edit-btn">Edit Program</button>
+      <button class="btn secondary" style="width:auto; padding:6px 12px; font-size:12px; display:none;" id="pgdetail-add-impact-btn">+ Add Impact</button>
+      <button class="btn danger" style="width:auto; padding:6px 12px; font-size:12px; display:none;" id="pgdetail-delete-btn">Delete Program</button>
+    </div>
+
+    <div style="border-top:1px solid var(--line); margin-top:6px; padding-top:12px;">
+      <h4 style="margin:0 0 8px 0;">Impact Records</h4>
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:12px;">
+          <thead><tr style="text-align:left; color:var(--muted);">
+            <th>Direct</th><th>Indirect</th><th>Female</th><th>Male</th><th>Avg Age</th><th>Date</th><th>Location</th><th></th>
+          </tr></thead>
+          <tbody id="pgdetail-impact-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PROGRAM MODAL (Admin/Executive Director only) -->
+<div class="modal" id="modal-edit-program">
   <div class="modal-card">
-    <h3 style="margin-top:0;">Record Impact</h3>
-    <div class="field"><label>Initiative</label><input type="text" id="impact-initiative"></div>
-    <div class="field"><label>Location</label><input type="text" id="impact-location"></div>
-    <div class="field"><label>Male Reached</label><input type="number" id="impact-male"></div>
-    <div class="field"><label>Female Reached</label><input type="number" id="impact-female"></div>
-    <div class="field"><label>Average Age</label><input type="text" id="impact-age"></div>
-    <div class="field"><label>Impact Method</label><input type="text" id="impact-method"></div>
+    <h3 style="margin-top:0;">Edit Program</h3>
+    <input type="hidden" id="edit-prog-id">
+    <div class="field"><label>Program Name</label><input type="text" id="edit-prog-title"></div>
+    <div class="field"><label>Short Code</label><input type="text" id="edit-prog-code"></div>
+    <div class="field"><label>Introduction</label><textarea id="edit-prog-intro" rows="3"></textarea></div>
+    <div class="field"><label>Objectives</label><textarea id="edit-prog-objectives" rows="3"></textarea></div>
+    <div class="field"><label>Target Beneficiaries</label><input type="text" id="edit-prog-target"></div>
+    <div class="field"><label>Details</label><textarea id="edit-prog-details" rows="3"></textarea></div>
+    <button class="btn" onclick="submitEditProgram()">Save Changes</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-edit-program')">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD IMPACT RECORD (tied to a program) -->
+<div class="modal" id="modal-add-program-impact">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Add Impact Record</h3>
+    <input type="hidden" id="impact-program-id">
+    <div class="field"><label>Direct Impact</label><input type="text" id="impact-direct" placeholder="e.g. Children directly trained"></div>
+    <div class="field"><label>Indirect Impact</label><input type="text" id="impact-indirect" placeholder="e.g. Household members reached"></div>
+    <div class="field"><label># of Female</label><input type="number" id="impact-female"></div>
+    <div class="field"><label># of Male</label><input type="number" id="impact-male"></div>
+    <div class="field"><label>Age Average</label><input type="text" id="impact-age"></div>
     <div class="field"><label>Date</label><input type="date" id="impact-date"></div>
-    <div class="field"><label>Notes</label><textarea id="impact-notes" rows="2"></textarea></div>
-    <button class="btn" onclick="submitNewImpact()">Save Entry</button>
-    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-impact')">Cancel</button>
+    <div class="field"><label>Location</label><input type="text" id="impact-location"></div>
+    <button class="btn" onclick="submitProgramImpact()">Save Impact Record</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-add-program-impact')">Cancel</button>
+  </div>
+</div>
+
+<!-- PDF REPORT DATE RANGE -->
+<div class="modal" id="modal-program-report">
+  <div class="modal-card">
+    <h3 style="margin-top:0;">Download Program Report</h3>
+    <input type="hidden" id="report-program-id">
+    <div class="field"><label>Start Date (optional)</label><input type="date" id="prog-report-start"></div>
+    <div class="field"><label>End Date (optional)</label><input type="date" id="prog-report-end"></div>
+    <button class="btn" id="prog-report-download-btn" onclick="downloadProgramPdfReport()">📥 Download PDF</button>
+    <button class="btn secondary" style="margin-top:6px;" onclick="closeModal('modal-program-report')">Cancel</button>
   </div>
 </div>
 
@@ -1266,7 +1324,6 @@
     loadFeed();
     loadContacts();
     loadPrograms();
-    loadImpact();
     loadPartnerships();
     updateLiveNotificationUI();
   }
@@ -1284,31 +1341,29 @@
     const target = document.getElementById(`tab-${tabName}`);
     if (target) target.classList.add('active');
 
-    Array.from(document.querySelectorAll('.app-tabstrip button')).find(b => b.getAttribute('onclick')?.includes(`'${tabName}'`))?.classList.add('active');
-    const sIdx = { feed: 0, chats: 1, notifications: 2, settings: 3 }[tabName];
+        Array.from(document.querySelectorAll('.app-tabstrip button')).find(b => b.getAttribute('onclick')?.includes(`'${tabName}'`))?.classList.add('active');
+    const sIdx = { feed: 0, chats: 1, documents: 2, notifications: 3, settings: 4 }[tabName];
     if (sIdx != null) document.querySelectorAll('.app-sidebar .sidebar-btn')[sIdx]?.classList.add('active');
 
     if (tabName === 'feed') loadFeed();
     if (tabName === 'contacts') loadContacts();
     if (tabName === 'finances') loadFinances();
     if (tabName === 'programs') loadPrograms();
-    if (tabName === 'impact') loadImpact();
     if (tabName === 'partnerships') loadPartnerships();
     if (tabName === 'tasks') loadTasks();
     if (tabName === 'documents') loadDocuments();
-  }
+  }}
 
   function openFullChatsTab() { switchTab('chats'); backToChatList(); loadChats(); }
 
   // ---------- REFRESH ENTIRE SYSTEM ----------
   async function refreshEntireSystem(notify = false) {
-    await Promise.all([
+     await Promise.all([
       loadAllProfiles(),
       loadFeed(),
       loadContacts(),
       loadFinances(),
       loadPrograms(),
-      loadImpact(),
       loadPartnerships(),
       loadTasks(),
       loadDocuments()
@@ -1953,23 +2008,190 @@ async function deleteTaskUI(taskId) {
 }
 
 // ---------- PROGRAMS ----------
+// ---------- PROGRAMS (with embedded Impact & PDF report) ----------
 let allPrograms = [];
+let currentProgramImpact = [];
+let currentDetailProgramId = null;
 
 async function loadPrograms() {
   allPrograms = await cachedFetch('programs', 'programs');
-  const canManage = currentUser && currentUser.isSuperAdmin;
+  const canManage = currentUser && currentUser.isExecutiveManagement;
   document.getElementById('new-program-btn').style.display = canManage ? 'inline-block' : 'none';
   const container = document.getElementById('programs-container');
   if (!Array.isArray(allPrograms)) return;
   container.innerHTML = allPrograms.map(p => `
-    <div class="program-card">
+    <div class="program-card partner-card-clickable" onclick="openProgramDetail('${p.id}')">
       <span style="font-size:10.5px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${escapeHtml(p.shortCode || '')}</span>
       <h4 style="margin:4px 0 2px 0; color:var(--navy-text);">${escapeHtml(p.title)}</h4>
-      <div style="font-size:12.5px; color:var(--ink); margin:6px 0;">${escapeHtml(p.description || '')}</div>
+      <div style="font-size:12.5px; color:var(--ink); margin:6px 0;">${escapeHtml((p.description || '').slice(0, 140))}${(p.description || '').length > 140 ? '…' : ''}</div>
       <div style="font-size:11.5px; color:var(--muted);">🎯 ${escapeHtml(p.targetBeneficiaries || '')}</div>
-      ${canManage ? `<button class="btn danger" style="width:auto; padding:4px 10px; font-size:11px; margin-top:8px;" onclick="deleteProgramUI('${p.id}')">Delete</button>` : ''}
     </div>
   `).join('');
+}
+
+async function openProgramDetail(programId) {
+  const p = allPrograms.find(x => x.id === programId);
+  if (!p) return;
+  currentDetailProgramId = programId;
+
+  document.getElementById('pgdetail-code').innerText = p.shortCode || '';
+  document.getElementById('pgdetail-title').innerText = p.title;
+  document.getElementById('pgdetail-intro').innerText = p.description || '—';
+  document.getElementById('pgdetail-objectives').innerText = p.objectives || '—';
+  document.getElementById('pgdetail-target').innerText = p.targetBeneficiaries || '—';
+  document.getElementById('pgdetail-details').innerText = p.details || '—';
+
+  const canManage = currentUser && currentUser.isExecutiveManagement;
+  const canDelete = currentUser && currentUser.isSuperAdmin;
+  document.getElementById('pgdetail-edit-btn').style.display = canManage ? 'inline-block' : 'none';
+  document.getElementById('pgdetail-add-impact-btn').style.display = canManage ? 'inline-block' : 'none';
+  document.getElementById('pgdetail-delete-btn').style.display = canDelete ? 'inline-block' : 'none';
+
+  document.getElementById('pgdetail-edit-btn').onclick = () => { closeModal('modal-program-detail'); openEditProgramModal(p.id); };
+  document.getElementById('pgdetail-delete-btn').onclick = () => { closeModal('modal-program-detail'); deleteProgramUI(p.id); };
+  document.getElementById('pgdetail-add-impact-btn').onclick = () => { openAddImpactModal(p.id); };
+  document.getElementById('pgdetail-report-btn').onclick = () => { openProgramReportModal(p.id); };
+
+  document.getElementById('pgdetail-impact-body').innerHTML = '<tr><td colspan="8" style="color:var(--muted); padding:8px 0;">Loading…</td></tr>';
+  openModal('modal-program-detail');
+
+  currentProgramImpact = await loadProgramImpact(programId);
+  renderProgramImpactTable();
+}
+
+async function loadProgramImpact(programId) {
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=impact&programId=${encodeURIComponent(programId)}&email=${encodeURIComponent(currentUser.email)}&sessionToken=${encodeURIComponent(currentSessionToken)}`);
+    return await res.json();
+  } catch (e) { return []; }
+}
+
+function renderProgramImpactTable() {
+  const canManage = currentUser && currentUser.isExecutiveManagement;
+  const tbody = document.getElementById('pgdetail-impact-body');
+  if (!Array.isArray(currentProgramImpact) || !currentProgramImpact.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="color:var(--muted); padding:8px 0;">No impact records yet.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = currentProgramImpact.map(i => `
+    <tr>
+      <td>${escapeHtml(i.directImpact || '—')}</td>
+      <td>${escapeHtml(i.indirectImpact || '—')}</td>
+      <td>${i.femaleReached || 0}</td>
+      <td>${i.maleReached || 0}</td>
+      <td>${escapeHtml(i.averageAge || '—')}</td>
+      <td>${i.date ? new Date(i.date).toLocaleDateString() : '—'}</td>
+      <td>${escapeHtml(i.location || '—')}</td>
+      <td>${canManage ? `<button class="btn danger" style="width:auto; padding:3px 8px; font-size:10.5px;" onclick="deleteProgramImpactUI('${i.id}')">✕</button>` : ''}</td>
+    </tr>
+  `).join('');
+}
+
+async function deleteProgramImpactUI(impactId) {
+  if (!confirm('Delete this impact record?')) return;
+  const res = await apiPost('deleteImpactEntry', { impactId });
+  if (res.error) { alert(res.error); return; }
+  currentProgramImpact = await loadProgramImpact(currentDetailProgramId);
+  renderProgramImpactTable();
+}
+
+function openAddImpactModal(programId) {
+  document.getElementById('impact-program-id').value = programId;
+  document.getElementById('impact-direct').value = '';
+  document.getElementById('impact-indirect').value = '';
+  document.getElementById('impact-female').value = '';
+  document.getElementById('impact-male').value = '';
+  document.getElementById('impact-age').value = '';
+  document.getElementById('impact-date').value = '';
+  document.getElementById('impact-location').value = '';
+  openModal('modal-add-program-impact');
+}
+
+async function submitProgramImpact() {
+  const programId = document.getElementById('impact-program-id').value;
+  const res = await apiPost('addImpactEntry', {
+    programId,
+    directImpact: document.getElementById('impact-direct').value.trim(),
+    indirectImpact: document.getElementById('impact-indirect').value.trim(),
+    femaleReached: document.getElementById('impact-female').value,
+    maleReached: document.getElementById('impact-male').value,
+    averageAge: document.getElementById('impact-age').value.trim(),
+    date: document.getElementById('impact-date').value,
+    location: document.getElementById('impact-location').value.trim()
+  });
+  if (res.error) { alert(res.error); return; }
+  closeModal('modal-add-program-impact');
+  currentProgramImpact = await loadProgramImpact(programId);
+  renderProgramImpactTable();
+}
+
+function openProgramReportModal(programId) {
+  document.getElementById('report-program-id').value = programId;
+  document.getElementById('prog-report-start').value = '';
+  document.getElementById('prog-report-end').value = '';
+  openModal('modal-program-report');
+}
+
+async function downloadProgramPdfReport() {
+  const programId = document.getElementById('report-program-id').value;
+  const btn = document.getElementById('prog-report-download-btn');
+  btn.disabled = true;
+  btn.innerText = 'Generating…';
+
+  const res = await apiPost('generateProgramPdfReport', {
+    programId,
+    startDate: document.getElementById('prog-report-start').value,
+    endDate: document.getElementById('prog-report-end').value
+  });
+
+  btn.disabled = false;
+  btn.innerText = '📥 Download PDF';
+
+  if (res.error) { alert(res.error); return; }
+
+  const byteChars = atob(res.base64);
+  const byteNumbers = new Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
+  const blob = new Blob([new Uint8Array(byteNumbers)], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = res.fileName || 'Program_Report.pdf';
+  a.click();
+  URL.revokeObjectURL(url);
+  closeModal('modal-program-report');
+}
+
+function openEditProgramModal(programId) {
+  const p = allPrograms.find(x => x.id === programId);
+  if (!p) return;
+  document.getElementById('edit-prog-id').value = p.id;
+  document.getElementById('edit-prog-title').value = p.title || '';
+  document.getElementById('edit-prog-code').value = p.shortCode || '';
+  document.getElementById('edit-prog-intro').value = p.description || '';
+  document.getElementById('edit-prog-objectives').value = p.objectives || '';
+  document.getElementById('edit-prog-target').value = p.targetBeneficiaries || '';
+  document.getElementById('edit-prog-details').value = p.details || '';
+  openModal('modal-edit-program');
+}
+
+async function submitEditProgram() {
+  const programId = document.getElementById('edit-prog-id').value;
+  const title = document.getElementById('edit-prog-title').value.trim();
+  if (!title) { alert('Program name is required'); return; }
+
+  const res = await apiPost('updateProgram', {
+    programId,
+    title,
+    shortCode: document.getElementById('edit-prog-code').value.trim(),
+    description: document.getElementById('edit-prog-intro').value.trim(),
+    objectives: document.getElementById('edit-prog-objectives').value.trim(),
+    targetBeneficiaries: document.getElementById('edit-prog-target').value.trim(),
+    details: document.getElementById('edit-prog-details').value.trim()
+  });
+  if (res.error) { alert(res.error); return; }
+  closeModal('modal-edit-program');
+  loadPrograms();
 }
 
 async function submitNewProgram() {
@@ -1979,58 +2201,19 @@ async function submitNewProgram() {
     title,
     shortCode: document.getElementById('prog-code').value.trim(),
     description: document.getElementById('prog-desc').value.trim(),
-    targetBeneficiaries: document.getElementById('prog-target').value.trim()
+    objectives: document.getElementById('prog-objectives').value.trim(),
+    targetBeneficiaries: document.getElementById('prog-target').value.trim(),
+    details: document.getElementById('prog-details').value.trim()
   });
   closeModal('modal-program');
   loadPrograms();
 }
 
 async function deleteProgramUI(programId) {
-  if (!confirm('Delete this program?')) return;
-  await apiPost('deleteProgram', { programId });
+  if (!confirm('Delete this program? Its impact records will remain in storage but be orphaned.')) return;
+  const res = await apiPost('deleteProgram', { programId });
+  if (res.error) { alert(res.error); return; }
   loadPrograms();
-}
-
-// ---------- IMPACT ----------
-let allImpact = [];
-
-async function loadImpact() {
-  allImpact = await cachedFetch('impact', 'impact');
-  const canManage = currentUser && currentUser.isSuperAdmin;
-  document.getElementById('new-impact-btn').style.display = canManage ? 'inline-block' : 'none';
-  const container = document.getElementById('impact-list');
-  if (!Array.isArray(allImpact)) return;
-  container.innerHTML = allImpact.map(i => `
-    <div class="program-card" style="margin-bottom:10px;">
-      <h4 style="margin:0 0 4px 0; color:var(--navy-text);">${escapeHtml(i.initiative)}</h4>
-      <div style="font-size:12px; color:var(--ink);">📍 ${escapeHtml(i.location || '')} • 👥 ${i.totalReached} reached (${i.maleReached}M / ${i.femaleReached}F)</div>
-      <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">${escapeHtml(i.notes || '')}</div>
-      ${canManage ? `<button class="btn danger" style="width:auto; padding:4px 10px; font-size:11px; margin-top:8px;" onclick="deleteImpactUI('${i.id}')">Delete</button>` : ''}
-    </div>
-  `).join('');
-}
-
-async function submitNewImpact() {
-  const initiative = document.getElementById('impact-initiative').value.trim();
-  if (!initiative) return;
-  await apiPost('addImpactEntry', {
-    initiative,
-    location: document.getElementById('impact-location').value.trim(),
-    maleReached: document.getElementById('impact-male').value,
-    femaleReached: document.getElementById('impact-female').value,
-    averageAge: document.getElementById('impact-age').value.trim(),
-    impactMethod: document.getElementById('impact-method').value.trim(),
-    date: document.getElementById('impact-date').value,
-    notes: document.getElementById('impact-notes').value.trim()
-  });
-  closeModal('modal-impact');
-  loadImpact();
-}
-
-async function deleteImpactUI(impactId) {
-  if (!confirm('Delete this impact entry?')) return;
-  await apiPost('deleteImpactEntry', { impactId });
-  loadImpact();
 }
 
 // ---------- PARTNERSHIPS ----------
