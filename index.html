@@ -206,27 +206,215 @@
   .programs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
   .program-card { background: var(--window-bg); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
 
-  /* Chat & Voice Notes */
-  .chat-app-wrapper {
-    background: var(--window-bg); border-radius: 12px; border: 1px solid var(--line);
-    height: calc(100vh - 200px); display: flex; flex-direction: column;
+   /* ==================== WHATSAPP UI STYLING ==================== */
+  :root {
+    --wa-teal: #008069;
+    --wa-teal-dark: #075E54;
+    --wa-green: #25D366;
+    --wa-bg: #EFEAE2;
+    --wa-bubble-mine: #D9FDD3;
+    --wa-bubble-other: #FFFFFF;
+    --wa-bubble-text: #111B21;
+    --wa-time-text: #667781;
+    --wa-header-bg: #F0F2F5;
   }
-  .chat-header-bar {
-    background: #F8FAFC; padding: 10px 14px; border-bottom: 1px solid var(--line);
-    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+
+  [data-theme="dark"] {
+    --wa-teal: #1F2C34;
+    --wa-teal-dark: #111B21;
+    --wa-bg: #0B141A;
+    --wa-bubble-mine: #005C4B;
+    --wa-bubble-other: #202C33;
+    --wa-bubble-text: #E9EDEF;
+    --wa-time-text: #8696A0;
+    --wa-header-bg: #202C33;
   }
-  .chat-scrolling-messages {
-    flex: 1; padding: 14px; overflow-y: auto; background: var(--content-bg); display: flex; flex-direction: column; gap: 8px;
+
+  .whatsapp-container {
+    background: var(--window-bg);
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    height: calc(100vh - 175px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
   }
-  .chat-fixed-input-bar {
-    padding: 10px 14px; background: var(--window-bg); border-top: 1px solid var(--line); display: flex; gap: 8px; align-items: center; flex-shrink: 0;
+
+  /* WhatsApp Chat List Screen */
+  .wa-list-header {
+    background: var(--wa-teal-dark);
+    color: #FFF;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
   }
-  .msg-row { display: flex; width: 100%; gap: 6px; }
-  .msg-row.mine { justify-content: flex-start; }
-  .msg-row.other { justify-content: flex-end; }
-  .msg-bubble { max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.45; word-break: break-word; }
-  .msg-row.mine .msg-bubble { background: #FADADD; color: #14213D; }
-  .msg-row.other .msg-bubble { background: var(--primary); color: #FFF; }
+  .wa-list-header-title { font-size: 18px; font-weight: 800; }
+  .wa-list-header-actions { display: flex; gap: 12px; align-items: center; }
+  .wa-icon-btn { background: none; border: none; color: #FFF; font-size: 18px; cursor: pointer; padding: 4px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .wa-icon-btn:hover { background: rgba(255,255,255,0.15); }
+
+  .wa-search-bar {
+    padding: 8px 12px;
+    background: var(--window-bg);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .wa-search-box {
+    background: #F0F2F5;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    width: 100%;
+    gap: 8px;
+  }
+  [data-theme="dark"] .wa-search-box { background: #202C33; }
+  .wa-search-box input { border: none; outline: none; background: transparent; font-size: 13px; width: 100%; color: var(--ink); }
+
+  .wa-chat-list-scroll { flex: 1; overflow-y: auto; background: var(--window-bg); }
+
+  .wa-chat-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    transition: background 0.1s ease;
+  }
+  .wa-chat-item:hover { background: #F5F7FB; }
+  [data-theme="dark"] .wa-chat-item:hover { background: #182229; }
+
+  .wa-chat-avatar { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; position: relative; }
+  .wa-chat-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .wa-chat-avatar-placeholder {
+    width: 100%; height: 100%; border-radius: 50%; background: var(--wa-teal); color: #FFF;
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px;
+  }
+  .wa-general-badge { position: absolute; bottom: -2px; right: -2px; background: var(--accent); color: #fff; font-size: 9px; font-weight: 800; border-radius: 50%; padding: 2px 4px; border: 2px solid #FFF; }
+
+  .wa-chat-info { flex: 1; min-width: 0; }
+  .wa-chat-row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+  .wa-chat-name { font-size: 14.5px; font-weight: 700; color: var(--navy-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wa-chat-time { font-size: 11px; color: var(--wa-time-text); white-space: nowrap; }
+
+  .wa-chat-row-bottom { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .wa-chat-snippet { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px; }
+  .wa-unread-badge { background: var(--wa-green); color: #FFF; font-size: 10.5px; font-weight: 800; border-radius: 999px; padding: 1px 6px; min-width: 18px; text-align: center; }
+
+  /* WhatsApp Conversation View */
+  .wa-room-view { display: flex; flex-direction: column; height: 100%; width: 100%; background: var(--wa-bg); }
+  .wa-room-header {
+    background: var(--wa-teal-dark);
+    color: #FFF;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .wa-room-header-left { display: flex; align-items: center; gap: 10px; min-width: 0; cursor: pointer; }
+  .wa-room-header-titles { min-width: 0; }
+  .wa-room-header-name { font-size: 15px; font-weight: 800; color: #FFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wa-room-header-status { font-size: 11.5px; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .wa-room-messages {
+    flex: 1;
+    padding: 14px 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--wa-bg);
+    background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+
+  .wa-msg-bubble {
+    max-width: 78%;
+    padding: 6px 10px 4px 10px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    line-height: 1.4;
+    word-break: break-word;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    color: var(--wa-bubble-text);
+  }
+  .wa-msg-mine { align-self: flex-end; background: var(--wa-bubble-mine); border-top-right-radius: 2px; }
+  .wa-msg-other { align-self: flex-start; background: var(--wa-bubble-other); border-top-left-radius: 2px; }
+  .wa-msg-author { font-size: 11px; font-weight: 800; color: #E542A3; margin-bottom: 2px; }
+  .wa-msg-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; float: right; margin-left: 8px; margin-top: 4px; font-size: 10px; color: var(--wa-time-text); }
+  .wa-double-tick { color: #53BDEB; font-weight: 800; font-size: 11px; }
+
+  .wa-date-separator { align-self: center; background: rgba(0,0,0,0.15); color: #FFF; font-size: 10.5px; font-weight: 700; border-radius: 999px; padding: 3px 10px; margin: 6px 0; }
+
+  /* WhatsApp Fixed Input Bar */
+  .wa-input-bar {
+    padding: 8px 12px;
+    background: var(--wa-header-bg);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border-top: 1px solid var(--line);
+  }
+  .wa-input-field {
+    flex: 1;
+    background: var(--window-bg);
+    border: none;
+    outline: none;
+    padding: 9px 14px;
+    border-radius: 20px;
+    font-size: 13.5px;
+    color: var(--ink);
+  }
+  .wa-action-circle-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--wa-teal);
+    color: #FFF;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.1s ease;
+  }
+  .wa-action-circle-btn:active { transform: scale(0.94); }
+
+  .wa-voice-recording-banner {
+    display: none;
+    background: #FEE2E2;
+    color: #B91C1C;
+    padding: 8px 14px;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+
+  /* WhatsApp New Chat / Contact Picker Modal */
+  .wa-contact-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.15s;
+  }
+  .wa-contact-row:hover { background: #F8FAFC; }
 
   /* Pinned Bottom Team Bar */
   .app-bottom-team-bar {
@@ -575,37 +763,69 @@
         <div id="notifications-list"></div>
       </div>
 
-      <!-- CHATS TAB -->
+           <!-- WHATSAPP CHATS TAB -->
       <div id="tab-chats" class="panel">
-        <div style="background:#0C2340; color:#fff; padding:8px 14px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-          <span>Global Audio Call Room</span>
-          <button class="btn" id="call-action-btn" style="width:auto; padding:5px 12px; font-size:12px;" onclick="handleCallAction()">📞 Call Team</button>
-        </div>
+        <div class="whatsapp-container">
 
-        <div class="chat-app-wrapper">
-          <div id="chat-list-view">
-            <div class="chat-header-bar">
-              <h4 style="margin:0;">Conversations</h4>
-              <button class="btn" style="width:auto; padding:4px 10px; font-size:11px;" onclick="openCreateGroupModal()">+ Group</button>
-            </div>
-            <div id="chats-list" style="padding:10px;"></div>
-          </div>
-
-          <div id="chat-room-view" style="display:none;">
-            <div class="chat-header-bar">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <button class="btn secondary" style="width:auto; padding:2px 6px; font-size:14px;" onclick="backToChatList()">←</button>
-                <div class="uaf-avatar" id="chat-room-avatar" style="width:28px; height:28px;">C</div>
-                <strong id="chat-title">Chat</strong>
+          <!-- 1. WHATSAPP CHAT LIST VIEW -->
+          <div id="wa-chat-list-view" style="display:flex; flex-direction:column; height:100%;">
+            <div class="wa-list-header">
+              <div class="wa-list-header-title">WhatsApp Chats</div>
+              <div class="wa-list-header-actions">
+                <button class="wa-icon-btn" onclick="handleCallAction()" title="Group Call">📞</button>
+                <button class="wa-icon-btn" onclick="openNewChatModal()" title="New Chat / Contact">💬⁺</button>
+                <button class="wa-icon-btn" onclick="openCreateGroupModal()" title="New Group">👥⁺</button>
               </div>
-              <button class="btn danger" style="width:auto; padding:2px 6px; font-size:11px;" onclick="deleteCurrentChat()">Delete Chat</button>
             </div>
-            <div class="chat-scrolling-messages" id="chat-messages"></div>
-            <div class="chat-fixed-input-bar">
-              <input type="text" id="chat-input" placeholder="Type a message (use @ to mention)..." style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--line);" onkeydown="if(event.key==='Enter') sendMessage();">
-              <button class="btn" style="width:auto; padding:8px 16px;" onclick="sendMessage()">Send</button>
+
+            <div class="wa-search-bar">
+              <div class="wa-search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Search or start new chat..." id="wa-chat-search" oninput="filterWhatsAppChatList(this.value)">
+              </div>
+            </div>
+
+            <div class="wa-chat-list-scroll" id="wa-chat-list-container">
+              <div style="text-align:center; padding:30px; color:var(--muted);">Loading chats…</div>
             </div>
           </div>
+
+          <!-- 2. WHATSAPP CONVERSATION VIEW -->
+          <div id="wa-chat-room-view" class="wa-room-view" style="display:none;">
+            <div class="wa-room-header">
+              <div class="wa-room-header-left" onclick="showCurrentChatDetails()">
+                <button class="wa-icon-btn" style="margin-right:2px;" onclick="event.stopPropagation(); backToWhatsAppList();">←</button>
+                <div class="wa-chat-avatar" id="wa-room-avatar" style="width:38px; height:38px;"></div>
+                <div class="wa-room-header-titles">
+                  <div class="wa-room-header-name" id="wa-room-title">Chat Name</div>
+                  <div class="wa-room-header-status" id="wa-room-subtitle">online</div>
+                </div>
+              </div>
+              <div class="wa-list-header-actions">
+                <button class="wa-icon-btn" onclick="handleCallAction()" title="Call">📞</button>
+                <button class="wa-icon-btn" onclick="deleteCurrentWhatsAppChat()" title="Delete Chat">🗑️</button>
+              </div>
+            </div>
+
+            <!-- Voice Recording Live Bar -->
+            <div class="wa-voice-recording-banner" id="wa-voice-banner">
+              <span id="wa-voice-timer">🔴 Recording Audio: 0:00</span>
+              <div style="display:flex; gap:6px;">
+                <button class="btn secondary" style="width:auto; padding:2px 8px; font-size:11px;" onclick="cancelVoiceRecording()">Cancel</button>
+                <button class="btn" style="width:auto; padding:2px 8px; font-size:11px; background:#B91C1C;" onclick="stopAndSendVoiceRecording()">Send Memo</button>
+              </div>
+            </div>
+
+            <!-- Scrolling Messages Feed -->
+            <div class="wa-room-messages" id="wa-messages-feed"></div>
+
+            <!-- Bottom Input Bar -->
+            <div class="wa-input-bar">
+              <input type="text" id="wa-message-input" class="wa-input-field" placeholder="Type a message (use @ to mention)..." oninput="handleWhatsAppInput(this.value)" onkeydown="if(event.key==='Enter') sendWhatsAppMessage();">
+              <button class="wa-action-circle-btn" id="wa-mic-send-btn" onclick="handleWhatsAppActionButton()" title="Record Audio Note">🎙️</button>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -773,7 +993,20 @@
   </div>
 </div>
 
-<!-- ADD CONTACT MODAL -->
+<!-- WHATSAPP NEW CHAT / CONTACT SELECTOR MODAL -->
+<div class="modal" id="modal-whatsapp-new-chat">
+  <div class="modal-card" style="max-width:440px; padding:0; overflow:hidden;">
+    <div style="background:var(--wa-teal-dark); color:#FFF; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="margin:0; font-size:16px;">Select Contact / Start Chat</h3>
+      <button style="background:none; border:none; color:#FFF; font-size:18px; cursor:pointer;" onclick="closeModal('modal-whatsapp-new-chat')">✕</button>
+    </div>
+    <div style="padding:10px 14px; border-bottom:1px solid var(--line);">
+      <input type="text" id="wa-contact-search-input" placeholder="Search contacts by name, institution, or phone..." style="width:100%; padding:8px 12px; border:1px solid var(--line); border-radius:8px;" oninput="renderWhatsAppContactPicker(this.value)">
+    </div>
+    <div id="wa-contact-picker-list" style="max-height:360px; overflow-y:auto;"></div>
+  </div>
+</div>
+  
 <!-- ADD CONTACT MODAL -->
 <div class="modal" id="modal-contact">
   <div class="modal-card">
@@ -1444,7 +1677,6 @@ function linkifyUrls(text) {
   }
 
     // ---------- GLOBAL SEARCH ----------
-  // ---------- GLOBAL SEARCH ----------
   let searchResultsRegistry = [];
 
   function handleUniversalSearch(query) {
@@ -2132,7 +2364,6 @@ async function deleteTaskUI(taskId) {
   loadTasks();
 }
 
-// ---------- PROGRAMS ----------
 // ---------- PROGRAMS (with embedded Impact & PDF report) ----------
 let allPrograms = [];
 let currentProgramImpact = [];
