@@ -1627,7 +1627,7 @@ function linkifyUrls(text) {
     if (tabName === 'notifications') loadNotifications();
   }
 
-  function openFullChatsTab() { switchTab('chats'); backToChatList(); loadChats(); }
+  function openFullChatsTab() { switchTab('chats'); backToWhatsAppList(); }
 
   // ---------- REFRESH ENTIRE SYSTEM ----------
   async function refreshEntireSystem(notify = false) {
@@ -1665,7 +1665,7 @@ function linkifyUrls(text) {
     };
     document.getElementById('pcard-msg-btn').onclick = () => {
       closeModal('modal-profile-card');
-      startDirectMessage(p.email);
+      startWhatsAppChatWithContact(p.email, p.displayName || p.name);
     };
 
     openModal('modal-profile-card');
@@ -1751,15 +1751,6 @@ function linkifyUrls(text) {
   }
 
   // ---------- CONTACTS DIRECTORY (with pagination) ----------
-  async function loadContacts() {
-    allContacts = await cachedFetch('contacts', 'contacts');
-    const isExec = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
-    document.getElementById('btn-toggle-mailing').style.display = isExec ? 'inline-block' : 'none';
-    document.getElementById('btn-add-contact').style.display = isExec ? 'inline-block' : 'none';
-    renderContactsList(allContacts);
-  }
-  
-   // ---------- CONTACTS DIRECTORY (with pagination) ----------
   const CONTACTS_PAGE_SIZE = 5;
   let contactsFilteredList = [];
   let contactsCurrentPage = 1;
@@ -2729,12 +2720,12 @@ async function submitNewPartnership() {
   loadPartnerships();
 }
 
-// ---------- DOCUMENTS (also missing — called by switchTab and would throw) ----------
+// ---------- DOCUMENTS ----------
 async function loadDocuments() {
   const docs = await cachedFetch('documents', 'documents');
   const container = document.getElementById('doc-list');
-  if (!Array.isArray(docs)) return;  allDocuments = docs;
-   allDocuments = docs;
+  if (!Array.isArray(docs)) return;
+  allDocuments = docs;
   container.innerHTML = docs.map(d => `
     <div class="program-card" style="margin-bottom:8px;">
       <a href="${d.fileUrl}" target="_blank" style="font-weight:700; color:var(--primary);">${escapeHtml(d.fileName)}</a>
@@ -2865,6 +2856,327 @@ async function uploadDocument(event) {
   function escapeHtml(str) {
     if (str == null) return '';
     return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  // ==================== WHATSAPP CHAT LOGIC ====================
+  let currentActiveChannel = null;
+  let allChannelsList = [];
+  let mediaRecorder = null;
+  let audioChunks = [];
+  let recordingInterval = null;
+  let recordingSeconds = 0;
+
+  async function loadChats() {
+    allChannelsList = await cachedFetch('channels', 'channels');
+    renderWhatsAppChatList(allChannelsList);
+  }
+
+  function renderWhatsAppChatList(channels) {
+    const container = document.getElementById('wa-chat-list-container');
+    if (!Array.isArray(channels) || !channels.length) {
+      container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--muted); font-size:13px;">No conversations yet. Tap 💬⁺ to message a contact!</div>';
+      return;
+    }
+
+    container.innerHTML = channels.map(c => {
+      const isGen = c.isGeneral;
+      const avatarHtml = c.avatarUrl
+        ? `<img src="${c.avatarUrl}">`
+        : `<div class="wa-chat-avatar-placeholder">${escapeHtml((c.name || 'U')[0])}</div>`;
+
+      const formattedTime = c.lastTimestamp ? formatWhatsAppTime(c.lastTimestamp) : '';
+
+      return `
+        <div class="wa-chat-item" onclick="openWhatsAppChatRoom('${c.channelId}', '${escapeHtml(c.name)}', '${c.avatarUrl || ''}', ${isGen})">
+          <div class="wa-chat-avatar">
+            ${avatarHtml}
+            ${isGen ? '<span class="wa-general-badge">★</span>' : ''}
+          </div>
+          <div class="wa-chat-info">
+            <div class="wa-chat-row-top">
+              <span class="wa-chat-name">${isGen ? '👥 ' : ''}${escapeHtml(c.name)}</span>
+              <span class="wa-chat-time">${formattedTime}</span>
+            </div>
+            <div class="wa-chat-row-bottom">
+              <span class="wa-chat-snippet">
+                ${c.lastMessage.startsWith('🎤') ? '' : '<span style="color:#53BDEB; font-weight:700;">✓✓</span> '}
+                ${escapeHtml(c.lastMessage || 'Start conversation...')}
+              </span>
+              ${c.unreadCount > 0 ? `<span class="wa-unread-badge">${c.unreadCount}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function filterWhatsAppChatList(query) {
+    query = (query || '').toLowerCase().trim();
+    const filtered = allChannelsList.filter(c => c.name.toLowerCase().includes(query) || (c.lastMessage || '').toLowerCase().includes(query));
+    renderWhatsAppChatList(filtered);
+  }
+
+  function formatWhatsAppTime(ts) {
+    if (!ts) return '';
+    const date = new Date(ts);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    if (isToday) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const isYesterday = new Date(now.setDate(now.getDate() - 1)).toDateString() === date.toDateString();
+    if (isYesterday) return 'Yesterday';
+    return date.toLocaleDateString([], { month: 'numeric', day: 'numeric', year: '2-digit' });
+  }
+
+  function openWhatsAppChatRoom(channelId, title, avatarUrl, isGeneral) {
+    currentActiveChannel = { channelId, title, avatarUrl, isGeneral };
+    activeChannelId = channelId;
+
+    document.getElementById('wa-chat-list-view').style.display = 'none';
+    document.getElementById('wa-chat-room-view').style.display = 'flex';
+
+    document.getElementById('wa-room-title').innerText = title;
+    document.getElementById('wa-room-subtitle').innerText = isGeneral ? 'Global Team • all members' : 'online';
+
+    const av = document.getElementById('wa-room-avatar');
+    av.innerHTML = avatarUrl
+      ? `<img src="${avatarUrl}">`
+      : `<div class="wa-chat-avatar-placeholder" style="font-size:14px;">${escapeHtml((title || 'U')[0])}</div>`;
+
+    loadWhatsAppMessages();
+  }
+
+  function backToWhatsAppList() {
+    currentActiveChannel = null;
+    document.getElementById('wa-chat-room-view').style.display = 'none';
+    document.getElementById('wa-chat-list-view').style.display = 'flex';
+    loadChats();
+  }
+
+  async function loadWhatsAppMessages() {
+    if (!activeChannelId) return;
+    const msgs = await cachedFetch(`messages&channelId=${activeChannelId}`, `msgs_${activeChannelId}`);
+    const feed = document.getElementById('wa-messages-feed');
+    if (!Array.isArray(msgs)) return;
+
+    let lastDate = '';
+    feed.innerHTML = msgs.map(m => {
+      const isMine = currentUser && m.email.toLowerCase() === currentUser.email.toLowerCase();
+      const isVoice = m.type === 'voice' && m.link;
+      const msgDate = new Date(m.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+      const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      let dateSeparator = '';
+      if (msgDate !== lastDate) {
+        dateSeparator = `<div class="wa-date-separator">${msgDate}</div>`;
+        lastDate = msgDate;
+      }
+
+      return `
+        ${dateSeparator}
+        <div class="wa-msg-bubble ${isMine ? 'wa-msg-mine' : 'wa-msg-other'}">
+          ${!isMine && currentActiveChannel?.isGeneral ? `<div class="wa-msg-author">${escapeHtml(m.name)}</div>` : ''}
+          ${isVoice ? `
+            <div style="display:flex; align-items:center; gap:8px; padding:4px 0;">
+              <audio controls src="${m.link}" style="max-width:210px; height:32px;"></audio>
+            </div>
+          ` : `<div>${formatMentionsAndText(m.text)}</div>`}
+          <div class="wa-msg-meta">
+            <span>${timeStr}</span>
+            ${isMine ? '<span class="wa-double-tick">✓✓</span>' : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    feed.scrollTop = feed.scrollHeight;
+  }
+
+  function handleWhatsAppInput(val) {
+    const btn = document.getElementById('wa-mic-send-btn');
+    if (val.trim()) {
+      btn.innerText = '➤';
+      btn.style.background = '#25D366';
+    } else {
+      btn.innerText = '🎙️';
+      btn.style.background = 'var(--wa-teal)';
+    }
+  }
+
+  function handleWhatsAppActionButton() {
+    const input = document.getElementById('wa-message-input');
+    if (input.value.trim()) {
+      sendWhatsAppMessage();
+    } else {
+      startVoiceRecording();
+    }
+  }
+
+  async function sendWhatsAppMessage() {
+    const input = document.getElementById('wa-message-input');
+    const text = input.value.trim();
+    if (!text || !activeChannelId) return;
+
+    input.value = '';
+    handleWhatsAppInput('');
+
+    await apiPost('postMessage', {
+      channelId: activeChannelId,
+      name: currentUser.displayName || currentUser.name,
+      text: text,
+      type: 'user'
+    });
+
+    loadWhatsAppMessages();
+  }
+
+  async function deleteCurrentWhatsAppChat() {
+    if (!currentActiveChannel || currentActiveChannel.isGeneral) {
+      alert('Cannot delete the General Team Chat.');
+      return;
+    }
+    if (!confirm(`Delete conversation with "${currentActiveChannel.title}"?`)) return;
+    await apiPost('deleteChat', { channelId: activeChannelId });
+    backToWhatsAppList();
+  }
+
+  // ---------- CONTACT SEARCH / START NEW CHAT MODAL ----------
+  function openNewChatModal() {
+    renderWhatsAppContactPicker('');
+    openModal('modal-whatsapp-new-chat');
+  }
+
+  function renderWhatsAppContactPicker(query) {
+    query = (query || '').toLowerCase().trim();
+    const list = document.getElementById('wa-contact-picker-list');
+
+    // Combine Team Members + External Contacts
+    const combined = [
+      ...allTeamProfiles.map(p => ({
+        id: p.email,
+        name: p.displayName || p.name,
+        sub: `${p.currentPosition || 'Team Member'} • ${p.email}`,
+        email: p.email,
+        phone: p.phone,
+        photoUrl: p.photoUrl,
+        type: 'Team'
+      })),
+      ...allContacts.map(c => ({
+        id: c.id,
+        name: c.name,
+        sub: `${c.institution || c.category} • ${c.email || c.phone || 'Contact'}`,
+        email: c.email,
+        phone: c.phone,
+        photoUrl: '',
+        type: 'Directory'
+      }))
+    ];
+
+    const filtered = combined.filter(c => {
+      if (c.email && currentUser && c.email.toLowerCase() === currentUser.email.toLowerCase()) return false;
+      return `${c.name} ${c.sub} ${c.phone || ''} ${c.email || ''}`.toLowerCase().includes(query);
+    });
+
+    if (!filtered.length) {
+      list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--muted); font-size:12.5px;">No matching contacts found in directory.</div>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(c => `
+      <div class="wa-contact-row" onclick="startWhatsAppChatWithContact('${escapeHtml(c.email || '')}', '${escapeHtml(c.name)}')">
+        <div class="wa-chat-avatar" style="width:40px; height:40px;">
+          ${c.photoUrl ? `<img src="${c.photoUrl}">` : `<div class="wa-chat-avatar-placeholder" style="font-size:14px;">${escapeHtml(c.name[0])}</div>`}
+        </div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-weight:700; font-size:13.5px; color:var(--navy-text);">${escapeHtml(c.name)}</div>
+          <div style="font-size:11.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(c.sub)}</div>
+        </div>
+        <span style="font-size:10px; font-weight:800; background:#E0E7FF; color:#3730A3; padding:2px 6px; border-radius:999px;">${c.type}</span>
+      </div>
+    `).join('');
+  }
+
+  async function startWhatsAppChatWithContact(email, name) {
+    if (!email) {
+      alert('This contact does not have an active email in the system to open a direct chat.');
+      return;
+    }
+    closeModal('modal-whatsapp-new-chat');
+    const res = await apiPost('getOrCreateDM', { emailB: email });
+    if (res.success && res.channelId) {
+      openWhatsAppChatRoom(res.channelId, name, '', false);
+    } else {
+      alert(res.error || 'Could not open chat room');
+    }
+  }
+
+  function showCurrentChatDetails() {
+    if (!currentActiveChannel) return;
+    if (currentActiveChannel.isGeneral) {
+      alert('👥 UAF General Chat: Official team space for all members of Upskill Africa Foundation.');
+    } else {
+      openProfileCardModal(currentActiveChannel.title);
+    }
+  }
+
+  // ---------- WHATSAPP VOICE NOTES RECORDING ----------
+  async function startVoiceRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.start();
+
+      recordingSeconds = 0;
+      document.getElementById('wa-voice-banner').style.display = 'flex';
+
+      recordingInterval = setInterval(() => {
+        recordingSeconds++;
+        const mins = Math.floor(recordingSeconds / 60);
+        const secs = recordingSeconds % 60;
+        document.getElementById('wa-voice-timer').innerText = `🔴 Recording Audio: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+      }, 1000);
+    } catch (e) {
+      alert('Microphone permission required for audio messages.');
+    }
+  }
+
+  function cancelVoiceRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    clearInterval(recordingInterval);
+    document.getElementById('wa-voice-banner').style.display = 'none';
+  }
+
+  async function stopAndSendVoiceRecording() {
+    if (!mediaRecorder) return;
+    mediaRecorder.onstop = async () => {
+      clearInterval(recordingInterval);
+      document.getElementById('wa-voice-banner').style.display = 'none';
+
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result.split(',')[1];
+        const up = await apiPost('uploadFile', {
+          base64Data: base64,
+          fileName: `wa_voice_${Date.now()}.webm`,
+          mimeType: 'audio/webm'
+        });
+        if (up.directUrl) {
+          await apiPost('postMessage', {
+            channelId: activeChannelId,
+            name: currentUser.displayName || currentUser.name,
+            text: '🎤 Voice message',
+            type: 'voice',
+            link: up.directUrl
+          });
+          loadWhatsAppMessages();
+        }
+      };
+      reader.readAsDataURL(audioBlob);
+    };
+    mediaRecorder.stop();
   }
 
   window.addEventListener('DOMContentLoaded', async () => {
