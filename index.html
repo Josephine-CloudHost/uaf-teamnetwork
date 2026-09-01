@@ -770,7 +770,7 @@
           <!-- 1. WHATSAPP CHAT LIST VIEW -->
           <div id="wa-chat-list-view" style="display:flex; flex-direction:column; height:100%;">
             <div class="wa-list-header">
-              <div class="wa-list-header-title">WhatsApp Chats</div>
+              <div class="wa-list-header-title">UAF Internal Chats</div>
               <div class="wa-list-header-actions">
                 <button class="wa-icon-btn" onclick="handleCallAction()" title="Group Call">📞</button>
                 <button class="wa-icon-btn" onclick="openNewChatModal()" title="New Chat / Contact">💬⁺</button>
@@ -1004,6 +1004,33 @@
       <input type="text" id="wa-contact-search-input" placeholder="Search contacts by name, institution, or phone..." style="width:100%; padding:8px 12px; border:1px solid var(--line); border-radius:8px;" oninput="renderWhatsAppContactPicker(this.value)">
     </div>
     <div id="wa-contact-picker-list" style="max-height:360px; overflow-y:auto;"></div>
+  </div>
+</div>
+
+  <!-- CREATE GROUP MODAL -->
+<div class="modal" id="modal-create-group">
+  <div class="modal-card" style="max-width:440px; padding:0; overflow:hidden;">
+    <div style="background:var(--wa-teal-dark); color:#FFF; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="margin:0; font-size:16px;">New Group</h3>
+      <button style="background:none; border:none; color:#FFF; font-size:18px; cursor:pointer;" onclick="closeModal('modal-create-group')">✕</button>
+    </div>
+    <div style="padding:14px 16px;">
+      <div class="field"><label>Group Name</label><input type="text" id="group-name-input" placeholder="e.g. Program Team"></div>
+      <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:600;">Select Members</label>
+      <div id="group-member-picker" style="max-height:260px; overflow-y:auto; border:1px solid var(--line); border-radius:8px; padding:6px;"></div>
+      <button class="btn" style="margin-top:12px;" onclick="submitCreateGroup()">Create Group</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEO CALL MODAL -->
+<div class="modal" id="modal-video-call">
+  <div class="modal-card" style="max-width:900px; padding:0; overflow:hidden; height:80vh;">
+    <div style="background:var(--wa-teal-dark); color:#FFF; padding:10px 16px; display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="margin:0; font-size:15px;" id="call-modal-title">UAF Team Call</h3>
+      <button style="background:none; border:none; color:#FFF; font-size:18px; cursor:pointer;" onclick="endCurrentCall()">✕ Leave</button>
+    </div>
+    <div id="jitsi-call-container" style="width:100%; height:calc(100% - 44px); background:#000;"></div>
   </div>
 </div>
   
@@ -1625,6 +1652,7 @@ function linkifyUrls(text) {
     if (tabName === 'tasks') loadTasks();
     if (tabName === 'documents') loadDocuments();
     if (tabName === 'notifications') loadNotifications();
+    if (tabName !== 'chats') { stopChatRoomPolling(); stopChatListPolling(); }
   }
 
   function openFullChatsTab() { switchTab('chats'); backToWhatsAppList(); }
@@ -2858,6 +2886,115 @@ async function uploadDocument(event) {
     return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+ // ---------- GROUP CREATION ----------
+let selectedGroupMembers = new Set();
+
+function openCreateGroupModal() {
+  selectedGroupMembers = new Set();
+  document.getElementById('group-name-input').value = '';
+  renderGroupMemberPicker();
+  openModal('modal-create-group');
+}
+
+function renderGroupMemberPicker() {
+  const container = document.getElementById('group-member-picker');
+  const candidates = allTeamProfiles.filter(p => p.email.toLowerCase() !== (currentUser?.email || '').toLowerCase());
+  if (!candidates.length) {
+    container.innerHTML = '<div style="padding:10px; color:var(--muted); font-size:12.5px;">No other team members found.</div>';
+    return;
+  }
+  container.innerHTML = candidates.map(p => `
+    <label style="display:flex; align-items:center; gap:8px; padding:6px 4px; cursor:pointer; font-size:13px;">
+      <input type="checkbox" onchange="toggleGroupMember('${p.email}', this.checked)">
+      ${getAvatarHtml(p.email, p.displayName, p.photoUrl, 26)}
+      <span>${escapeHtml(p.displayName || p.name)}</span>
+    </label>
+  `).join('');
+}
+
+function toggleGroupMember(email, checked) {
+  if (checked) selectedGroupMembers.add(email);
+  else selectedGroupMembers.delete(email);
+}
+
+async function submitCreateGroup() {
+  const groupName = document.getElementById('group-name-input').value.trim();
+  if (!groupName) { alert('Please enter a group name.'); return; }
+  if (!selectedGroupMembers.size) { alert('Select at least one member.'); return; }
+
+  const res = await apiPost('createGroup', { groupName, memberEmails: Array.from(selectedGroupMembers) });
+  if (res.error) { alert(res.error); return; }
+  closeModal('modal-create-group');
+  openWhatsAppChatRoom(res.channelId, groupName, '', false);
+}
+
+// ---------- VIDEO CALLING (Jitsi Meet) ----------
+let jitsiApiInstance = null;
+
+async function handleCallAction() {
+  const channelId = activeChannelId || 'team';
+  const roomName = 'UAF-' + channelId.replace(/[^a-zA-Z0-9]/g, '');
+
+  await apiPost('notifyCall', {
+    name: currentUser.displayName || currentUser.name,
+    channelId,
+    channelName: currentActiveChannel ? currentActiveChannel.title : 'UAF General Chat'
+  });
+
+  document.getElementById('call-modal-title').innerText = '📞 ' + (currentActiveChannel ? currentActiveChannel.title : 'UAF General Chat');
+  openModal('modal-video-call');
+  startJitsiCall(roomName);
+}
+
+function startJitsiCall(roomName) {
+  if (typeof JitsiMeetExternalAPI === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://meet.jit.si/external_api.js';
+    script.onload = () => launchJitsi(roomName);
+    document.head.appendChild(script);
+  } else {
+    launchJitsi(roomName);
+  }
+}
+
+function launchJitsi(roomName) {
+  const container = document.getElementById('jitsi-call-container');
+  container.innerHTML = '';
+  jitsiApiInstance = new JitsiMeetExternalAPI('meet.jit.si', {
+    roomName: roomName,
+    parentNode: container,
+    width: '100%',
+    height: '100%',
+    userInfo: { displayName: currentUser.displayName || currentUser.name },
+    configOverwrite: { prejoinPageEnabled: false },
+    interfaceConfigOverwrite: { SHOW_JITSI_WATERMARK: false }
+  });
+}
+
+function endCurrentCall() {
+  if (jitsiApiInstance) { jitsiApiInstance.dispose(); jitsiApiInstance = null; }
+  closeModal('modal-video-call');
+}
+
+// ---------- CHAT POLLING (so sent/received messages actually appear) ----------
+let chatRoomPollInterval = null;
+let chatListPollInterval = null;
+
+function startChatRoomPolling() {
+  stopChatRoomPolling();
+  chatRoomPollInterval = setInterval(() => { if (activeChannelId) loadWhatsAppMessages(); }, 4000);
+}
+function stopChatRoomPolling() {
+  if (chatRoomPollInterval) { clearInterval(chatRoomPollInterval); chatRoomPollInterval = null; }
+}
+function startChatListPolling() {
+  stopChatListPolling();
+  chatListPollInterval = setInterval(() => { loadChats(); }, 8000);
+}
+function stopChatListPolling() {
+  if (chatListPollInterval) { clearInterval(chatListPollInterval); chatListPollInterval = null; }
+}
+  
   // ==================== WHATSAPP CHAT LOGIC ====================
   let currentActiveChannel = null;
   let allChannelsList = [];
@@ -2927,7 +3064,7 @@ async function uploadDocument(event) {
     return date.toLocaleDateString([], { month: 'numeric', day: 'numeric', year: '2-digit' });
   }
 
-  function openWhatsAppChatRoom(channelId, title, avatarUrl, isGeneral) {
+    function openWhatsAppChatRoom(channelId, title, avatarUrl, isGeneral) {
     currentActiveChannel = { channelId, title, avatarUrl, isGeneral };
     activeChannelId = channelId;
 
@@ -2943,13 +3080,17 @@ async function uploadDocument(event) {
       : `<div class="wa-chat-avatar-placeholder" style="font-size:14px;">${escapeHtml((title || 'U')[0])}</div>`;
 
     loadWhatsAppMessages();
+    stopChatListPolling();
+    startChatRoomPolling();
   }
 
   function backToWhatsAppList() {
     currentActiveChannel = null;
+    stopChatRoomPolling();
     document.getElementById('wa-chat-room-view').style.display = 'none';
     document.getElementById('wa-chat-list-view').style.display = 'flex';
     loadChats();
+    startChatListPolling();
   }
 
   async function loadWhatsAppMessages() {
@@ -3019,12 +3160,18 @@ async function uploadDocument(event) {
     input.value = '';
     handleWhatsAppInput('');
 
-    await apiPost('postMessage', {
+    const res = await apiPost('postMessage', {
       channelId: activeChannelId,
       name: currentUser.displayName || currentUser.name,
       text: text,
       type: 'user'
     });
+
+    if (res.error) {
+      alert('Message failed to send: ' + res.error);
+      input.value = text;
+      return;
+    }
 
     loadWhatsAppMessages();
   }
@@ -3163,15 +3310,18 @@ async function uploadDocument(event) {
           fileName: `wa_voice_${Date.now()}.webm`,
           mimeType: 'audio/webm'
         });
-        if (up.directUrl) {
-          await apiPost('postMessage', {
+                if (up.directUrl) {
+          const res = await apiPost('postMessage', {
             channelId: activeChannelId,
             name: currentUser.displayName || currentUser.name,
             text: '🎤 Voice message',
             type: 'voice',
             link: up.directUrl
           });
+          if (res.error) alert('Voice message failed to send: ' + res.error);
           loadWhatsAppMessages();
+        } else {
+          alert('Failed to upload voice recording.');
         }
       };
       reader.readAsDataURL(audioBlob);
