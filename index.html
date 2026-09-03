@@ -2367,9 +2367,30 @@ function openTaskModal(taskId) {
   document.getElementById('task-name-input').value = t ? t.name : '';
   document.getElementById('task-desc-input').value = t ? t.description : '';
   document.getElementById('task-date-input').value = t && t.deadlineDate ? new Date(t.deadlineDate).toISOString().split('T')[0] : '';
-  const sel = document.getElementById('task-individual-select');
-  sel.innerHTML = allTeamProfiles.map(p => `<option value="${p.email}" ${t && t.assigneeEmail === p.email ? 'selected' : ''}>${escapeHtml(p.displayName || p.name)}</option>`).join('');
+  renderTaskAssigneeSelect(t ? t.assigneeEmail : null, t ? t.assignedTo : null);
   openModal('task-modal');
+}
+
+function renderTaskAssigneeSelect(selectedEmail, selectedName) {
+  const sel = document.getElementById('task-individual-select');
+  const currentSelected = (selectedEmail || '').toLowerCase().trim();
+
+  const teamOptions = allTeamProfiles.map(p => {
+    const isSel = p.email.toLowerCase().trim() === currentSelected;
+    return `<option value="${escapeHtml(p.email)}" data-name="${escapeHtml(p.displayName || p.name)}" ${isSel ? 'selected' : ''}>${escapeHtml(p.displayName || p.name)}</option>`;
+  }).join('');
+
+  const contactOptions = allContacts.map(c => {
+    const val = c.email ? c.email : `contact:${c.id}`;
+    const isSel = c.email ? c.email.toLowerCase().trim() === currentSelected : (selectedName === c.name && !currentSelected);
+    const label = c.email ? `${c.name} (${c.institution || c.category})` : `${c.name} (${c.institution || c.category}) — no email`;
+    return `<option value="${escapeHtml(val)}" data-name="${escapeHtml(c.name)}" data-hasemail="${c.email ? '1' : '0'}" ${isSel ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+  }).join('');
+
+  sel.innerHTML = `
+    <optgroup label="Team Members">${teamOptions}</optgroup>
+    <optgroup label="Contacts (Directory)">${contactOptions}</optgroup>
+  `;
 }
 
 async function submitTask() {
@@ -2377,9 +2398,16 @@ async function submitTask() {
   const description = document.getElementById('task-desc-input').value.trim();
   const deadlineDate = document.getElementById('task-date-input').value;
   const assigneeSelect = document.getElementById('task-individual-select');
-  const assigneeEmail = assigneeSelect.value;
-  const assignedTo = assigneeSelect.selectedOptions[0]?.textContent || assigneeEmail;
+  const selectedOption = assigneeSelect.selectedOptions[0];
+  const rawValue = assigneeSelect.value;
+  const assignedTo = selectedOption?.dataset.name || selectedOption?.textContent || rawValue;
+  // Contacts without an email use a synthetic "contact:<id>" value — don't send that as a real email.
+  const assigneeEmail = rawValue.startsWith('contact:') ? '' : rawValue;
+
   if (!name || !deadlineDate) { alert('Task name and deadline are required'); return; }
+  if (!assigneeEmail && selectedOption?.dataset.hasemail === '0') {
+    if (!confirm(`"${assignedTo}" has no email on file, so they won't receive a notification. Assign anyway?`)) return;
+  }
 
   const payload = { name, description, deadlineDate, assigneeEmail, assignedTo };
   const res = editingTaskId
@@ -2807,8 +2835,8 @@ async function uploadDocument(event) {
         </div>
       `).join('');
 
-      const taskSel = document.getElementById('task-individual-select');
-      if (taskSel) taskSel.innerHTML = allTeamProfiles.map(p => `<option value="${p.email}">${escapeHtml(p.displayName || p.name)}</option>`).join('');
+            // Task assignee dropdown is now built fresh by renderTaskAssigneeSelect() when the modal opens,
+      // so it can include Contacts as well as Team Members — nothing to do here.
     }
   }
 
