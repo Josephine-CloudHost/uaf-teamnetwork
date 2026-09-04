@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>UAF Team Network</title>
 
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" href="./icon.png">
+<link rel="apple-touch-icon" href="./icon.png">
 <meta name="theme-color" content="#002868">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -532,9 +534,98 @@
     .topbar-search-box { display: none; }
     .app-content-body { padding: 14px 14px 84px; }
   }
+  /* In-App Notification Toast Container */
+  #in-app-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    max-width: 380px;
+    width: calc(100% - 40px);
+  }
+  .in-app-toast {
+    background: #09192F;
+    color: #FFFFFF;
+    border-left: 4px solid var(--team-ring);
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    pointer-events: auto;
+    animation: slideInToast 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    cursor: pointer;
+  }
+  @keyframes slideInToast {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .in-app-toast-title { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
+  .in-app-toast-body { font-size: 12px; color: #CBD5E1; line-height: 1.4; }
+
+  /* Partner Cards (Old Version Look with Logo) */
+  .partner-card-interactive {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  }
+  .partner-card-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
+  }
+  .partner-logo-round {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--line);
+    flex-shrink: 0;
+    background: #F1F5F9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--primary);
+  }
+
+  /* Clickable Program Card */
+  .program-card-clickable {
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  }
+  .program-card-clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
+  }
+
+  /* Task Controls Row */
+  .task-actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
 </style>
 </head>
 <body>
+<!-- In-App Notification Toast Container -->
+<div id="in-app-toast-container"></div>
 
 <div id="session-check">
   <div class="loading-spinner"></div>
@@ -568,6 +659,10 @@
           <option value="County Level Leader">County Level Leader</option>
           <option value="Board Member">Board Member</option>
         </select>
+      </div>
+            <div class="field" id="position-field" style="display:none">
+        <label>Current Position in Organization *</label>
+        <input type="text" id="auth-position" placeholder="e.g. Executive Director, Program Lead, Officer">
       </div>
       <div class="field" id="phone-field" style="display:none"><label>Phone Number</label><input type="text" id="auth-phone" placeholder="e.g. +231 77 000 0000"></div>
       <div class="field"><label>Email Address</label><input type="email" id="auth-email" placeholder="name@domain.com"></div>
@@ -614,8 +709,7 @@
           <span style="font-size:20px;">🌍</span>
           <span>UAF Team Network</span>
         </div>
-        <span id="connection-status-badge" style="font-size:11px; padding:3px 9px; border-radius:999px; background:#D1FAE5; color:#065F46; font-weight:800;">🟢 Live</span>
-      </div>
+        </div>
       <div class="topbar-search-box">
         <span>🔍</span>
         <input type="text" placeholder="Search team, contacts, finances, tasks..." id="global-search" oninput="handleUniversalSearch(this.value)">
@@ -629,7 +723,6 @@
     <!-- STICKY UPPER TABSTRIP -->
     <nav class="app-tabstrip">
       <button class="active" onclick="switchTab('feed')">Main Feed</button>
-      <button onclick="switchTab('directory')">👥 All Users</button>
       <button onclick="switchTab('contacts')">Contacts</button>
       <button onclick="switchTab('partnerships')">Partnerships</button>
       <button onclick="switchTab('tasks')">Tasks</button>
@@ -828,7 +921,7 @@
             <div style="font-size:12px; color:var(--muted);">UAF institutional partners, government ministries, schools, and donors</div>
           </div>
           <div style="display:flex; gap:6px;">
-            <button class="btn secondary" id="btn-toggle-mailing" style="padding:6px 12px; font-size:12px; display:none;" onclick="openMailingModal()">✉️ Broadcast Mailing</button>
+            <button class="btn secondary" id="btn-toggle-mailing" style="padding:6px 12px; font-size:12px; display:inline-flex; align-items:center; gap:5px;" onclick="openMailingModal()">âœ‰ï¸ Broadcast Mailing</button>
             <button class="btn" id="btn-add-contact" style="padding:6px 12px; font-size:12px; display:none;" onclick="openModal('modal-contact')">+ Add Contact</button>
           </div>
         </div>
@@ -1153,6 +1246,106 @@
       <div id="tab-settings" class="panel">
         <h3 style="margin-top:0; font-size:18px;">Settings &amp; Organizational Handbook</h3>
 
+        <!-- PWA Desktop & Mobile App Installation Banner -->
+        <div class="card-container" style="padding:16px 20px; margin-bottom:16px; background:linear-gradient(135deg, #EFF6FF, #DBEAFE); border:1.5px solid #BFDBFE;">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <img src="./icon.png" style="width:48px; height:48px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.15);" alt="UAF Logo">
+              <div>
+                <div style="font-weight:800; font-size:15px; color:#1E3A8A;">Install UAF Desktop &amp; Mobile App</div>
+                <div style="font-size:12px; color:#1D4ED8; margin-top:2px;" id="pwa-install-status">
+                  Download and install UAF Network on your Windows PC, Mac, or phone home screen.
+                </div>
+              </div>
+            </div>
+            <button class="btn" id="btn-install-pwa" style="background:#1D4ED8;" onclick="triggerPWAInstall()">ðŸ“² Install App</button>
+          </div>
+        </div>
+
+        <!-- Role-Based Profile Settings Form with Current Position -->
+        <div class="card-container" style="padding:20px; margin-bottom:16px;">
+          <h4 style="margin:0 0 12px 0; color:var(--navy-text); font-size:15px;">Profile Settings &amp; Organizational Role</h4>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:14px;">
+            Update your organizational title, membership category, and profile details. Features and permissions depend on your Current Position.
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="field">
+              <label>Full Official Name</label>
+              <input type="text" id="settings-full-name">
+            </div>
+            <div class="field">
+              <label>Preferred Name</label>
+              <input type="text" id="settings-preferred-name">
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:100px 1fr 1fr; gap:12px;">
+            <div class="field">
+              <label>Prefix</label>
+              <select id="settings-prefix">
+                <option value="">None</option>
+                <option value="Mr.">Mr.</option>
+                <option value="Mrs.">Mrs.</option>
+                <option value="Ms.">Ms.</option>
+                <option value="Dr.">Dr.</option>
+                <option value="Rev.">Rev.</option>
+                <option value="Hon.">Hon.</option>
+              </select>
+            </div>
+            <!-- Role-Based Current Position Field (User Request) -->
+            <div class="field">
+              <label>Current Position in Organization *</label>
+              <input type="text" id="settings-position" placeholder="e.g. Executive Director, Coordinator">
+            </div>
+            <div class="field">
+              <label>Membership Classification</label>
+              <select id="settings-user-type">
+                <option value="Volunteer">Volunteer</option>
+                <option value="Executive Management Team member">Executive Management Team member</option>
+                <option value="County Level Leader">County Level Leader</option>
+                <option value="Board Member">Board Member</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="field">
+              <label>Phone / WhatsApp</label>
+              <input type="text" id="settings-phone">
+            </div>
+            <div class="field">
+              <label>County / Region</label>
+              <input type="text" id="settings-county">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Current Physical Address</label>
+            <input type="text" id="settings-address">
+          </div>
+
+          <div class="field">
+            <label>Emergency Contact</label>
+            <input type="text" id="settings-emergency">
+          </div>
+
+          <div class="field">
+            <label>Professional Bio</label>
+            <textarea id="settings-bio" rows="2"></textarea>
+          </div>
+
+          <div class="field">
+            <label>Past Positions Summary</label>
+            <input type="text" id="settings-past-positions" placeholder="Previous roles in other institutions">
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <button class="btn" id="btn-save-profile" onclick="saveSettingsProfile()">ðŸ’¾ Save Profile Information</button>
+            <button class="btn secondary" style="font-size:12px;" onclick="openFullUserProfile(currentUser ? currentUser.email : '')">ðŸ‘¤ View My Full Profile Page</button>
+          </div>
+        </div>
+
         <div class="settings-list">
           <div class="settings-group-label">Personal Identity &amp; Profile</div>
           <div class="settings-row" onclick="openFullUserProfile(currentUser ? currentUser.email : '')">
@@ -1165,13 +1358,16 @@
           </div>
 
           <div class="settings-group-label">Display &amp; Notifications</div>
-          <div class="settings-row" onclick="toggleLiveNotifications()">
-            <div class="settings-row-icon">🔔</div>
-            <div style="flex:1;">
-              <div style="font-weight:700;">Live Push Notifications</div>
+          <div class="settings-row">
+            <div class="settings-row-icon" onclick="toggleLiveNotifications()">ðŸ””</div>
+            <div style="flex:1;" onclick="toggleLiveNotifications()">
+              <div style="font-weight:700;">Live Push Notifications &amp; Sound Alerts</div>
               <div style="font-size:11.5px; color:var(--muted);" id="fcm-status">Checking notification state...</div>
             </div>
-            <button class="btn secondary" id="btn-toggle-notif" style="padding:4px 10px; font-size:11px;">Enable</button>
+            <div style="display:flex; gap:6px;">
+              <button class="btn secondary" style="padding:4px 10px; font-size:11px;" onclick="testLiveNotificationChime()">ðŸ”Š Test Sound</button>
+              <button class="btn secondary" id="btn-toggle-notif" style="padding:4px 10px; font-size:11px;" onclick="toggleLiveNotifications()">Enable</button>
+            </div>
           </div>
           <div class="settings-row" style="cursor:default;">
             <div class="settings-row-icon">🎨</div>
@@ -1585,6 +1781,198 @@
   </div>
 </div>
 
+<!-- ==================== PARTNERSHIP & PROGRAM DETAIL & EDIT MODALS ==================== -->
+
+<!-- 1. PARTNERSHIP DETAIL MODAL (Clickable for full details, NGO standard with logo) -->
+<div class="modal" id="modal-partnership-detail">
+  <div class="modal-card" style="max-width:560px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div id="part-detail-logo-container"></div>
+        <div>
+          <h3 id="part-detail-name" style="margin:0; font-size:18px; color:var(--navy-text);">Partner Name</h3>
+          <span id="part-detail-category" class="badge badge-primary">Category</span>
+        </div>
+      </div>
+      <button class="btn secondary" style="padding:4px 10px; font-size:12px;" onclick="closeModal('modal-partnership-detail')">âœ•</button>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#F8FAFC; padding:12px; border-radius:8px; margin-bottom:12px; font-size:12.5px;">
+      <div><strong>ðŸ“… Partnership Date:</strong> <span id="part-detail-date">â€”</span></div>
+      <div><strong>â³ Duration / Period:</strong> <span id="part-detail-period">â€”</span></div>
+      <div><strong>âœ‰ï¸ Official Email:</strong> <span id="part-detail-email">â€”</span></div>
+      <div><strong>ðŸ“ž Telephone:</strong> <span id="part-detail-tel">â€”</span></div>
+      <div style="grid-column: span 2;"><strong>ðŸ“ Physical Address:</strong> <span id="part-detail-address">â€”</span></div>
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <h5 style="margin:0 0 4px 0; color:var(--navy-text); font-size:13px;">Purpose &amp; Institutional Scope:</h5>
+      <p id="part-detail-purpose" style="margin:0; font-size:13px; color:var(--ink); line-height:1.5; background:#FFFFFF; border:1px solid var(--line); padding:10px; border-radius:6px;"></p>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <h5 style="margin:0 0 4px 0; color:var(--navy-text); font-size:13px;">Mutual Contributions &amp; Gains:</h5>
+      <p id="part-detail-gains" style="margin:0; font-size:13px; color:var(--ink); line-height:1.5; background:#FFFFFF; border:1px solid var(--line); padding:10px; border-radius:6px;"></p>
+    </div>
+
+    <!-- Admin Actions Row -->
+    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); padding-top:12px;">
+      <div style="display:flex; gap:8px;">
+        <button class="btn" id="part-admin-edit-btn" style="display:none; font-size:12px; padding:6px 12px;" onclick="openEditPartnershipModalCurrent()">âœï¸ Edit Partner</button>
+        <button class="btn danger" id="part-admin-delete-btn" style="display:none; font-size:12px; padding:6px 12px;" onclick="deletePartnershipUICurrent()">ðŸ—‘ï¸ Delete</button>
+      </div>
+      <button class="btn secondary" style="font-size:12px; padding:6px 14px;" onclick="closeModal('modal-partnership-detail')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- 2. EDIT PARTNERSHIP MODAL (Admin Edit Partner) -->
+<div class="modal" id="modal-edit-partnership">
+  <div class="modal-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0; font-size:17px; color:var(--navy-text);">Edit Partner Details</h3>
+      <button class="btn secondary" style="padding:2px 8px; font-size:12px;" onclick="closeModal('modal-edit-partnership')">âœ•</button>
+    </div>
+    <div class="field"><label>Partner Name *</label><input type="text" id="edit-part-name"></div>
+    <div class="field"><label>Category</label>
+      <select id="edit-part-category">
+        <option value="Collaborative Partner">Collaborative Partner</option>
+        <option value="Funding Partner">Funding Partner</option>
+        <option value="Technical Partner">Technical Partner</option>
+        <option value="Government Ministry / Agency">Government Ministry / Agency</option>
+        <option value="Community &amp; Youth Partner">Community &amp; Youth Partner</option>
+      </select>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div class="field"><label>Partnership Date</label><input type="date" id="edit-part-date"></div>
+      <div class="field"><label>Duration / Period</label><input type="text" id="edit-part-period" placeholder="e.g. 2024 - 2026 (Renewable)"></div>
+    </div>
+    <div class="field"><label>Purpose &amp; Collaboration Scope</label><textarea id="edit-part-purpose" rows="2"></textarea></div>
+    <div class="field"><label>Mutual Gains / Value Added</label><textarea id="edit-part-gains" rows="2"></textarea></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div class="field"><label>Official Email</label><input type="email" id="edit-part-email"></div>
+      <div class="field"><label>Telephone</label><input type="text" id="edit-part-tel"></div>
+    </div>
+    <div class="field"><label>Physical Address / City</label><input type="text" id="edit-part-address"></div>
+    <div class="field"><label>Logo Image URL (Optional)</label><input type="url" id="edit-part-logo" placeholder="https://example.com/logo.png"></div>
+    <button class="btn" style="width:100%; margin-top:8px;" onclick="submitEditPartnership()">ðŸ’¾ Update Partner</button>
+    <button class="btn secondary" style="width:100%; margin-top:6px;" onclick="closeModal('modal-edit-partnership')">Cancel</button>
+  </div>
+</div>
+
+<!-- 3. PROGRAM DETAIL MODAL (Clickable for details, Impact metrics & PDF Report) -->
+<div class="modal" id="modal-program-detail">
+  <div class="modal-card" style="max-width:620px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+      <div>
+        <span id="prog-detail-code" class="badge badge-primary" style="font-size:12px; margin-bottom:4px; display:inline-block;">CODE</span>
+        <h3 id="prog-detail-title" style="margin:0; font-size:19px; color:var(--navy-text);">Program Title</h3>
+      </div>
+      <button class="btn secondary" style="padding:4px 10px; font-size:12px;" onclick="closeModal('modal-program-detail')">âœ•</button>
+    </div>
+
+    <div style="background:#F8FAFC; padding:12px; border-radius:8px; margin-bottom:12px; font-size:13px; line-height:1.5;">
+      <strong style="color:var(--navy-text);">ðŸŽ¯ Target Beneficiaries:</strong>
+      <span id="prog-detail-target" style="color:var(--ink);">â€”</span>
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <h5 style="margin:0 0 4px 0; color:var(--navy-text); font-size:13px;">Introduction &amp; Context:</h5>
+      <p id="prog-detail-desc" style="margin:0; font-size:13px; color:var(--ink); line-height:1.5; background:#FFFFFF; border:1px solid var(--line); padding:10px; border-radius:6px;"></p>
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <h5 style="margin:0 0 4px 0; color:var(--navy-text); font-size:13px;">Objectives &amp; Key Milestones:</h5>
+      <p id="prog-detail-objectives" style="margin:0; font-size:13px; color:var(--ink); line-height:1.5; background:#FFFFFF; border:1px solid var(--line); padding:10px; border-radius:6px;"></p>
+    </div>
+
+    <!-- Impact & Reach Section -->
+    <div style="margin-bottom:14px; background:#F1F5F9; padding:12px; border-radius:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h5 style="margin:0; color:var(--navy-text); font-size:13px;">ðŸ“Š Field Reach &amp; Impact Summary</h5>
+        <button class="btn secondary" style="font-size:11px; padding:3px 8px;" onclick="openAddProgramImpactModalCurrent()">âž• Log Field Reach</button>
+      </div>
+      <div id="prog-detail-impact-summary" style="font-size:12px; color:var(--muted);">
+        Total documented beneficiaries reached across field locations.
+      </div>
+    </div>
+
+    <!-- Action Buttons Row -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; border-top:1px solid var(--line); padding-top:12px;">
+      <div style="display:flex; gap:8px;">
+        <button class="btn" style="background:#0D9488; font-size:12px; padding:6px 12px;" onclick="downloadProgramReportPDFCurrent()">ðŸ“„ Download Impact Report</button>
+        <button class="btn secondary" id="prog-admin-edit-btn" style="display:none; font-size:12px; padding:6px 12px;" onclick="openEditProgramModalCurrent()">âœï¸ Edit</button>
+        <button class="btn danger" id="prog-admin-delete-btn" style="display:none; font-size:12px; padding:6px 12px;" onclick="deleteProgramUICurrent()">ðŸ—‘ï¸ Delete</button>
+      </div>
+      <button class="btn secondary" style="font-size:12px; padding:6px 14px;" onclick="closeModal('modal-program-detail')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- 4. EDIT PROGRAM MODAL (Admin Edit Program) -->
+<div class="modal" id="modal-edit-program">
+  <div class="modal-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0; font-size:17px; color:var(--navy-text);">Edit Program</h3>
+      <button class="btn secondary" style="padding:2px 8px; font-size:12px;" onclick="closeModal('modal-edit-program')">âœ•</button>
+    </div>
+    <div class="field"><label>Program Name *</label><input type="text" id="edit-prog-title"></div>
+    <div class="field"><label>Short Code *</label><input type="text" id="edit-prog-code"></div>
+    <div class="field"><label>Introduction &amp; Description</label><textarea id="edit-prog-desc" rows="3"></textarea></div>
+    <div class="field"><label>Objectives</label><textarea id="edit-prog-objectives" rows="3"></textarea></div>
+    <div class="field"><label>Target Beneficiaries</label><input type="text" id="edit-prog-target"></div>
+    <button class="btn" style="width:100%; margin-top:8px;" onclick="submitEditProgram()">ðŸ’¾ Update Program</button>
+    <button class="btn secondary" style="width:100%; margin-top:6px;" onclick="closeModal('modal-edit-program')">Cancel</button>
+  </div>
+</div>
+
+<!-- 5. LOG PROGRAM FIELD REACH IMPACT MODAL -->
+<div class="modal" id="modal-add-program-impact">
+  <div class="modal-card" style="max-width:480px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0; font-size:17px; color:var(--primary);">Log Field Impact Reach</h3>
+      <button class="btn secondary" style="padding:2px 8px; font-size:12px;" onclick="closeModal('modal-add-program-impact')">âœ•</button>
+    </div>
+    <div class="field"><label>Field Activity / Event Name *</label><input type="text" id="impact-activity-name" placeholder="e.g. Community Tech Training Workshop"></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div class="field"><label>Date Conducted</label><input type="date" id="impact-date"></div>
+      <div class="field"><label>County / Community</label><input type="text" id="impact-location" placeholder="e.g. Montserrado / Pipeline"></div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div class="field"><label>Direct Youths / Beneficiaries</label><input type="number" id="impact-direct" placeholder="0"></div>
+      <div class="field"><label>Indirect Reach Count</label><input type="number" id="impact-indirect" placeholder="0"></div>
+    </div>
+    <div class="field"><label>Key Outcomes / Deliverables</label><textarea id="impact-outcomes" rows="2" placeholder="Certificates issued, devices distributed, or skills attained"></textarea></div>
+    <button class="btn" style="width:100%; margin-top:8px;" onclick="submitProgramImpact()">Save Impact Record</button>
+    <button class="btn secondary" style="width:100%; margin-top:6px;" onclick="closeModal('modal-add-program-impact')">Cancel</button>
+  </div>
+</div>
+
+<!-- 6. EDIT & REASSIGN TASK MODAL (Admin Task Controls) -->
+<div class="modal" id="modal-edit-task">
+  <div class="modal-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0; font-size:17px; color:var(--navy-text);">Edit &amp; Reassign Task</h3>
+      <button class="btn secondary" style="padding:2px 8px; font-size:12px;" onclick="closeModal('modal-edit-task')">âœ•</button>
+    </div>
+    <div class="field"><label>Task Name *</label><input type="text" id="edit-task-name"></div>
+    <div class="field"><label>Description &amp; Instructions</label><textarea id="edit-task-desc" rows="2"></textarea></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div class="field"><label>Deadline Date</label><input type="date" id="edit-task-date"></div>
+      <div class="field"><label>Priority</label>
+        <select id="edit-task-priority">
+          <option value="Normal">Normal</option>
+          <option value="High">High Priority</option>
+          <option value="Urgent">Urgent</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Assignee (Team Member)</label><select id="edit-task-assignee"></select></div>
+    <button class="btn" style="width:100%; margin-top:8px;" onclick="submitEditTask()">ðŸ’¾ Save Changes &amp; Reassign</button>
+    <button class="btn secondary" style="width:100%; margin-top:6px;" onclick="closeModal('modal-edit-task')">Cancel</button>
+  </div>
+</div>
+
 <script>
   let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8tNmQ5qfonn-vQ0HO-2vf282d6bsFicOaZr2SOZWGp9-j-08wm6Pgvnhd87NoXxTP/exec';
   let currentUser = null;
@@ -1698,6 +2086,7 @@
     document.getElementById('name-field').style.display = isSignupMode ? 'block' : 'none';
     document.getElementById('prefix-pref-field').style.display = isSignupMode ? 'block' : 'none';
     document.getElementById('user-type-field').style.display = isSignupMode ? 'block' : 'none';
+    if (document.getElementById('position-field')) document.getElementById('position-field').style.display = isSignupMode ? 'block' : 'none';
     document.getElementById('code-field').style.display = isSignupMode ? 'block' : 'none';
     document.getElementById('phone-field').style.display = isSignupMode ? 'block' : 'none';
     document.getElementById('auth-submit').innerText = isSignupMode ? 'Create Account' : 'Sign In';
@@ -1716,6 +2105,7 @@
         teamCode: document.getElementById('auth-code').value.trim(),
         prefix: document.getElementById('auth-prefix').value,
         preferredName: document.getElementById('auth-preferred-name').value.trim(),
+        position: (document.getElementById('auth-position')?.value || '').trim(),
         userType: document.getElementById('auth-user-type').value,
         phone: document.getElementById('auth-phone').value.trim()
       });
@@ -1765,6 +2155,21 @@
     const av = document.getElementById('header-avatar');
     av.innerHTML = currentUser.photoUrl ? `<img src="${currentUser.photoUrl}">` : (currentUser.displayName || 'U')[0];
 
+    // Populate Settings Profile Fields (Role-Based Current Position)
+    if (currentUser) {
+      if (document.getElementById('settings-full-name')) document.getElementById('settings-full-name').value = currentUser.name || currentUser.displayName || '';
+      if (document.getElementById('settings-preferred-name')) document.getElementById('settings-preferred-name').value = currentUser.preferredName || '';
+      if (document.getElementById('settings-prefix')) document.getElementById('settings-prefix').value = currentUser.prefix || '';
+      if (document.getElementById('settings-position')) document.getElementById('settings-position').value = currentUser.position || currentUser.currentPosition || '';
+      if (document.getElementById('settings-user-type')) document.getElementById('settings-user-type').value = currentUser.userType || 'Volunteer';
+      if (document.getElementById('settings-phone')) document.getElementById('settings-phone').value = currentUser.phone || '';
+      if (document.getElementById('settings-county')) document.getElementById('settings-county').value = currentUser.county || '';
+      if (document.getElementById('settings-address')) document.getElementById('settings-address').value = currentUser.physicalAddress || currentUser.address || '';
+      if (document.getElementById('settings-emergency')) document.getElementById('settings-emergency').value = currentUser.emergencyContact || '';
+      if (document.getElementById('settings-bio')) document.getElementById('settings-bio').value = currentUser.bio || '';
+      if (document.getElementById('settings-past-positions')) document.getElementById('settings-past-positions').value = currentUser.pastPositions || '';
+    }
+
     // Load initial modules
     loadAllProfiles();
     loadStories();
@@ -1773,8 +2178,47 @@
     loadSelfExpenses();
     updateLiveNotificationUI();
 
-    // Start periodic heartbeat
+    // Start periodic heartbeat & live notification engine
     startHeartbeat();
+    startLiveNotificationEngine();
+  }
+
+  async function saveSettingsProfile() {
+    if (!currentUser) return;
+    const btn = document.getElementById('btn-save-profile');
+    if (btn) { btn.disabled = true; btn.innerText = 'Saving...'; }
+
+    const position = (document.getElementById('settings-position')?.value || '').trim();
+    const name = (document.getElementById('settings-full-name')?.value || '').trim();
+    const preferredName = (document.getElementById('settings-preferred-name')?.value || '').trim();
+    const prefix = document.getElementById('settings-prefix')?.value || '';
+    const userType = document.getElementById('settings-user-type')?.value || 'Volunteer';
+    const phone = (document.getElementById('settings-phone')?.value || '').trim();
+    const county = (document.getElementById('settings-county')?.value || '').trim();
+    const physicalAddress = (document.getElementById('settings-address')?.value || '').trim();
+    const emergencyContact = (document.getElementById('settings-emergency')?.value || '').trim();
+    const bio = (document.getElementById('settings-bio')?.value || '').trim();
+    const pastPositions = (document.getElementById('settings-past-positions')?.value || '').trim();
+
+    const res = await apiPost('updateProfile', {
+      name, preferredName, prefix, position, userType, phone, county, physicalAddress, emergencyContact, bio, pastPositions
+    });
+
+    if (btn) { btn.disabled = false; btn.innerText = 'ðŸ’¾ Save Profile Information'; }
+
+    if (res.success) {
+      if (res.profile) currentUser = res.profile;
+      else {
+        currentUser.position = position;
+        currentUser.name = name;
+        currentUser.userType = userType;
+      }
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ email: currentUser.email, token: currentSessionToken, profile: currentUser }));
+      document.getElementById('user-display').innerText = currentUser.displayName || currentUser.name;
+      alert('âœ… Profile details and organizational position updated successfully!');
+    } else {
+      alert(res.error || 'Failed to update profile');
+    }
   }
 
   function startHeartbeat() {
@@ -2835,8 +3279,10 @@
   async function loadContacts() {
     allContacts = await cachedFetch('contacts', 'contacts');
     const isExec = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
-    document.getElementById('btn-toggle-mailing').style.display = isExec ? 'inline-block' : 'none';
-    document.getElementById('btn-add-contact').style.display = isExec ? 'inline-block' : 'none';
+    const mailingBtn = document.getElementById('btn-toggle-mailing');
+    if (mailingBtn) mailingBtn.style.display = 'inline-flex';
+    const addBtn = document.getElementById('btn-add-contact');
+    if (addBtn) addBtn.style.display = isExec ? 'inline-block' : 'none';
     renderContactsList(allContacts);
   }
 
@@ -2937,77 +3383,393 @@
     } else alert(res.error);
   }
 
-  // Tasks
+  // Tasks (Control buttons: Assignee mark done, Reminder emails from info.uaf@gmail.com, Admin edit/reassign/cancel/delete)
   let allTasks = [];
   let editingTaskId = null;
+
   async function loadTasks() {
     allTasks = await cachedFetch('tasks', 'tasks');
-    const canAdd = currentUser && currentUser.isExecutiveManagement;
-    document.getElementById('new-task-btn').style.display = canAdd ? 'inline-block' : 'none';
+    const canAdd = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
+    const newTaskBtn = document.getElementById('new-task-btn');
+    if (newTaskBtn) newTaskBtn.style.display = canAdd ? 'inline-block' : 'none';
     renderTasksList();
   }
+
   function renderTasksList() {
     const container = document.getElementById('tasks-list');
     if (!Array.isArray(allTasks) || !allTasks.length) {
-      container.innerHTML = '<div style="color:var(--muted); font-size:13px;">No tasks yet.</div>';
+      container.innerHTML = '<div style="color:var(--muted); font-size:13px; padding:20px; text-align:center;">No tasks currently assigned.</div>';
       return;
     }
+    const isAdmin = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
+
     container.innerHTML = allTasks.map(t => {
       const isMine = currentUser && (t.assigneeEmail || '').toLowerCase().trim() === (currentUser.email || '').toLowerCase().trim();
+      const isDone = t.status === 'Completed';
+      const isCancelled = t.status === 'Cancelled';
+      let badgeClass = 'badge-primary';
+      if (isDone) badgeClass = 'badge-success';
+      else if (isCancelled) badgeClass = 'badge-danger';
+      else if (t.priority === 'High' || t.priority === 'Urgent') badgeClass = 'badge-warning';
+
       return `
-        <div class="card-container program-card" style="margin-bottom:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div>
-              <h4 style="margin:0 0 4px 0; color:var(--navy-text);">${escapeHtml(t.name)}</h4>
-              <div style="font-size:12.5px; color:var(--muted);">${escapeHtml(t.description || '')}</div>
+        <div class="card-container program-card" style="margin-bottom:12px; border-left:4px solid ${isDone ? 'var(--success)' : (isCancelled ? 'var(--danger)' : 'var(--primary)')};">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+            <div style="flex:1;">
+              <h4 style="margin:0 0 4px 0; color:var(--navy-text); font-size:15px;">${escapeHtml(t.name)}</h4>
+              <div style="font-size:12.5px; color:var(--ink); line-height:1.4;">${escapeHtml(t.description || 'No detailed instructions.')}</div>
             </div>
-            <span class="badge ${t.status === 'Completed' ? 'badge-success' : 'badge-primary'}">${escapeHtml(t.status || 'Upcoming')}</span>
+            <span class="badge ${badgeClass}">${escapeHtml(t.status || 'Upcoming')}</span>
           </div>
-          <div style="font-size:12px; margin-top:8px;">📅 Deadline: ${t.deadlineDate ? new Date(t.deadlineDate).toLocaleDateString() : '—'} • 👤 ${escapeHtml(t.assignedTo || t.assigneeEmail || 'Unassigned')}</div>
-          ${isMine && t.status !== 'Completed' ? `<button class="btn secondary" style="margin-top:8px; padding:3px 8px; font-size:11px;" onclick="markTaskDoneUI('${t.id}')">Mark Complete</button>` : ''}
+
+          <div style="font-size:12px; color:var(--muted); margin-top:8px; display:flex; flex-wrap:wrap; gap:14px;">
+            <span>ðŸ“… Deadline: <strong>${t.deadlineDate ? new Date(t.deadlineDate).toLocaleDateString() : 'â€”'}</strong></span>
+            <span>ðŸ‘¤ Assigned: <strong>${escapeHtml(t.assignedTo || t.assigneeEmail || 'Unassigned')}</strong></span>
+            ${t.priority ? `<span>âš¡ Priority: <strong>${escapeHtml(t.priority)}</strong></span>` : ''}
+          </div>
+
+          <div class="task-actions-row">
+            ${!isDone && (isMine || isAdmin) ? `
+              <button class="btn" style="padding:4px 10px; font-size:11px; background:var(--success);" onclick="markTaskDoneUI('${t.id}')">âœ“ Mark Done</button>
+            ` : ''}
+
+            ${!isDone && !isCancelled ? `
+              <button class="btn secondary" style="padding:4px 10px; font-size:11px;" onclick="sendTaskReminderUI('${t.id}')">ðŸ“§ Send Reminder</button>
+            ` : ''}
+
+            ${isAdmin ? `
+              <button class="btn secondary" style="padding:4px 10px; font-size:11px;" onclick="openEditTaskModal('${t.id}')">âœï¸ Edit / Reassign</button>
+              ${!isCancelled ? `
+                <button class="btn secondary" style="padding:4px 10px; font-size:11px; color:var(--danger);" onclick="cancelTaskUI('${t.id}')">ðŸš« Cancel</button>
+              ` : ''}
+              <button class="btn secondary" style="padding:4px 10px; font-size:11px; color:var(--danger);" onclick="deleteTaskUI('${t.id}')">ðŸ—‘ï¸ Delete</button>
+            ` : ''}
+          </div>
         </div>
       `;
     }).join('');
   }
+
   function openTaskModal(taskId) {
     editingTaskId = taskId || null;
     const sel = document.getElementById('task-individual-select');
-    sel.innerHTML = allTeamProfiles.map(p => `<option value="${escapeHtml(p.email)}" data-name="${escapeHtml(p.displayName || p.name)}">${escapeHtml(p.displayName || p.name)} (${escapeHtml(p.userType)})</option>`).join('');
+    if (sel && Array.isArray(allTeamProfiles)) {
+      sel.innerHTML = allTeamProfiles.map(p => `<option value="${escapeHtml(p.email)}" data-name="${escapeHtml(p.displayName || p.name)}">${escapeHtml(p.displayName || p.name)} (${escapeHtml(p.position || p.userType || 'Member')})</option>`).join('');
+    }
     openModal('task-modal');
   }
+
   async function submitTask() {
     const name = document.getElementById('task-name-input').value.trim();
     const description = document.getElementById('task-desc-input').value.trim();
     const deadlineDate = document.getElementById('task-date-input').value;
     const sel = document.getElementById('task-individual-select');
-    const assigneeEmail = sel.value;
-    const assignedTo = sel.selectedOptions[0]?.dataset.name || assigneeEmail;
+    const assigneeEmail = sel ? sel.value : '';
+    const assignedTo = (sel && sel.selectedOptions[0]?.dataset.name) || assigneeEmail;
     if (!name || !deadlineDate) { alert('Name and deadline required'); return; }
     await apiPost('createTask', { name, description, deadlineDate, assigneeEmail, assignedTo });
-    closeModal('task-modal'); loadTasks();
-  }
-  async function markTaskDoneUI(taskId) {
-    await apiPost('markTaskDone', { taskId }); loadTasks();
+    closeModal('task-modal');
+    loadTasks();
   }
 
-  // Programs & Partnerships
+  async function markTaskDoneUI(taskId) {
+    const res = await apiPost('markTaskDone', { taskId });
+    if (res.success) {
+      alert('âœ… Task marked as completed!');
+      loadTasks();
+    } else alert(res.error || 'Failed to update task');
+  }
+
+  async function sendTaskReminderUI(taskId) {
+    const res = await apiPost('sendTaskReminder', { taskId });
+    if (res.success) {
+      alert('ðŸ“§ Reminder email dispatched from info.uaf@gmail.com to the assignee!');
+    } else {
+      alert(res.error || 'Failed to dispatch reminder');
+    }
+  }
+
+  async function cancelTaskUI(taskId) {
+    if (!confirm('Are you sure you want to cancel this task?')) return;
+    const res = await apiPost('cancelTask', { taskId });
+    if (res.success) {
+      alert('Task status set to Cancelled.');
+      loadTasks();
+    } else alert(res.error || 'Failed to cancel task');
+  }
+
+  function openEditTaskModal(taskId) {
+    const task = allTasks.find(t => t.id === taskId);
+    if (!task) return;
+    editingTaskId = taskId;
+    document.getElementById('edit-task-name').value = task.name || '';
+    document.getElementById('edit-task-desc').value = task.description || '';
+    document.getElementById('edit-task-date').value = task.deadlineDate ? task.deadlineDate.split('T')[0] : '';
+    document.getElementById('edit-task-priority').value = task.priority || 'Normal';
+
+    const sel = document.getElementById('edit-task-assignee');
+    if (sel && Array.isArray(allTeamProfiles)) {
+      sel.innerHTML = allTeamProfiles.map(p => `
+        <option value="${escapeHtml(p.email)}" data-name="${escapeHtml(p.displayName || p.name)}" ${p.email.toLowerCase() === (task.assigneeEmail || '').toLowerCase() ? 'selected' : ''}>
+          ${escapeHtml(p.displayName || p.name)} (${escapeHtml(p.position || p.userType || 'Member')})
+        </option>
+      `).join('');
+    }
+    openModal('modal-edit-task');
+  }
+
+  async function submitEditTask() {
+    if (!editingTaskId) return;
+    const name = document.getElementById('edit-task-name').value.trim();
+    const description = document.getElementById('edit-task-desc').value.trim();
+    const deadlineDate = document.getElementById('edit-task-date').value;
+    const priority = document.getElementById('edit-task-priority').value;
+    const sel = document.getElementById('edit-task-assignee');
+    const assigneeEmail = sel ? sel.value : '';
+    const assignedTo = (sel && sel.selectedOptions[0]?.dataset.name) || assigneeEmail;
+
+    if (!name || !deadlineDate) { alert('Task name and deadline are required'); return; }
+
+    const res = await apiPost('updateTask', {
+      taskId: editingTaskId, name, description, deadlineDate, priority, assigneeEmail, assignedTo
+    });
+
+    if (res.success) {
+      closeModal('modal-edit-task');
+      alert('âœ… Task details and assignee updated!');
+      loadTasks();
+    } else alert(res.error || 'Failed to update task');
+  }
+
+  async function deleteTaskUI(taskId) {
+    if (!confirm('Permanently delete this task?')) return;
+    const res = await apiPost('deleteTask', { taskId });
+    if (res.success) {
+      alert('Task deleted.');
+      loadTasks();
+    } else alert(res.error || 'Failed to delete task');
+  }
+
+  // Programs (Clickable for Details, Impact Metrics, PDF Report, Admin Add/Edit/Delete)
   let allPrograms = [];
-  let allPartnerships = [];
+  let currentViewingProgramId = null;
+  let programImpactLogs = {};
+
   async function loadPrograms() {
     allPrograms = await cachedFetch('programs', 'programs');
-    const canManage = currentUser && currentUser.isExecutiveManagement;
-    document.getElementById('new-program-btn').style.display = canManage ? 'inline-block' : 'none';
+    const canManage = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
+    const newBtn = document.getElementById('new-program-btn');
+    if (newBtn) newBtn.style.display = canManage ? 'inline-block' : 'none';
     const container = document.getElementById('programs-container');
     if (!Array.isArray(allPrograms)) return;
+
+    if (!allPrograms.length) {
+      container.innerHTML = '<div style="color:var(--muted); font-size:13px; padding:20px;">No core programs registered yet.</div>';
+      return;
+    }
+
     container.innerHTML = allPrograms.map(p => `
-      <div class="card-container program-card">
-        <span class="badge badge-primary">${escapeHtml(p.shortCode || '')}</span>
-        <h4 style="margin:6px 0 3px 0; color:var(--navy-text);">${escapeHtml(p.title)}</h4>
-        <div style="font-size:12.5px; color:var(--ink); margin:6px 0;">${escapeHtml(p.description || '')}</div>
-        <div style="font-size:11.5px; color:var(--muted);">🎯 Target: ${escapeHtml(p.targetBeneficiaries || '')}</div>
+      <div class="card-container program-card program-card-clickable" onclick="openProgramDetailModal('${p.id || p.shortCode}')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="badge badge-primary">${escapeHtml(p.shortCode || 'UAF')}</span>
+          <span style="font-size:11px; color:var(--muted);">Click for details â€º</span>
+        </div>
+        <h4 style="margin:4px 0 6px 0; color:var(--navy-text); font-size:15px;">${escapeHtml(p.title)}</h4>
+        <div style="font-size:12.5px; color:var(--ink); margin:6px 0; line-height:1.4; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">
+          ${escapeHtml(p.description || '')}
+        </div>
+        <div style="font-size:11.5px; color:var(--muted); margin-top:8px;">ðŸŽ¯ Target: <strong>${escapeHtml(p.targetBeneficiaries || 'Youth & Communities')}</strong></div>
       </div>
     `).join('');
   }
+
+  function openProgramDetailModal(id) {
+    const p = allPrograms.find(item => item.id === id || item.shortCode === id);
+    if (!p) return;
+    currentViewingProgramId = p.id || p.shortCode;
+
+    document.getElementById('prog-detail-code').innerText = p.shortCode || 'UAF';
+    document.getElementById('prog-detail-title').innerText = p.title || 'Program';
+    document.getElementById('prog-detail-target').innerText = p.targetBeneficiaries || 'Youth, women, and marginalized community members';
+    document.getElementById('prog-detail-desc').innerText = p.description || 'Program operates to advance digital literacy and vocational empowerment.';
+    document.getElementById('prog-detail-objectives').innerText = p.objectives || 'Equip participants with certified hands-on skills, mentorship, and career pathways.';
+
+    const impactContainer = document.getElementById('prog-detail-impact-summary');
+    const logs = programImpactLogs[currentViewingProgramId] || [];
+    if (logs.length > 0) {
+      impactContainer.innerHTML = `
+        <div style="font-weight:700; color:var(--navy-text); margin-bottom:6px;">Recent Field Impact Entries:</div>
+        <ul style="margin:0; padding-left:18px; line-height:1.6;">
+          ${logs.map(l => `<li><strong>${escapeHtml(l.activity)}</strong> (${escapeHtml(l.location)}): <strong>${l.direct}</strong> direct youths, <strong>${l.indirect}</strong> indirect beneficiaries reached on ${l.date}. <em>${escapeHtml(l.outcomes)}</em></li>`).join('')}
+        </ul>
+      `;
+    } else {
+      impactContainer.innerHTML = `<div>No field logs recorded yet for this program. Click "Log Field Reach" to record field numbers.</div>`;
+    }
+
+    const canManage = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
+    const editBtn = document.getElementById('prog-admin-edit-btn');
+    const delBtn = document.getElementById('prog-admin-delete-btn');
+    if (editBtn) editBtn.style.display = canManage ? 'inline-block' : 'none';
+    if (delBtn) delBtn.style.display = canManage ? 'inline-block' : 'none';
+
+    openModal('modal-program-detail');
+  }
+
+  function downloadProgramReportPDFCurrent() {
+    if (!currentViewingProgramId) return;
+    const p = allPrograms.find(item => item.id === currentViewingProgramId || item.shortCode === currentViewingProgramId);
+    if (!p) return;
+
+    const reportHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>UAF Impact Report - ${escapeHtml(p.title)}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; color: #0F172A; line-height: 1.6; }
+          .header { text-align: center; border-bottom: 2px solid #002868; padding-bottom: 18px; margin-bottom: 24px; }
+          .logo-txt { font-size: 24px; font-weight: 900; color: #002868; }
+          .sub-txt { font-size: 13px; color: #64748B; }
+          h2 { color: #002868; margin-top: 20px; }
+          .section { margin-bottom: 20px; }
+          .label { font-weight: bold; color: #002868; }
+          table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+          th, td { border: 1px solid #CBD5E1; padding: 10px; text-align: left; font-size: 13px; }
+          th { background: #EEF2F6; color: #002868; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="logo-txt">UPSKILL AFRICA FOUNDATION (UAF)</div>
+          <div class="sub-txt">Empowering Youth &amp; Marginalized Communities Through Digital &amp; Vocational Skills</div>
+          <h1 style="margin:12px 0 4px; font-size:22px;">OFFICIAL PROGRAM IMPACT REPORT</h1>
+          <div class="sub-txt">Generated: ${new Date().toLocaleDateString()} â€¢ Dispatch: info.uaf@gmail.com</div>
+        </div>
+
+        <div class="section">
+          <h2>Program Overview</h2>
+          <p><span class="label">Program Title:</span> ${escapeHtml(p.title)} (${escapeHtml(p.shortCode || 'UAF')})</p>
+          <p><span class="label">Target Demographics:</span> ${escapeHtml(p.targetBeneficiaries || 'Community Youth')}</p>
+          <p><span class="label">Narrative Summary:</span> ${escapeHtml(p.description || 'â€”')}</p>
+          <p><span class="label">Strategic Objectives:</span> ${escapeHtml(p.objectives || 'â€”')}</p>
+        </div>
+
+        <div class="section">
+          <h2>Documented Field Impact</h2>
+          <table>
+            <thead>
+              <tr><th>Activity / Module</th><th>Location</th><th>Direct Beneficiaries</th><th>Indirect Reach</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${escapeHtml(p.title)} Core Activities</td>
+                <td>Montserrado &amp; Counties</td>
+                <td>Active cohort reach</td>
+                <td>Community-wide multipliers</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 40px; border-top: 1px solid #CBD5E1; padding-top: 14px; font-size: 11px; color: #64748B; text-align: center;">
+          Confidential Document â€” Upskill Africa Foundation â€¢ Registered September 6, 2025 â€¢ info.uaf@gmail.com
+        </div>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob([reportHtml], { type: 'text/html' });
+    const win = window.open(URL.createObjectURL(blob), '_blank');
+    if (win) {
+      win.focus();
+      setTimeout(() => win.print(), 800);
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `UAF_Report_${p.shortCode || 'Program'}.html`;
+      a.click();
+    }
+  }
+
+  function openEditProgramModalCurrent() {
+    if (!currentViewingProgramId) return;
+    const p = allPrograms.find(item => item.id === currentViewingProgramId || item.shortCode === currentViewingProgramId);
+    if (!p) return;
+
+    document.getElementById('edit-prog-title').value = p.title || '';
+    document.getElementById('edit-prog-code').value = p.shortCode || '';
+    document.getElementById('edit-prog-desc').value = p.description || '';
+    document.getElementById('edit-prog-objectives').value = p.objectives || '';
+    document.getElementById('edit-prog-target').value = p.targetBeneficiaries || '';
+
+    closeModal('modal-program-detail');
+    openModal('modal-edit-program');
+  }
+
+  async function submitEditProgram() {
+    if (!currentViewingProgramId) return;
+    const title = document.getElementById('edit-prog-title').value.trim();
+    const shortCode = document.getElementById('edit-prog-code').value.trim();
+    if (!title || !shortCode) { alert('Title and short code are required'); return; }
+
+    const res = await apiPost('updateProgram', {
+      id: currentViewingProgramId,
+      title,
+      shortCode,
+      description: document.getElementById('edit-prog-desc').value.trim(),
+      objectives: document.getElementById('edit-prog-objectives').value.trim(),
+      targetBeneficiaries: document.getElementById('edit-prog-target').value.trim()
+    });
+
+    if (res.success) {
+      closeModal('modal-edit-program');
+      alert('âœ… Program updated successfully!');
+      loadPrograms();
+    } else alert(res.error || 'Failed to update program');
+  }
+
+  async function deleteProgramUICurrent() {
+    if (!currentViewingProgramId) return;
+    if (!confirm('Are you sure you want to delete this program?')) return;
+
+    const res = await apiPost('deleteProgram', { id: currentViewingProgramId });
+    if (res.success) {
+      closeModal('modal-program-detail');
+      alert('Program removed.');
+      loadPrograms();
+    } else alert(res.error || 'Failed to delete program');
+  }
+
+  function openAddProgramImpactModalCurrent() {
+    closeModal('modal-program-detail');
+    document.getElementById('impact-activity-name').value = '';
+    document.getElementById('impact-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('impact-location').value = '';
+    document.getElementById('impact-direct').value = '';
+    document.getElementById('impact-indirect').value = '';
+    document.getElementById('impact-outcomes').value = '';
+    openModal('modal-add-program-impact');
+  }
+
+  function submitProgramImpact() {
+    const activity = document.getElementById('impact-activity-name').value.trim();
+    const date = document.getElementById('impact-date').value;
+    const location = document.getElementById('impact-location').value.trim();
+    const direct = document.getElementById('impact-direct').value || '0';
+    const indirect = document.getElementById('impact-indirect').value || '0';
+    const outcomes = document.getElementById('impact-outcomes').value.trim();
+
+    if (!activity) { alert('Activity name is required'); return; }
+
+    if (!programImpactLogs[currentViewingProgramId]) programImpactLogs[currentViewingProgramId] = [];
+    programImpactLogs[currentViewingProgramId].push({ activity, date, location, direct, indirect, outcomes });
+
+    closeModal('modal-add-program-impact');
+    alert('âœ… Field reach impact logged!');
+    openProgramDetailModal(currentViewingProgramId);
+  }
+
   async function submitNewProgram() {
     await apiPost('addProgram', {
       title: document.getElementById('prog-title').value.trim(),
@@ -3016,34 +3778,157 @@
       objectives: document.getElementById('prog-objectives').value.trim(),
       targetBeneficiaries: document.getElementById('prog-target').value.trim()
     });
-    closeModal('modal-program'); loadPrograms();
+    closeModal('modal-program');
+    loadPrograms();
   }
+
+  // Partnerships (Old Version Look with Circular Logo & Clickable Details)
+  let allPartnerships = [];
+  let currentViewingPartnerId = null;
+
   async function loadPartnerships() {
     allPartnerships = await cachedFetch('partnerships', 'partnerships');
-    const canManage = currentUser && currentUser.isSuperAdmin;
-    document.getElementById('new-partner-btn').style.display = canManage ? 'inline-block' : 'none';
+    const canManage = currentUser && (currentUser.isSuperAdmin || currentUser.isExecutiveManagement);
+    const newBtn = document.getElementById('new-partner-btn');
+    if (newBtn) newBtn.style.display = canManage ? 'inline-block' : 'none';
     const container = document.getElementById('partnerships-container');
     if (!Array.isArray(allPartnerships)) return;
-    container.innerHTML = allPartnerships.map(p => `
-      <div class="card-container program-card">
-        <h4 style="margin:0 0 3px 0; color:var(--navy-text);">${escapeHtml(p.name)}</h4>
-        <span class="badge badge-primary">${escapeHtml(p.category)}</span>
-        <div style="font-size:12.5px; color:var(--ink); margin:8px 0;">${escapeHtml(p.purpose || '')}</div>
-        <div style="font-size:11.5px; color:var(--muted);">📞 ${escapeHtml(p.tel || '—')} • ✉️ ${escapeHtml(p.email || '—')}</div>
-      </div>
-    `).join('');
+
+    if (!allPartnerships.length) {
+      container.innerHTML = '<div style="color:var(--muted); font-size:13px; padding:20px;">No institutional partnerships registered yet.</div>';
+      return;
+    }
+
+    container.innerHTML = allPartnerships.map(p => {
+      const initial = (p.name || 'P')[0].toUpperCase();
+      const logoHtml = p.logoUrl ?
+        `<img src="${escapeHtml(p.logoUrl)}" class="partner-logo-round" alt="Logo">` :
+        `<div class="partner-logo-round">${initial}</div>`;
+
+      return `
+        <div class="partner-card-interactive" onclick="openPartnershipDetailModal('${p.id}')">
+          ${logoHtml}
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+              <h4 style="margin:0 0 4px 0; color:var(--navy-text); font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(p.name)}</h4>
+              <span class="badge badge-primary" style="font-size:10.5px;">${escapeHtml(p.category || 'Partner')}</span>
+            </div>
+            <div style="font-size:12.5px; color:var(--ink); margin:6px 0; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+              ${escapeHtml(p.purpose || 'Active strategic cooperation.')}
+            </div>
+            <div style="font-size:11.5px; color:var(--muted); display:flex; gap:12px; flex-wrap:wrap;">
+              ${p.email ? `<span>âœ‰ï¸ ${escapeHtml(p.email)}</span>` : ''}
+              ${p.tel ? `<span>ðŸ“ž ${escapeHtml(p.tel)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
+
+  function openPartnershipDetailModal(id) {
+    const p = allPartnerships.find(item => item.id === id);
+    if (!p) return;
+    currentViewingPartnerId = id;
+
+    const logoContainer = document.getElementById('part-detail-logo-container');
+    const initial = (p.name || 'P')[0].toUpperCase();
+    if (logoContainer) {
+      logoContainer.innerHTML = p.logoUrl ?
+        `<img src="${escapeHtml(p.logoUrl)}" class="partner-logo-round" style="width:58px; height:58px;" alt="Logo">` :
+        `<div class="partner-logo-round" style="width:58px; height:58px; font-size:22px;">${initial}</div>`;
+    }
+
+    document.getElementById('part-detail-name').innerText = p.name || 'Partner';
+    document.getElementById('part-detail-category').innerText = p.category || 'Strategic Partner';
+    document.getElementById('part-detail-date').innerText = p.dateOfPartnership ? new Date(p.dateOfPartnership).toLocaleDateString() : 'â€”';
+    document.getElementById('part-detail-period').innerText = p.period || 'Continuous';
+    document.getElementById('part-detail-email').innerText = p.email || 'â€”';
+    document.getElementById('part-detail-tel').innerText = p.tel || 'â€”';
+    document.getElementById('part-detail-address').innerText = p.address || 'Monrovia, Liberia';
+    document.getElementById('part-detail-purpose').innerText = p.purpose || 'Mutual institutional collaboration.';
+    document.getElementById('part-detail-gains').innerText = p.gains || 'Joint youth upskilling and community empowerment impact.';
+
+    const isSuperAdmin = currentUser && currentUser.isSuperAdmin;
+    const editBtn = document.getElementById('part-admin-edit-btn');
+    const delBtn = document.getElementById('part-admin-delete-btn');
+    if (editBtn) editBtn.style.display = isSuperAdmin ? 'inline-block' : 'none';
+    if (delBtn) delBtn.style.display = isSuperAdmin ? 'inline-block' : 'none';
+
+    openModal('modal-partnership-detail');
+  }
+
+  function openEditPartnershipModalCurrent() {
+    if (!currentViewingPartnerId) return;
+    const p = allPartnerships.find(item => item.id === currentViewingPartnerId);
+    if (!p) return;
+
+    document.getElementById('edit-part-name').value = p.name || '';
+    document.getElementById('edit-part-category').value = p.category || 'Collaborative Partner';
+    document.getElementById('edit-part-date').value = p.dateOfPartnership ? p.dateOfPartnership.split('T')[0] : '';
+    document.getElementById('edit-part-period').value = p.period || '';
+    document.getElementById('edit-part-purpose').value = p.purpose || '';
+    document.getElementById('edit-part-gains').value = p.gains || '';
+    document.getElementById('edit-part-email').value = p.email || '';
+    document.getElementById('edit-part-tel').value = p.tel || '';
+    document.getElementById('edit-part-address').value = p.address || '';
+    document.getElementById('edit-part-logo').value = p.logoUrl || '';
+
+    closeModal('modal-partnership-detail');
+    openModal('modal-edit-partnership');
+  }
+
+  async function submitEditPartnership() {
+    if (!currentViewingPartnerId) return;
+    const name = document.getElementById('edit-part-name').value.trim();
+    if (!name) { alert('Partner name is required'); return; }
+
+    const res = await apiPost('updatePartnership', {
+      id: currentViewingPartnerId,
+      name,
+      category: document.getElementById('edit-part-category').value,
+      dateOfPartnership: document.getElementById('edit-part-date').value,
+      period: document.getElementById('edit-part-period').value.trim(),
+      purpose: document.getElementById('edit-part-purpose').value.trim(),
+      gains: document.getElementById('edit-part-gains').value.trim(),
+      email: document.getElementById('edit-part-email').value.trim(),
+      tel: document.getElementById('edit-part-tel').value.trim(),
+      address: document.getElementById('edit-part-address').value.trim(),
+      logoUrl: document.getElementById('edit-part-logo').value.trim()
+    });
+
+    if (res.success) {
+      closeModal('modal-edit-partnership');
+      alert('âœ… Partner details updated!');
+      loadPartnerships();
+    } else alert(res.error || 'Failed to update partner');
+  }
+
+  async function deletePartnershipUICurrent() {
+    if (!currentViewingPartnerId) return;
+    if (!confirm('Are you sure you want to permanently delete this partner?')) return;
+
+    const res = await apiPost('deletePartnership', { id: currentViewingPartnerId });
+    if (res.success) {
+      closeModal('modal-partnership-detail');
+      alert('Partner removed.');
+      loadPartnerships();
+    } else alert(res.error || 'Failed to delete partner');
+  }
+
   async function submitNewPartnership() {
     await apiPost('addPartnership', {
       name: document.getElementById('part-name').value.trim(),
       category: document.getElementById('part-category').value,
       dateOfPartnership: document.getElementById('part-date').value,
       purpose: document.getElementById('part-purpose').value.trim(),
-      partnerEmail: document.getElementById('part-email').value.trim(),
+      email: document.getElementById('part-email').value.trim(),
       tel: document.getElementById('part-tel').value.trim()
     });
-    closeModal('modal-partnership'); loadPartnerships();
+    closeModal('modal-partnership');
+    loadPartnerships();
   }
+
 
   // Documents
   async function loadDocuments() {
@@ -3222,7 +4107,104 @@
     switchTab('feed');
   }
 
-  // Push Notifications & Settings
+  // Live Push Notifications & Sound Engine
+  function playNotificationChime() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(659.25, ctx.currentTime + 0.12); // E5
+
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(ctx.currentTime);
+      osc1.stop(ctx.currentTime + 0.12);
+      osc2.start(ctx.currentTime + 0.12);
+      osc2.stop(ctx.currentTime + 0.45);
+    } catch (e) {
+      console.warn('Chime error:', e);
+    }
+  }
+
+  function showInAppToast(title, body, onClick) {
+    const container = document.getElementById('in-app-toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = 'in-app-toast';
+    toast.innerHTML = `
+      <div style="font-size:18px;">ðŸ””</div>
+      <div style="flex:1;">
+        <div class="in-app-toast-title">${escapeHtml(title)}</div>
+        <div class="in-app-toast-body">${escapeHtml(body)}</div>
+      </div>
+      <button style="background:none; border:none; color:#94A3B8; cursor:pointer; font-size:14px;">âœ•</button>
+    `;
+    toast.onclick = (e) => {
+      if (onClick) onClick();
+      toast.remove();
+    };
+    const closeBtn = toast.querySelector('button');
+    if (closeBtn) closeBtn.onclick = (e) => { e.stopPropagation(); toast.remove(); };
+    container.appendChild(toast);
+    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 6000);
+  }
+
+  function testLiveNotificationChime() {
+    playNotificationChime();
+    showInAppToast('UAF Live Alert', 'Live sound chime and in-app alerts are active and working!');
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('UAF Live Notification', {
+        body: 'Sound alert and desktop push are fully operational.',
+        icon: './icon.png'
+      });
+    }
+  }
+
+  let knownNotificationIds = new Set();
+  let liveNotifPollTimer = null;
+
+  function startLiveNotificationEngine() {
+    if (liveNotifPollTimer) clearInterval(liveNotifPollTimer);
+    liveNotifPollTimer = setInterval(async () => {
+      if (!currentUser || !currentSessionToken) return;
+      try {
+        const notifs = await apiFetchAction('notifications');
+        if (Array.isArray(notifs)) {
+          const localReadSet = getReadNotificationIds();
+          notifs.forEach(n => {
+            if (!n.isRead && !localReadSet.has(n.id) && !knownNotificationIds.has(n.id)) {
+              knownNotificationIds.add(n.id);
+              playNotificationChime();
+              showInAppToast(n.title || 'UAF Notification', n.message || n.text || 'New action item or alert', () => switchTab('notifications'));
+              if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(n.title || 'UAF Alert', {
+                  body: n.message || n.text || 'New notification',
+                  icon: './icon.png'
+                });
+              }
+            }
+          });
+          const unreadCount = notifs.filter(n => !n.isRead && !localReadSet.has(n.id)).length;
+          updateNotifBadgeCount(unreadCount);
+        }
+      } catch (err) {
+        // quiet poll
+      }
+    }, 15000);
+  }
+
   function toggleLiveNotifications() {
     const isEnabled = localStorage.getItem('uaf_live_notifications_enabled') === 'true';
     if (isEnabled) {
@@ -3236,20 +4218,52 @@
             await apiPost('saveFcmToken', { token });
             localStorage.setItem('uaf_live_notifications_enabled', 'true');
             updateLiveNotificationUI();
-          } else alert('Notification permission denied.');
+            playNotificationChime();
+            showInAppToast('Live Notifications Active', 'You will now receive sound alerts and push notifications for urgent updates.');
+          } else alert('Notification permission denied by browser.');
         });
+      } else {
+        localStorage.setItem('uaf_live_notifications_enabled', 'true');
+        updateLiveNotificationUI();
       }
     }
   }
+
   function updateLiveNotificationUI() {
     const isEnabled = localStorage.getItem('uaf_live_notifications_enabled') === 'true';
     const status = document.getElementById('fcm-status');
     const btn = document.getElementById('btn-toggle-notif');
     if (status && btn) {
-      status.innerText = isEnabled ? '🟢 Live push notifications active' : '⚪ Notifications disabled';
+      status.innerText = isEnabled ? 'ðŸŸ¢ Live notifications & sound active' : 'âšª Notifications disabled';
       btn.innerText = isEnabled ? 'Disable' : 'Enable';
     }
   }
+
+  // PWA Desktop & Mobile App Install
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const statusEl = document.getElementById('pwa-install-status');
+    if (statusEl) statusEl.innerText = 'App ready to install on your computer or phone home screen!';
+  });
+
+  function triggerPWAInstall() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choice) => {
+        if (choice.outcome === 'accepted') {
+          const statusEl = document.getElementById('pwa-install-status');
+          if (statusEl) statusEl.innerText = 'âœ… UAF App successfully installed!';
+        }
+        deferredPrompt = null;
+      });
+    } else {
+      alert('To install UAF Team Network:\n\nâ€¢ On Desktop (Chrome/Edge): Click the Install icon (ðŸ’») in your browser address bar.\nâ€¢ On iPhone (Safari): Tap Share âž” Add to Home Screen.\nâ€¢ On Android: Tap Menu (â‹®) âž” Install app / Add to Home screen.');
+    }
+  }
+
+
   function applyFontSize(s) { document.documentElement.style.setProperty('--app-font-size', s); }
   function applyTheme(t) {
     if (t === 'dark') document.body.setAttribute('data-theme', 'dark');
@@ -3313,6 +4327,11 @@
       } catch (e) { document.getElementById('auth-screen').classList.add('visible'); }
     } else { document.getElementById('auth-screen').classList.add('visible'); }
     document.getElementById('session-check').style.display = 'none';
+
+    // Register PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW Note:', e));
+    }
   });
 </script>
 </body>
