@@ -1,0 +1,38 @@
+name: UAF Emergency UI Recovery
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/uaf-emergency-ui-recovery.yml'
+permissions:
+  contents: write
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore last known working index.html
+        run: |
+          git checkout fae0619a56ad16173e3247baf88743b2277660b3 -- index.html
+          if grep -q '\\\\n// ==================== RESTORED v9.2 FEATURES ====================' index.html; then
+            echo 'Malformed restored block still present; refusing to commit.'
+            exit 1
+          fi
+          node - <<'NODE'
+          const fs=require('fs');
+          const s=fs.readFileSync('index.html','utf8');
+          const scripts=[...s.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)].map(m=>m[1]).join('\\n');
+          fs.writeFileSync('/tmp/app.js',scripts);
+          console.log('script blocks:', [...s.matchAll(/<script(?:\\s[^>]*)?>/gi)].length);
+          console.log('video tags:', (s.match(/<video/gi)||[]).length);
+          NODE
+          node --check /tmp/app.js
+      - name: Commit recovery and remove recovery workflow
+        run: |
+          git config user.name 'upskillafricafoundation'
+          git config user.email 'chrisckindness@gmail.com'
+          git add index.html
+          git commit -m 'Restore last known working frontend' || true
+          git rm .github/workflows/uaf-emergency-ui-recovery.yml || true
+          git commit -m 'Remove emergency recovery workflow' || true
+          git push
