@@ -1871,7 +1871,7 @@ html, body {
         <input type="text" id="impact-age" placeholder="e.g. 15-25 (60%), 26-40 (40%)">
       </div>
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
-<button class="btn secondary" onclick="closeModal('modal-program-report')">Cancel</button>
+<button class="btn secondary" onclick="closeModal('modal-add-program-impact')">Cancel</button>
         <button class="btn" onclick="submitProgramImpact()">Save Impact Log</button>      </div>
     </div>
   </div>
@@ -4360,10 +4360,8 @@ loadWhatsAppMessages = async function() {
   }).join(''); feed.scrollTop = feed.scrollHeight;
 };
 const _uafOriginalSwitchTab = switchTab;
-switchTab = function(tabName) { _uafOriginalSwitchTab(tabName); if (tabName === 'chats') startActiveCallPolling(); else if (activeCallPoll) { clearInterval(activeCallPoll); activeCallPoll = null; } };
-
+switchTab = function(tabName) { _uafOriginalSwitchTab(tabName); if (tabName === 'chats') startActiveCallPolling(); else if (activeCallPoll) { clearInterval(activeCallPoll); activeCallPoll = null; } }; // Settings Theme & Auth
     
-if (tabName === 'chats') startActiveCallPolling(); else if (activeCallPoll) { clearInterval(activeCallPoll); activeCallPoll = null; } };\n\n// Settings Theme & Auth
 function applyFontSize(s) { document.documentElement.style.setProperty('--app-font-size', s); }
 function applyTheme(t) {
   if (t === 'dark') document.body.setAttribute('data-theme', 'dark');
