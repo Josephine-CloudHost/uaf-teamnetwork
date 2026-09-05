@@ -568,7 +568,7 @@ html, body {
           <input type="text" id="global-search" placeholder="Search team members, contacts, tasks..." oninput="handleUniversalSearch(this.value)">
         </div>
 
-        <div class="topbar-user" onclick="openMyOwnProfile()" title="View My Profile">
+        <div class="topbar-user" onclick="openFullUserProfile()" title="View My Profile">
           <div class="uaf-avatar" id="header-avatar" style="width:34px; height:34px; font-size:14px;">U</div>
           <span id="user-display" style="max-width:140px; overflow:hidden; text-overflow:ellipsis;">User</span>
         </div>
@@ -622,8 +622,7 @@ html, body {
         <!-- PANEL: PROFESSIONAL USER PROFILE PAGE -->
         <section id="tab-user-profile" class="panel">
           <div class="profile-page-container">
-            <button class="btn secondary" style="margin-bottom:12px; font-size:12px;" onclick="closeFullUserProfile()">← Back</button>
-
+<button class="btn secondary" style="margin-bottom:12px; font-size:12px;" onclick="goBackFromProfile()">← Back</button>
             <!-- Cover Banner -->
             <div class="profile-cover-banner" id="prof-cover-banner">
               <button class="profile-cover-change-btn" id="prof-cover-edit-btn" onclick="promptChangeCoverBanner()">📷 Change Cover</button>
@@ -688,7 +687,7 @@ html, body {
                 <div class="card-container" style="padding:18px; margin-bottom:16px;">
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                     <h3 style="margin:0; font-size:15px; font-weight:800; color:var(--navy-text);">💼 Career & Experience</h3>
-                    <button class="btn secondary" id="prof-edit-career-btn" style="padding:4px 9px; font-size:11.5px;" onclick="openModal('modal-edit-career')">Edit</button>
+                    <button class="btn secondary" id="prof-edit-career-btn" style="padding:4px 9px; font-size:11.5px;" onclick="openEditCareerModal()">Edit</button>
                   </div>
                   <div id="prof-career-list" style="font-size:13px; line-height:1.6; color:var(--ink); margin-bottom:12px;"></div>
                   
@@ -785,8 +784,7 @@ html, body {
               <div style="font-size:12.5px; color:var(--muted);">Track execution, reminders, and departmental deliverables</div>
             </div>
             <div>
-              <button class="btn" id="new-task-btn" onclick="openCreateTaskModal()" style="display:none;">+ Create Task</button>
-            </div>
+            <button class="btn" id="new-task-btn" onclick="openTaskModal()" style="display:none;">+ Create Task</button>            </div>
           </div>
 
           <div id="tasks-list">
@@ -1015,8 +1013,7 @@ html, body {
             </div>
             <div>
               <button class="btn" onclick="document.getElementById('doc-file-upload-input').click()">📁 Upload Document</button>
-              <input type="file" id="doc-file-upload-input" style="display:none;" onchange="handleDocumentUpload(this)">
-            </div>
+              <input type="file" id="doc-file-upload-input" style="display:none;" onchange="uploadDocument(event)">            </div>
           </div>
           <div id="doc-list" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:14px;"></div>
         </section>
@@ -1029,8 +1026,7 @@ html, body {
               <div style="font-size:12.5px; color:var(--muted);">System alerts, task reminders, financial updates & team mentions</div>
             </div>
             <div>
-              <button class="btn secondary" onclick="markAllNotificationsReadUI()">✓ Mark All as Read</button>
-            </div>
+            <button class="btn secondary" onclick="markAllNotificationsAsReadUI()">✓ Mark All as Read</button>            </div>
           </div>
           <div id="notifications-list">
             <div style="text-align:center; padding:30px; color:var(--muted);">Loading notifications...</div>
@@ -1326,7 +1322,7 @@ html, body {
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
         <button class="btn secondary" onclick="closeModal('modal-post-story')">Cancel</button>
-        <button class="btn" onclick="submitStoryUI()">Post Story</button>
+        <button class="btn" onclick="submitDailyStory()">Post Story</button>
       </div>
     </div>
   </div>
@@ -1385,7 +1381,7 @@ html, body {
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
         <button class="btn secondary" onclick="closeModal('modal-add-self-expense')">Cancel</button>
-        <button class="btn" style="background:#16A34A;" onclick="submitSelfExpenseUI()">Submit Self-Expense</button>
+        <button class="btn" style="background:#16A34A;" onclick="submitNewSelfExpense()">Submit Self-Expense</button>
       </div>
     </div>
   </div>
@@ -1413,7 +1409,7 @@ html, body {
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
         <button class="btn secondary" onclick="closeModal('modal-edit-career')">Cancel</button>
-        <button class="btn" onclick="saveCareerProfileUI()">Save Career Details</button>
+        <button class="btn" onclick="saveCareerSettings()">Save Career Details</button>
       </div>
     </div>
   </div>
@@ -1453,7 +1449,7 @@ html, body {
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
         <button class="btn secondary" onclick="closeModal('modal-edit-socials')">Cancel</button>
-        <button class="btn" onclick="saveSocialLinksUI()">Save Connections</button>
+        <button class="btn" onclick="saveSocialSettings()">Save Connections</button>
       </div>
     </div>
   </div>
@@ -1484,8 +1480,7 @@ html, body {
             <button class="btn secondary" style="padding:2px 8px; font-size:11px;" onclick="openRecipientPicker()">+ Pick from Contacts</button>
           </div>
           <div id="mail-recipient-chips" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px;"></div>
-          <input type="text" id="mail-recipient-typein" placeholder="Type email and press Enter to add..." onkeydown="handleRecipientKeydown(event)">
-        </div>
+          <input type="text" id="mail-recipient-typein" placeholder="Type email and press Enter to add..." onkeydown="if(event.key==='Enter'){event.preventDefault(); addTypedRecipient();}">        </div>
 
         <div class="field">
           <label>Email Subject *</label>
@@ -1512,7 +1507,7 @@ html, body {
 
         <div style="display:flex; justify-content:flex-end; gap:8px;">
           <button class="btn secondary" onclick="closeModal('modal-mailing')">Close</button>
-          <button class="btn" id="mail-send-btn" onclick="sendBroadcastEmail()">🚀 Send from info.uaf@gmail.com</button>
+          <button class="btn" id="mail-send-btn" onclick="submitMailingBroadcast()">Send mail from info.uaf@gmail.com</button>
         </div>
       </div>
 
@@ -1537,8 +1532,7 @@ html, body {
   <div class="modal" id="modal-recipient-picker">
     <div class="modal-card">
       <h3 style="margin:0 0 12px; font-size:16px; font-weight:800; color:var(--navy-text);">Select Recipients</h3>
-      <input type="text" id="recipient-picker-search" placeholder="Search contacts by name, category..." oninput="filterRecipientPicker(this.value)" style="margin-bottom:12px; width:100%;">
-      <div id="recipient-picker-list" style="max-height:300px; overflow-y:auto; border:1px solid var(--line); border-radius:var(--radius-md); padding:6px;"></div>
+        <input type="text" id="recipient-picker-search" placeholder="Search contacts by name, category..." oninput="renderRecipientPicker(this.value)" style="margin-bottom:12px; width:100%;">      <div id="recipient-picker-list" style="max-height:300px; overflow-y:auto; border:1px solid var(--line); border-radius:var(--radius-md); padding:6px;"></div>
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
         <button class="btn" onclick="closeModal('modal-recipient-picker')">Done</button>
       </div>
@@ -1650,8 +1644,7 @@ html, body {
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
         <button class="btn secondary" onclick="closeModal('modal-partnership')">Cancel</button>
-        <button class="btn" onclick="submitPartnership()">Save Partner</button>
-      </div>
+        <button class="btn" onclick="submitNewPartnership()">Save Partner</button>      </div>
     </div>
   </div>
 
@@ -1800,8 +1793,7 @@ html, body {
       </div>
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
         <button class="btn secondary" onclick="closeModal('modal-program')">Cancel</button>
-        <button class="btn" onclick="submitProgram()">Save Program</button>
-      </div>
+          <button class="btn" onclick="submitNewProgram()">Save Program</button>      </div>
     </div>
   </div>
 
@@ -1879,9 +1871,8 @@ html, body {
         <input type="text" id="impact-age" placeholder="e.g. 15-25 (60%), 26-40 (40%)">
       </div>
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
-        <button class="btn secondary" onclick="closeModal('modal-add-program-impact')">Cancel</button>
-        <button class="btn" onclick="submitProgramImpactUI()">Save Impact Log</button>
-      </div>
+<button class="btn secondary" onclick="closeModal('modal-program-report')">Cancel</button>
+        <button class="btn" onclick="submitProgramImpact()">Save Impact Log</button>      </div>
     </div>
   </div>
 
@@ -1905,8 +1896,7 @@ html, body {
       </div>
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
         <button class="btn secondary" onclick="closeModal('modal-program-report')">Cancel</button>
-        <button class="btn" id="prog-report-download-btn" onclick="executeProgramReportDownload()">Generate Report</button>
-      </div>
+        <button class="btn" id="prog-report-download-btn" onclick="downloadProgramPdfReport()">Generate Report</button>      </div>
     </div>
   </div>
 
@@ -1975,8 +1965,7 @@ html, body {
       </div>
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
         <button class="btn secondary" onclick="closeModal('modal-contact')">Cancel</button>
-        <button class="btn" onclick="submitContact()">Save Contact</button>
-      </div>
+          <button class="btn" onclick="submitNewContact()">Save Contact</button>      </div>
     </div>
   </div>
 
@@ -1994,7 +1983,7 @@ html, body {
       </div>
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
         <button class="btn secondary" onclick="closeModal('update-modal')">Cancel</button>
-        <button class="btn" onclick="createPost()">Publish Update</button>
+        <button class="btn" onclick="submitTeamUpdate()">Publish Update</button>
       </div>
     </div>
   </div>
@@ -2005,8 +1994,7 @@ html, body {
       <h3 style="margin:0 0 14px; font-size:17px; font-weight:800; color:var(--navy-text);">Record Revenue / Income</h3>
       <div class="field">
         <label>Funding Source</label>
-        <select id="income-source-select" onchange="toggleIncomeInitiativeSelect(this.value)">
-          <option value="Donation">Philanthropic Donation</option>
+        <select id="income-source-select" onchange="toggleIncomeInitiativeField()">          <option value="Donation">Philanthropic Donation</option>
           <option value="Grant">Grant Allocation</option>
           <option value="Other">Other Revenue</option>
         </select>
@@ -2678,7 +2666,7 @@ async function openFullUserProfile(email) {
     }
   } else {
     actionsHtml += `<button class="btn secondary" style="font-size:12px; padding:6px 12px;" onclick="openModal('modal-post-story')">+ Add Story</button>`;
-    actionsHtml += `<button class="btn secondary" style="font-size:12px; padding:6px 12px;" onclick="openModal('modal-edit-socials')">🔗 Connections</button>`;
+    actionsHtml += `<button class="btn secondary" style="font-size:12px; padding:6px 12px;" onclick="openEditSocialsModal()">🔗 Connections</button>`;
   }
   actionsContainer.innerHTML = actionsHtml;
 
@@ -2693,7 +2681,7 @@ async function openFullUserProfile(email) {
   if (soc.instagram) socHtml += `<a href="${soc.instagram}" target="_blank" class="social-pill">📸 Instagram</a>`;
   if (soc.website) socHtml += `<a href="${soc.website}" target="_blank" class="social-pill">🌐 Website</a>`;
   if (!socHtml && isMe) {
-    socHtml = `<span style="font-size:12px; color:var(--muted);">No connections linked yet. <a href="#" onclick="openModal('modal-edit-socials'); return false;" style="color:var(--primary); font-weight:700;">+ Add social links</a></span>`;
+    socHtml = `<span style="font-size:12px; color:var(--muted);">No connections linked yet. <a href="#" onclick="openEditSocialsModal(); return false;" style="color:var(--primary); font-weight:700;">+ Add social links</a></span>`;
   }
   socBar.innerHTML = socHtml;
 
@@ -4194,6 +4182,37 @@ window.addEventListener('DOMContentLoaded', async () => {
     navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW Note:', e));
   }
 
+    // Cover photo / avatar change buttons — inject hidden file inputs and reuse
+// the already-existing handleCoverPhotoUpload / handleProfilePhotoUpload handlers.
+function promptChangeCoverBanner() {
+  let input = document.getElementById('prof-cover-file-input');
+  if (!input) {
+    input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.id = 'prof-cover-file-input';
+    input.style.display = 'none';
+    input.addEventListener('change', handleCoverPhotoUpload);
+    document.body.appendChild(input);
+  }
+  input.value = '';
+  input.click();
+}
+function promptChangeAvatarPhoto() {
+  let input = document.getElementById('prof-avatar-file-input');
+  if (!input) {
+    input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.id = 'prof-avatar-file-input';
+    input.style.display = 'none';
+    input.addEventListener('change', handleProfilePhotoUpload);
+    document.body.appendChild(input);
+  }
+  input.value = '';
+  input.click();
+}
+    
 </script>
 </body>
 </html>
